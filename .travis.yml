@@ -14,11 +14,11 @@ jobs:
 
     - stage: container creation and publishing
       install: skip
-      script: travis/containerCreation.sh um-service-template
+      script: travis/containerCreation.sh um-pdp-engine
 
     - stage: smoke and acceptance test
       install: skip # without this there's a `git clone` executed!
-      script: travis/acceptanceTest.sh um-service-template 8080 7000 # Service name + external port + internal port for docker
+      script: travis/acceptanceTest.sh um-pdp-engine 8080 7000 # Service name + external port + internal port for docker
 
     - stage: release
       if: branch = master AND NOT type IN (pull_request)
