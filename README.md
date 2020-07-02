@@ -1,16 +1,3 @@
-<!--
-***
-*** To avoid retyping too much info. Do a search and replace for the following:
-*** um-service-template
--->
-
-<!-- PROJECT SHIELDS -->
-<!--
-*** See the bottom of this document for the declaration of the reference variables
-*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
-*** https://www.markdownguide.org/basic-syntax/#reference-style-links
--->
-
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -21,39 +8,37 @@
 <!-- PROJECT LOGO -->
 <br />
 <p align="center">
-  <a href="https://github.com/EOEPCA/um-service-template">
+  <a href="https://github.com/EOEPCA/um-pdp-engine">
     <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a>
 
-  <h3 align="center">um-service-template</h3>
+  <h3 align="center">um-pdp-engine</h3>
 
   <p align="center">
-    Template for developing an EOEPCA Service
+    Policy Decision Point for EOEPCA project
     <br />
-    <a href="https://github.com/EOEPCA/um-service-template"><strong>Explore the docs »</strong></a>
+    <a href="https://eoepca.github.io/um-pdp-engine/"><strong>Explore the docs »</strong></a>
     <br />
-    <a href="https://github.com/EOEPCA/um-service-template">View Demo</a>
+    <a href="https://github.com/EOEPCA/um-pdp-engine/issues">Report Bug</a>
     ·
-    <a href="https://github.com/EOEPCA/um-service-template/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/EOEPCA/um-service-template/issues">Request Feature</a>
+    <a href="https://github.com/EOEPCA/um-pdp-engine/issues">Request Feature</a>
   </p>
 </p>
 
 ## Table of Contents
 
-- [Steps to use this template](#steps-to-use-this-template)
 - [Table of Contents](#table-of-contents)
-- [About The Project](#about-the-project)
   - [Built With](#built-with)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
-  - [Testing](#testing)
-- [Documentation](#documentation)
-- [Usage](#usage)
-  - [Running the template service](#running-the-template-service)
-  - [Upgrading Gradle Wrapper](#upgrading-gradle-wrapper)
+- [Dependencies](#dependencies)
+- [Configuration](#configuration)
+- [Usage & functionality](#usage--functionality)
+- [Developer documentation](#developer-documentation)
+  - [Demo functionality](#demo-functionality)
+  - [Endpoints](#endpoints)
+  - [Resources cache](#resources-cache)
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [License](#license)
@@ -62,16 +47,13 @@
 
 <!-- ABOUT THE PROJECT -->
 
-## About The Project
-
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
-
 ### Built With
 
 - [Python](https://www.python.org//)
-- [PyTest](https://docs.pytest.org)
 - [YAML](https://yaml.org/)
 - [Travis CI](https://travis-ci.com/)
+- [Docker](https://docker.com)
+- [Kubernetes](https://kubernetes.io)
 
 <!-- GETTING STARTED -->
 
@@ -97,34 +79,29 @@ vagrant ssh
 3. Clone the repo
 
 ```sh
-git clone https://github.com/EOEPCA/um-service-templategit
+git clone https://github.com/EOEPCA/um-pdp-engine.git
 ```
 
 4. Change local directory
 
 ```sh
-cd template-service
+cd um-pep-engine
 ```
+## Dependencies
+The PDP is written and tested for python 3.6.9, and has all dependencies listed in src/requirements.txt
 
-## Documentation
+## Configuration
 
-The component documentation can be found at https://eoepca.github.io/um-service-template/.
+## Usage & functionality
 
-<!-- USAGE EXAMPLES -->
+## Developer documentation
 
-## Usage
-
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
-
-_For more examples, please refer to the [Documentation](https://example.com)_
-
-<!-- ROADMAP -->
+--------
 
 ## Roadmap
 
-See the [open issues](https://github.com/EOEPCA/um-service-template/issues) for a list of proposed features (and known issues).
+See the [open issues](https://github.com/EOEPCA/um-pdp-engine/issues) for a list of proposed features (and known issues).
 
-<!-- CONTRIBUTING -->
 
 ## Contributing
 
@@ -146,21 +123,21 @@ Distributed under the Apache-2.0 License. See `LICENSE` for more information.
 
 [EOEPCA mailbox](eoepca.systemteam@telespazio.com)
 
-Project Link: [https://github.com/EOEPCA/um-service-template](https://github.com/EOEPCA/um-service-template)
+Project Link: [https://github.com/EOEPCA/um-pdp-engine](https://github.com/EOEPCA/um-pdp-engine)
 
 ## Acknowledgements
 
 - README.md is based on [this template](https://github.com/othneildrew/Best-README-Template) by [Othneil Drew](https://github.com/othneildrew).
 
 
-[contributors-shield]: https://img.shields.io/github/contributors/EOEPCA/um-service-templatesvg?style=flat-square
-[contributors-url]: https://github.com/EOEPCA/um-service-template/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/EOEPCA/um-service-templatesvg?style=flat-square
-[forks-url]: https://github.com/EOEPCA/um-service-template/network/members
-[stars-shield]: https://img.shields.io/github/stars/EOEPCA/um-service-templatesvg?style=flat-square
-[stars-url]: https://github.com/EOEPCA/um-service-template/stargazers
-[issues-shield]: https://img.shields.io/github/issues/EOEPCA/um-service-templatesvg?style=flat-square
-[issues-url]: https://github.com/EOEPCA/um-service-template/issues
-[license-shield]: https://img.shields.io/github/license/EOEPCA/um-service-templatesvg?style=flat-square
-[license-url]: https://github.com/EOEPCA/um-service-template/blob/master/LICENSE
-[build-shield]: https://www.travis-ci.com/EOEPCA/um-service-templatesvg?branch=master
+[contributors-shield]: https://img.shields.io/github/contributors/EOEPCA/um-pep-engine.svg?style=flat-square
+[contributors-url]: https://github.com/EOEPCA/um-pep-engine/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/EOEPCA/um-pep-engine.svg?style=flat-square
+[forks-url]: https://github.com/EOEPCA/um-pep-engine/network/members
+[stars-shield]: https://img.shields.io/github/stars/EOEPCA/um-pep-engine.svg?style=flat-square
+[stars-url]: https://github.com/EOEPCA/um-pep-engine/stargazers
+[issues-shield]: https://img.shields.io/github/issues/EOEPCA/um-pep-engine.svg?style=flat-square
+[issues-url]: https://github.com/EOEPCA/um-pep-engine/issues
+[license-shield]: https://img.shields.io/github/license/EOEPCA/um-pep-engine.svg?style=flat-square
+[license-url]: https://github.com/EOEPCA/um-pep-engine/blob/master/LICENSE
+[build-shield]: https://www.travis-ci.com/EOEPCA/um-pep-engine.svg?branch=master
