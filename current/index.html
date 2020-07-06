@@ -34,8 +34,51 @@
 <li><a href="#_glossary">1.5. Glossary</a></li>
 </ul>
 </li>
-<li><a href="#mainOverview">2. Overview</a></li>
-<li><a href="#mainDesign">3. Design</a></li>
+<li><a href="#mainOverview">2. Overview</a>
+<ul class="sectlevel2">
+<li><a href="#_building_block_overview">2.1. Building Block Overview</a></li>
+<li><a href="#_external_interfaces">2.2. External Interfaces</a>
+<ul class="sectlevel3">
+<li><a href="#_xacml_fromto_login_service">2.2.1. XACML (from/to Login Service)</a></li>
+<li><a href="#_resource_api_to_policy_enforcement_point">2.2.2. Resource API (to Policy Enforcement Point)</a></li>
+<li><a href="#_oidc_to_login_service">2.2.3. OIDC (to Login Service)</a></li>
+<li><a href="#_scim_to_login_service">2.2.4. SCIM (to Login Service)</a></li>
+</ul>
+</li>
+<li><a href="#_required_resources">2.3. Required resources</a>
+<ul class="sectlevel3">
+<li><a href="#_software">2.3.1. Software</a></li>
+</ul>
+</li>
+<li><a href="#_static_architecture">2.4. Static Architecture</a></li>
+<li><a href="#_use_cases">2.5. Use cases</a>
+<ul class="sectlevel3">
+<li><a href="#_registration_of_policies">2.5.1. Registration of policies</a></li>
+<li><a href="#_policy_retrieval">2.5.2. Policy Retrieval</a></li>
+<li><a href="#_access_check">2.5.3. Access Check</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#mainComponents">3. Building Block Design</a>
+<ul class="sectlevel2">
+<li><a href="#_policy_decision_engine">3.1. Policy Decision Engine</a>
+<ul class="sectlevel3">
+<li><a href="#_overview_and_purpose">3.1.1. Overview and Purpose</a></li>
+<li><a href="#_software_reuse_and_dependencies">3.1.2. Software Reuse and Dependencies</a></li>
+<li><a href="#_interfaces">3.1.3. Interfaces</a></li>
+<li><a href="#_data">3.1.4. Data</a>
+<ul class="sectlevel4">
+<li><a href="#_configuration">3.1.4.1. Configuration</a></li>
+<li><a href="#_data_flow">3.1.4.2. Data flow</a></li>
+</ul>
+</li>
+<li><a href="#_extensibility">3.1.5. Extensibility</a></li>
+<li><a href="#_applicable_resources">3.1.6. Applicable Resources</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -123,7 +166,7 @@ The Amendment Record Sheet below records the history and issue status of this do
 <dd>
 <p>Provides an over of the &lt;Template Service&gt; component, within the context of the wider Common Architecture design.</p>
 </dd>
-<dt class="hdlist1">Section 3 - <a href="#mainDesign">Design</a></dt>
+<dt class="hdlist1">Section 3 - <a href="#mainDesign">[mainDesign]</a></dt>
 <dd>
 <p>Provides the design of the &lt;Template Service&gt; component.</p>
 </dd>
@@ -862,17 +905,347 @@ OGC 08-068r2,<br>
 <div class="sect1">
 <h2 id="mainOverview">2. Overview</h2>
 <div class="sectionbody">
+<div class="sect2">
+<h3 id="_building_block_overview">2.1. Building Block Overview</h3>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Content Description</div>
 <div class="paragraph">
-<p>TBD</p>
+<p>This section contains:</p>
 </div>
+<div class="ulist">
+<ul>
+<li>
+<p>High-Level Description of the Building Block</p>
+</li>
+<li>
+<p>Context within EOEPCA</p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The main functionality of the PDP is to be able to perform complex Policy Decisions based on Policy Documents. In order to do so, several functionality blocks are identified:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Policy Check Endpoint. A XACML-compliant endpoint that allows to submit JSON XACML requests and receive the corresponding responses.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>SCIM Client, allowing to retrieve user information that is local to the platform, whenever possible.</p>
+</li>
+<li>
+<p>OIDC Client, allowing to authenticate the component as trusted within the architecture.</p>
+</li>
+<li>
+<p>Resource API Client, allowing to retrieve details about the resources being accessed.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Policy Repository Management. An exposed API allowing to register and/or query policies assigned to specific resources.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_external_interfaces">2.2. External Interfaces</h3>
+<div class="sect3">
+<h4 id="_xacml_fromto_login_service">2.2.1. XACML (from/to Login Service)</h4>
+<div class="paragraph">
+<p>The PDP exposes a policy check endpoint compliant with XACML 3.1 standards, whith a content-type application/json due to its JSON Profile.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_resource_api_to_policy_enforcement_point">2.2.2. Resource API (to Policy Enforcement Point)</h4>
+<div class="paragraph">
+<p>The PDP queries the corresponding PEP to retrieve information about a resource.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_oidc_to_login_service">2.2.3. OIDC (to Login Service)</h4>
+<div class="paragraph">
+<p>The PDP uses the OIDC protocol in order to authenticate itself as a valid UMA client, and uses this OIDC client in all UMA-related queries.</p>
+</div>
+<div class="paragraph">
+<p>These queries are done against the Login Service, and the endpoints used are:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>TOKEN_ENDPOINT</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_scim_to_login_service">2.2.4. SCIM (to Login Service)</h4>
+<div class="paragraph">
+<p>The PDP has the capability to auto-register itself as a client if there is no client pre-configured from previous starts or previous configuration.</p>
+</div>
+<div class="paragraph">
+<p>In order to do this, it utilizes the SCIM protocol, and queries the Login Service.</p>
+</div>
+<div class="paragraph">
+<p>The endpoints used for SCIM are:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>AUTH_CLIENT_POST</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_required_resources">2.3. Required resources</h3>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Content Description</div>
+<div class="paragraph">
+<p>This section contains:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>List of HW and SW required resources for the correct functioning of the building Block</p>
+</li>
+<li>
+<p>References to open repositories (when applicable)</p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_software">2.3.1. Software</h4>
+<div class="paragraph">
+<p>The following Open-Source Software is required to support the deployment and integration of the Policy Enforcement Point:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>EOEPCA&#8217;s SCIM Client - <a href="https://github.com/EOEPCA/um-common-scim-client" class="bare">https://github.com/EOEPCA/um-common-scim-client</a></p>
+</li>
+<li>
+<p>EOEPCA&#8217;s Well Known Handler - <a href="https://github.com/EOEPCA/well-known-handler" class="bare">https://github.com/EOEPCA/well-known-handler</a></p>
+</li>
+<li>
+<p>Flask - <a href="https://github.com/pallets/flask" class="bare">https://github.com/pallets/flask</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_static_architecture">2.4. Static Architecture</h3>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Content Description</div>
+<div class="paragraph">
+<p>This section contains:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Diagram and description of the major logical components within the Building Block</p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The next section <a href="#Design">[Design]</a> contains detailed descriptions and references needed to understand the intricacies of this component.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_use_cases">2.5. Use cases</h3>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Content Description</div>
+<div class="paragraph">
+<p>This section contains:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Diagrams and definition of the use cases covered by this Building Block</p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_registration_of_policies">2.5.1. Registration of policies</h4>
+
+</div>
+<div class="sect3">
+<h4 id="_policy_retrieval">2.5.2. Policy Retrieval</h4>
+
+</div>
+<div class="sect3">
+<h4 id="_access_check">2.5.3. Access Check</h4>
 <div style="page-break-after: always;"></div>
 </div>
 </div>
+</div>
+</div>
 <div class="sect1">
-<h2 id="mainDesign">3. Design</h2>
+<h2 id="mainComponents">3. Building Block Design</h2>
 <div class="sectionbody">
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="title">Content Description</div>
 <div class="paragraph">
-<p>TBD</p>
+<p>This section contains:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>A concise breakdown of the Building Block in several independent services (when applicable). For each component, the following subsections are added:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Overview and purpose: indicating the functionality covered by the component</p>
+</li>
+<li>
+<p>SW Reuse and Dependencies: indicating reuse of third party open source solutions (if any) and any pre-required Dependencies</p>
+</li>
+<li>
+<p>Interfaces: both internal to the building block and those exposed externally</p>
+</li>
+<li>
+<p>Data: Data usage of the building block, data flow and any GDPR concerns should be addressed here</p>
+</li>
+<li>
+<p>Applicable Resources: links and references to (Reference Docs), and repositories.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>When a breakdown is necessary, a general overview of the building block can be given. On the contrary, no breakdown indicates a single component development with the same expected sections.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_policy_decision_engine">3.1. Policy Decision Engine</h3>
+<div class="sect3">
+<h4 id="_overview_and_purpose">3.1.1. Overview and Purpose</h4>
+<div class="paragraph">
+<p>The Flask-based endpoint allows to query and retrieve XACML-compliant requests.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_software_reuse_and_dependencies">3.1.2. Software Reuse and Dependencies</h4>
+<div class="paragraph">
+<p>All requirements for the executing of the reverse proxy are found under src/requirements.txt, and expect Python 3.6.9 or greater to work.</p>
+</div>
+<div class="paragraph">
+<p>The most important are:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>EOEPCA-SCIM</strong>: Used as a complementary measure to the XACML passing of client assertions.</p>
+</li>
+<li>
+<p><strong>EOEPCA-OIDC</strong>: Used to auto-register itself as a client to the Auth. Server upon start-up.</p>
+</li>
+<li>
+<p><strong>WellKnownHandler</strong>: Used to dynamically check the configuration of the Authorization Server on each execution. For example, it can get the needed endpoints for any API the PEP needs, such as the token request for OIDC.</p>
+</li>
+<li>
+<p><strong>Flask</strong>: External to EOEPCA&#8217;s project, this library allows the PDP to expose its endpoints.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_interfaces">3.1.3. Interfaces</h4>
+<div class="paragraph">
+<p>This component doesn&#8217;t have any internal interfaces. For a reference of external interfaces see <a href="#_external_interfaces">External Interfaces</a> on Section 2 <a href="#mainOverview">Overview</a></p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_data">3.1.4. Data</h4>
+<div class="sect4">
+<h5 id="_configuration">3.1.4.1. Configuration</h5>
+<div class="paragraph">
+<p>The PDP&#8230;&#8203;</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_data_flow">3.1.4.2. Data flow</h5>
+
+</div>
+</div>
+<div class="sect3">
+<h4 id="_extensibility">3.1.5. Extensibility</h4>
+
+</div>
+<div class="sect3">
+<h4 id="_applicable_resources">3.1.6. Applicable Resources</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>XACML 3.0 JSON Profile Specification 1.1 - <a href="http://docs.oasis-open.org/xacml/xacml-json-http/v1.1/xacml-json-http-v1.1.html" class="bare">http://docs.oasis-open.org/xacml/xacml-json-http/v1.1/xacml-json-http-v1.1.html</a></p>
+</li>
+<li>
+<p>EOEPCA&#8217;s SCIM Client - <a href="https://github.com/EOEPCA/um-common-scim-client" class="bare">https://github.com/EOEPCA/um-common-scim-client</a></p>
+</li>
+<li>
+<p>EOEPCA&#8217;s OIDC Client - <a href="https://github.com/EOEPCA/um-common-uma-client" class="bare">https://github.com/EOEPCA/um-common-uma-client</a></p>
+</li>
+<li>
+<p>EOEPCA&#8217;s Well Known Handler - <a href="https://github.com/EOEPCA/well-known-handler" class="bare">https://github.com/EOEPCA/well-known-handler</a></p>
+</li>
+<li>
+<p>Flask - <a href="https://github.com/pallets/flask" class="bare">https://github.com/pallets/flask</a></p>
+</li>
+</ul>
 </div>
 <hr>
 <div class="paragraph large">
@@ -881,10 +1254,12 @@ OGC 08-068r2,<br>
 </div>
 </div>
 </div>
+</div>
+</div>
 <div id="footer">
 <div id="footer-text">
 Version 0.1<br>
-Last updated 2020-07-02 12:43:32 UTC
+Last updated 2020-07-06 13:02:08 UTC
 </div>
 </div>
 </body>
