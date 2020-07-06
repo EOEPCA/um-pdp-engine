@@ -1,4 +1,57 @@
-[[mainDesign]]
-= Design
+[[mainComponents]]
+= Building Block Design
 
-TBD
+[NOTE]
+.Content Description
+================================
+This section contains:
+
+* A concise breakdown of the Building Block in several independent services (when applicable). For each component, the following subsections are added:
+** Overview and purpose: indicating the functionality covered by the component
+** SW Reuse and Dependencies: indicating reuse of third party open source solutions (if any) and any pre-required Dependencies
+** Interfaces: both internal to the building block and those exposed externally
+** Data: Data usage of the building block, data flow and any GDPR concerns should be addressed here
+** Applicable Resources: links and references to (Reference Docs), and repositories.
+
+When a breakdown is necessary, a general overview of the building block can be given. On the contrary, no breakdown indicates a single component development with the same expected sections.
+
+================================
+
+
+== Policy Decision Engine
+
+=== Overview and Purpose
+The Flask-based endpoint allows to query and retrieve XACML-compliant requests. 
+
+=== Software Reuse and Dependencies
+
+All requirements for the executing of the reverse proxy are found under src/requirements.txt, and expect Python 3.6.9 or greater to work.
+
+The most important are:
+
+* **EOEPCA-SCIM**: Used as a complementary measure to the XACML passing of client assertions.
+* **EOEPCA-OIDC**: Used to auto-register itself as a client to the Auth. Server upon start-up.
+* **WellKnownHandler**: Used to dynamically check the configuration of the Authorization Server on each execution. For example, it can get the needed endpoints for any API the PEP needs, such as the token request for OIDC.
+* **Flask**: External to EOEPCA's project, this library allows the PDP to expose its endpoints.
+
+=== Interfaces
+
+This component doesn't have any internal interfaces. For a reference of external interfaces see <<External Interfaces>> on Section 2 <<Overview>>
+
+=== Data
+
+==== Configuration
+
+The PDP...
+
+==== Data flow
+
+=== Extensibility
+
+=== Applicable Resources
+
+* XACML 3.0 JSON Profile Specification 1.1 - http://docs.oasis-open.org/xacml/xacml-json-http/v1.1/xacml-json-http-v1.1.html
+* EOEPCA's SCIM Client - https://github.com/EOEPCA/um-common-scim-client
+* EOEPCA's OIDC Client - https://github.com/EOEPCA/um-common-uma-client
+* EOEPCA's Well Known Handler - https://github.com/EOEPCA/well-known-handler
+* Flask - https://github.com/pallets/flask
