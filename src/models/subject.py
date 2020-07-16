@@ -1,4 +1,4 @@
-from attribute import Attribute
+from models.attribute import Attribute
 
 class Subject(Attribute):
 
