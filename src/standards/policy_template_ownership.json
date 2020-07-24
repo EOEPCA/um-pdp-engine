@@ -1,0 +1,8 @@
+{
+  "resource_id": "202485830",
+  "rules": [{
+    "AND": [
+                {"EQUAL": {"user_name" : "admin"} }
+    ]
+  }]
+}

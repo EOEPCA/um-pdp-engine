@@ -6,7 +6,8 @@ from models.subject import Subject
 
 
 def load_request(xacml):
-    xacml = json.load(xacml)
+    if not isinstance(xacml, dict):
+        xacml = json.load(xacml)
 
     user_attrs = xacml["Request"]["AccessSubject"][0]["Attribute"]
     subject = Subject()
