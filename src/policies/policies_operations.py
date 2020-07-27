@@ -8,13 +8,12 @@ def validate_access_policies(resource_id, user_name):
     #---------------- Once the mongo is used, comment/remove the whole part of using the json file --------------- 
     #file = "standards/policy_template_ownership.json"
     file = "standards/policy_template_access_list.json"
-    operations = ['AND', 'OR']
 
     with open(file) as json_file:
         data = json.load(json_file)
-
     # ------------------------------------------------------------------------------------------------------------
-    
+    operations = ['AND', 'OR']
+
     if data['resource_id'] == resource_id:
         for operation in operations:
             if operation in data['rules'][0].keys():

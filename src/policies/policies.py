@@ -28,7 +28,14 @@ def validate_resource():
     resource_id = resource.attributes[0]['Value']
     user_name = subject.attributes[0]['Value']
 
-    result_validation = policies_operations.validate_access_policies(resource_id, user_name)
+    # Pending: Complete when xacml receives several resources
+    if isinstance(resource_id, list):
+        for resource_from_list in resource.attributes[0]['Value']:
+            result_validation = policies_operations.validate_access_policies(resource_from_list, user_name)
+            if result_validation:
+                break
+    else:
+        result_validation = policies_operations.validate_access_policies(resource_id, user_name)
 
     response = {'Response':[]}
     if result_validation:
