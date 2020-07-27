@@ -10,19 +10,18 @@ class Policy_Storage:
         self.myclient = pymongo.MongoClient('localhost', 27017)
         self.db = self.myclient["policy_db"]
 
-    def create_policy_json(self, name: str, description:str, id:str, policyCFG: list, scopes: list):
+    def create_policy_json(self, name: str, description:str, policyCFG: list, scopes: list):
         '''
         Creates a template of policy to insert in the database
         '''
         plcy= {
             "name" : name,
             "description" : description,
-            "id" : id,
-            "policyCFG" : policyCFG,
+            "config" : policyCFG,
             "scopes" : scopes
         }
         y = json.dumps(plcy)
-        return plcy
+        return y
         
 
     def get_policy_from_resource_id(self,resource_id):
@@ -62,9 +61,9 @@ class Policy_Storage:
         if col.find_one(myquery): return True
         else: return False
 
-    def insert_policy(self, name: str, description: str, id: str,cfg: list, scopes:list ):
+    def insert_policy(self, name:str, description:str, config: dict, scopes: list):
         '''
-            Generates a document with:
+            Generates a document with json format (name: str, description: str, id: str,cfg: dict, scopes:list ): 
                 -NAME: Name generic for the policy
                 -DESCRIPTION: Custom description for the policy pourpose
                 -ID: Unique ID for the policy
@@ -74,12 +73,13 @@ class Policy_Storage:
             If alredy registered will update the values
             If not registered will add it and return the query result
         '''
+        print(config)
         dblist = self.myclient.list_database_names()
         # Check if the database alredy exists
         if "policy_db" in dblist:
             col = self.db['policies']
-            myres = self.create_policy_json(name,description, id, cfg, scopes)
-            # Check if the resource is alredy registered in the collection
+            myres = self.create_policy_json(name,description, cfg, scopes)
+            # Chec
             x=None
             if self.policy_exists(id):
                 x= self.update_policy(myres)
@@ -115,11 +115,3 @@ class Policy_Storage:
         new_val= {"$set": dict_data}
         x = col.update_many(myquery, new_val)
         return
-
-
-a = Policy_Storage()
-a.insert_policy('juan', '', '19283737171-30', ['hola'] ,['scopeAuthentico'])
-a.insert_policy('alvivo', '', '19283737171-313', ['hola'] ,['scopeAuthentico2'])
-n=a.get_policy_from_id('19283737171-313')
-print(n)
-a.delete_policy('19283737171-300')
