@@ -3,28 +3,49 @@ import time
 from policy_storage import Policy_Storage
 
 def main():
-    #example rule policy:
+    #example rule policy a:
     a= {
         "resource_id": "20248583",
         "rules": [{
-        "OR": [
+            "OR": [
                     {"EQUAL": {"user_name" : "mami"} },
                     {"EQUAL": {"user_name" : "admin"} }
-        ]
+            ]
+        }]
+    }
+    #example rule policy a:
+    b= {
+        "resource_id": "202485830",
+        "rules": [{
+            "AND": [
+                    {"EQUAL": {"user_name" : "admin"} }
+            ]
         }]
     }
     #instance
     mongo = Policy_Storage()
-    #registrar policy:
-    mongo.insert_policy('alvi', 'desc',a,['private'])
-    #update policy: (se llama igual, checkea el id y cambia lo que este cambiado)
-    #mongo.insert_policy(tuDiccionarioPolicyCambiado)
-    #GET segun el id de la policy:
-    #n=a.get_policy_from_id(el_id_en_str)
-    #GET segun el id del resource asociado
-    n=a.get_policy_from_resource_id('20248583')
-    #pa borrar, vale cualquier id
-    #a.delete_policy(el_id_en_str)
+    #register policy:
+    mongo.insert_policy(name='name1', description= 'description very descriptive', config= a, scopes=['private'])
+    #register policy:
+    mongo.insert_policy('name2', 'description very descriptive', a, ['public', 'Authenticated'])
+    #register policy:
+    mongo.insert_policy('name3', 'description very descriptive', a, ['public', 'Authenticated'])
+    #get the list of policies associated to the resource_id:
+    list_of_policies = mongo.get_policy_from_resource_id('20248583')
+    #find the id for a known policy name (this will probably be private)
+    policy_id = mongo.get_id_from_name('name3')
+    #return the policy in dict format with the policy_id as input
+    policy_to_modify = mongo.get_policy_from_id(policy_id)
+    #change the values of the policy retrieved above
+    n['name'] = 'new_name'
+    n['description'] = 'new description'
+    n['config']= b
+    #updates the policy by the _id given
+    mongo.update_policy(n['_id'], n)
+    #delete the policy matched by id
+    myId=mongo.get_id_from_name('name2')
+    mongo.delete_policy(myId)
+    #infinite loop for the container to keep running in testing environment
     while True: 
         time.sleep(1000)
 if __name__ == "__main__":
