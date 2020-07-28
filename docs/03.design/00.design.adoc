@@ -55,3 +55,38 @@ The PDP...
 * EOEPCA's OIDC Client - https://github.com/EOEPCA/um-common-uma-client
 * EOEPCA's Well Known Handler - https://github.com/EOEPCA/well-known-handler
 * Flask - https://github.com/pallets/flask
+
+
+== POLICY RESPOSITORY
+=== Overview and Purpose
+It is the database based on MongoDB where the policies are stored and queried for the PDP pourposes
+
+Included with the PDP there is a script at the source path that performs queries against a Mongo Database. The main purpose of this script is to reduce the usage of RAM when registering a policy locally and when querying for its content.
+It is developed to generate a database called 'policy_db' in case it does not exist. The collection used for the storage of the documents is called 'policies'.
+The script defines the following methods:
+
+* **insert_policy**: Will generate a document with the policy data recived as input if it alredy exists it will update it. The main parameters of the policy would be an auto-generated id provided by mongo which identify each document in the database, the resource_id provided by the login-service, the name for the policy, and the configuratino which will be the policy with its resource_id. This would be mandatory parameters in order to perform other kind of queries.
+* **update_policy**: Updates the content of a policy stored matched by its ID
+* **get_policy_from_resource_id**: Finds the policy, attached to a resource by a resource_id given. Returns a list of policies in json format to the resource_id asociated.
+* **get_policy_from_id**: Matches the policy by its unique ID
+* **delete_policy**: This function will recive a policy id and will find and delete the matched document
+
+This script is manipulated by the API which would intercept the request in order to perform PUT,POST and DELETE methods.
+In the future this will be complient with other databases in order to unify the methods mentioned above.
+
+=== Software Reuse and Dependencies
+
+The script needs the library 'pymongo', to query the database. It will expect a MongoDB service running on the default's Mongo port 27017
+In order to simulate database responses for unit tests, is needed to use the python mock library.
+
+This class would be called from APIs within the PDP repository. At the moment the usage is mainly for the policy interaction purposes, but this can easily be reused by other agents.
+
+=== Data flow
+
+The database will only be accesible by the API or the Proxy.
+The main methods for the interaction with the database are displayed in this dataflow as a summary of its scope:
+
+
+=== Applicable Resources
+
+* MongoDB image from DockerHub - https://hub.docker.com/_/mongo

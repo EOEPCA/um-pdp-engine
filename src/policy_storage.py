@@ -43,8 +43,7 @@ class Policy_Storage:
     def get_policy_from_resource_id(self,resource_id):
         '''
             Finds the policy, attached to a resource by a resource_id given
-            Returns the policy in json format
-            Returns a list of policies to the resource_id asociado
+            Returns a list of policies in json format to the resource_id asociated
         '''
         result= []
         col= self.db['policies']
