@@ -77,6 +77,14 @@
 <li><a href="#_applicable_resources">3.1.6. Applicable Resources</a></li>
 </ul>
 </li>
+<li><a href="#_policy_respository">3.2. POLICY RESPOSITORY</a>
+<ul class="sectlevel3">
+<li><a href="#_overview_and_purpose_2">3.2.1. Overview and Purpose</a></li>
+<li><a href="#_software_reuse_and_dependencies_2">3.2.2. Software Reuse and Dependencies</a></li>
+<li><a href="#_data_flow_2">3.2.3. Data flow</a></li>
+<li><a href="#_applicable_resources_2">3.2.4. Applicable Resources</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -1247,6 +1255,70 @@ OGC 08-068r2,<br>
 </li>
 </ul>
 </div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_policy_respository">3.2. POLICY RESPOSITORY</h3>
+<div class="sect3">
+<h4 id="_overview_and_purpose_2">3.2.1. Overview and Purpose</h4>
+<div class="paragraph">
+<p>It is the database based on MongoDB where the policies are stored and queried for the PDP pourposes</p>
+</div>
+<div class="paragraph">
+<p>Included with the PDP there is a script at the source path that performs queries against a Mongo Database. The main purpose of this script is to reduce the usage of RAM when registering a policy locally and when querying for its content.<br>
+It is developed to generate a database called 'policy_db' in case it does not exist. The collection used for the storage of the documents is called 'policies'.<br>
+The script defines the following methods:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>insert_policy</strong>: Will generate a document with the policy data recived as input if it alredy exists it will update it. The main parameters of the policy would be an auto-generated id provided by mongo which identify each document in the database, the resource_id provided by the login-service, the name for the policy, and the configuratino which will be the policy with its resource_id. This would be mandatory parameters in order to perform other kind of queries.</p>
+</li>
+<li>
+<p><strong>update_policy</strong>: Updates the content of a policy stored matched by its ID</p>
+</li>
+<li>
+<p><strong>get_policy_from_resource_id</strong>: Finds the policy, attached to a resource by a resource_id given. Returns a list of policies in json format to the resource_id asociated.</p>
+</li>
+<li>
+<p><strong>get_policy_from_id</strong>: Matches the policy by its unique ID</p>
+</li>
+<li>
+<p><strong>delete_policy</strong>: This function will recive a policy id and will find and delete the matched document</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This script is manipulated by the API which would intercept the request in order to perform PUT,POST and DELETE methods.<br>
+In the future this will be complient with other databases in order to unify the methods mentioned above.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_software_reuse_and_dependencies_2">3.2.2. Software Reuse and Dependencies</h4>
+<div class="paragraph">
+<p>The script needs the library 'pymongo', to query the database. It will expect a MongoDB service running on the default&#8217;s Mongo port 27017<br>
+In order to simulate database responses for unit tests, is needed to use the python mock library.</p>
+</div>
+<div class="paragraph">
+<p>This class would be called from APIs within the PDP repository. At the moment the usage is mainly for the policy interaction purposes, but this can easily be reused by other agents.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_data_flow_2">3.2.3. Data flow</h4>
+<div class="paragraph">
+<p>The database will only be accesible by the API or the Proxy.<br>
+The main methods for the interaction with the database are displayed in this dataflow as a summary of its scope:</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_applicable_resources_2">3.2.4. Applicable Resources</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>MongoDB image from DockerHub - <a href="https://hub.docker.com/_/mongo" class="bare">https://hub.docker.com/_/mongo</a></p>
+</li>
+</ul>
+</div>
 <hr>
 <div class="paragraph large">
 <p>&lt;&lt; End of Document &gt;&gt;</p>
@@ -1259,7 +1331,7 @@ OGC 08-068r2,<br>
 <div id="footer">
 <div id="footer-text">
 Version 0.1<br>
-Last updated 2020-07-28 11:39:42 UTC
+Last updated 2020-07-28 14:52:03 UTC
 </div>
 </div>
 </body>
