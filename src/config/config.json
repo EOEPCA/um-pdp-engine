@@ -1,0 +1,7 @@
+{
+    "prefix": "/pdp",
+    "host": "0.0.0.0",
+    "port": "5567",
+    "check_ssl_certs": false,
+    "debug_mode": true
+}

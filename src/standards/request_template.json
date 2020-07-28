@@ -1,0 +1,33 @@
+{
+    "Request": {
+        "AccessSubject": [{
+            "Attribute": [{
+                    "AttributeId": "user-id",
+                    "Value": "admin",
+                    "DataType": "string",
+                    "IncludeInResult": true
+                },
+                {
+                    "AttributeId": "claim-token",
+                    "Value": "js3...",
+                    "DataType": "string",
+                    "IncludeInResult": true
+                }
+            ]
+        }],
+        "Action": [{
+            "Attribute": [{
+                "AttributeId": "action-id",
+                "Value": "view"
+            }]
+        }],
+        "Resource": [{
+            "Attribute": [{
+                "AttributeId": "resource-id",
+                "Value": "20248583",
+                "DataType": "string",
+                "IncludeInResult": true
+            }]
+        }]
+    }
+}
