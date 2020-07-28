@@ -1,9 +1,9 @@
 import json
-#from policy_storage.py import Policy_Storage
+from policy_storage import Policy_Storage
 
 def validate_access_policies(resource_id, user_name):
-    #mongo = Policy_Storage()
-    #data = mongo.get_policy_from_resource_id(str(resource_id))
+    mongo = Policy_Storage()
+    data = mongo.get_policy_from_resource_id(str(resource_id))
     
     operations = ['AND', 'OR']
 
