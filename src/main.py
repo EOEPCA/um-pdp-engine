@@ -63,7 +63,7 @@ b= {
     }]
 }
 #instance
-mongo = Policy_Storage()
+mongo = Policy_Storage('mongodb')
 #register policy:
 mongo.insert_policy(name='Policy1', description= '', config= a, scopes=[''])
 #register policy:
