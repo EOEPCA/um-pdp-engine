@@ -33,6 +33,7 @@ The most important are:
 * **EOEPCA-OIDC**: Used to auto-register itself as a client to the Auth. Server upon start-up.
 * **WellKnownHandler**: Used to dynamically check the configuration of the Authorization Server on each execution. For example, it can get the needed endpoints for any API the PEP needs, such as the token request for OIDC.
 * **Flask**: External to EOEPCA's project, this library allows the PDP to expose its endpoints.
+* **MongoDB**: Used to storage the policies for every resource, with the possibility of performing actions such as insert policies, modify, delete, etc
 
 === Interfaces
 
@@ -42,11 +43,35 @@ This component doesn't have any internal interfaces. For a reference of external
 
 ==== Configuration
 
-The PDP...
+The PDP gets all its configuration from the file located under config/config.json.
+
+The parameters that are accepted, and their meaning, are as follows:
+
+- **prefix**: "/path"-formatted string to indicate where the reverse proxy should listen. Default is "/pdp"
+
+- **host**: Host for the proxy to listen on. For example, "0.0.0.0" will listen on all interfaces
+
+- **port**: Port for the proxy to listen on. By default, 5567. Keep in mind you will have to edit the docker file and/or kubernetes yaml file in order for all the prot forwarding to work.
+
+- **check_ssl_certs**: Toggle on/off (bool) to check certificates in all requests. This should be forced to True in a production environment
+
+- **debug_mode**: Toggle on/off (bool) a debug mode of Flask. In a production environment, this should be false.
 
 ==== Data flow
 
+The only information the PDP handles are XACML json format from the request, and policies provided by MongoDB.
+
+What follows is an example of the nominal flow for the PDP:
+
+image::../images/PDPFlow.png[top=5%, align=right, pdfwidth=6.5in]
+
 === Extensibility
+
+The design of the PDP allows for further improvements if need be. For example:
+
+- The parser script can be expanded to parse all the configuration for a XACML formatted.
+- The registration of policies can be expanded to insert the policies without hardcoded values like resource id
+- The proxy can be expanded to parse further parameters on top of the HTTP protocol, allowing for any kind of plugin or complex mechanism desired.
 
 === Applicable Resources
 
