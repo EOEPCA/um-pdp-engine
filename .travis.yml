@@ -10,7 +10,7 @@ jobs:
   include:
     - stage: Testing
       install: pip install -r src/requirements.txt
-      script: pytest src
+      script: python3 -m unittest tests/test_database.py
 
     - stage: container creation and publishing
       install: skip

@@ -33,6 +33,7 @@ The most important are:
 * **EOEPCA-OIDC**: Used to auto-register itself as a client to the Auth. Server upon start-up.
 * **WellKnownHandler**: Used to dynamically check the configuration of the Authorization Server on each execution. For example, it can get the needed endpoints for any API the PEP needs, such as the token request for OIDC.
 * **Flask**: External to EOEPCA's project, this library allows the PDP to expose its endpoints.
+* **MongoDB**: Used to storage the policies for every resource, with the possibility of performing actions such as insert policies, modify, delete, etc
 
 === Interfaces
 
@@ -42,11 +43,35 @@ This component doesn't have any internal interfaces. For a reference of external
 
 ==== Configuration
 
-The PDP...
+The PDP gets all its configuration from the file located under config/config.json.
+
+The parameters that are accepted, and their meaning, are as follows:
+
+- **prefix**: "/path"-formatted string to indicate where the reverse proxy should listen. Default is "/pdp"
+
+- **host**: Host for the proxy to listen on. For example, "0.0.0.0" will listen on all interfaces
+
+- **port**: Port for the proxy to listen on. By default, 5567. Keep in mind you will have to edit the docker file and/or kubernetes yaml file in order for all the prot forwarding to work.
+
+- **check_ssl_certs**: Toggle on/off (bool) to check certificates in all requests. This should be forced to True in a production environment
+
+- **debug_mode**: Toggle on/off (bool) a debug mode of Flask. In a production environment, this should be false.
 
 ==== Data flow
 
+The only information the PDP handles are XACML json format from the request, and policies provided by MongoDB.
+
+What follows is an example of the nominal flow for the PDP:
+
+image::../images/PDPFlow.png[top=5%, align=right, pdfwidth=6.5in]
+
 === Extensibility
+
+The design of the PDP allows for further improvements if need be. For example:
+
+- The parser script can be expanded to parse all the configuration for a XACML formatted.
+- The registration of policies can be expanded to insert the policies without hardcoded values like resource id
+- The proxy can be expanded to parse further parameters on top of the HTTP protocol, allowing for any kind of plugin or complex mechanism desired.
 
 === Applicable Resources
 
@@ -55,3 +80,38 @@ The PDP...
 * EOEPCA's OIDC Client - https://github.com/EOEPCA/um-common-uma-client
 * EOEPCA's Well Known Handler - https://github.com/EOEPCA/well-known-handler
 * Flask - https://github.com/pallets/flask
+
+
+== POLICY RESPOSITORY
+=== Overview and Purpose
+It is the database based on MongoDB where the policies are stored and queried for the PDP pourposes
+
+Included with the PDP there is a script at the source path that performs queries against a Mongo Database. The main purpose of this script is to reduce the usage of RAM when registering a policy locally and when querying for its content.
+It is developed to generate a database called 'policy_db' in case it does not exist. The collection used for the storage of the documents is called 'policies'.
+The script defines the following methods:
+
+* **insert_policy**: Will generate a document with the policy data recived as input if it alredy exists it will update it. The main parameters of the policy would be an auto-generated id provided by mongo which identify each document in the database, the resource_id provided by the login-service, the name for the policy, and the configuratino which will be the policy with its resource_id. This would be mandatory parameters in order to perform other kind of queries.
+* **update_policy**: Updates the content of a policy stored matched by its ID
+* **get_policy_from_resource_id**: Finds the policy, attached to a resource by a resource_id given. Returns a list of policies in json format to the resource_id asociated.
+* **get_policy_from_id**: Matches the policy by its unique ID
+* **delete_policy**: This function will recive a policy id and will find and delete the matched document
+
+This script is manipulated by the API which would intercept the request in order to perform PUT,POST and DELETE methods.
+In the future this will be complient with other databases in order to unify the methods mentioned above.
+
+=== Software Reuse and Dependencies
+
+The script needs the library 'pymongo', to query the database. It will expect a MongoDB service running on the default's Mongo port 27017
+In order to simulate database responses for unit tests, is needed to use the python mock library.
+
+This class would be called from APIs within the PDP repository. At the moment the usage is mainly for the policy interaction purposes, but this can easily be reused by other agents.
+
+=== Data flow
+
+The database will only be accesible by the API or the Proxy.
+The main methods for the interaction with the database are displayed in this dataflow as a summary of its scope:
+
+
+=== Applicable Resources
+
+* MongoDB image from DockerHub - https://hub.docker.com/_/mongo
