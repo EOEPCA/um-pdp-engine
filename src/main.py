@@ -76,13 +76,7 @@ app.secret_key = ''.join(choice(ascii_lowercase) for i in range(30)) # Random ke
 # Register api blueprints (module endpoints)
 app.register_blueprint(policy_bp, url_prefix="/policy")
 
-app.run(
-    debug=g_config["debug_mode"],
-    port=g_config["port"],
-    host=g_config["host"]
-)
-
-@app.route("/policies/<policy_id>", methods=["GET", "PUT", "POST", "DELETE"])
+@app.route("/policy/<policy_id>", methods=["GET", "PUT", "POST", "DELETE"])
 def policy_operation(policy_id):
     print("Processing " + request.method + " policy request...")
     response = Response()
@@ -92,7 +86,7 @@ def policy_operation(policy_id):
         if request.method == "POST":
             if request.is_json:
                 data = request.get_json()
-                if data.get("name") and data.get("description") and data.get("config"):
+                if data.get("name") and data.get("config"):
                     return mongo.insert_policy(data.get("name"), data.get("description"), data.get("config"), data.get("scopes"))
                 else:
                     response.status_code = 500
@@ -128,5 +122,11 @@ def policy_operation(policy_id):
         response.headers["Error"] = str(e)
         return response
 
-    
+app.run(
+    debug=g_config["debug_mode"],
+    port=g_config["port"],
+    host=g_config["host"]
+)
+
+
         
