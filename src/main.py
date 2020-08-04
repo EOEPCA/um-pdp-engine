@@ -76,8 +76,57 @@ app.secret_key = ''.join(choice(ascii_lowercase) for i in range(30)) # Random ke
 # Register api blueprints (module endpoints)
 app.register_blueprint(policy_bp, url_prefix="/policy")
 
+@app.route("/policy/<policy_id>", methods=["GET", "PUT", "POST", "DELETE"])
+def policy_operation(policy_id):
+    print("Processing " + request.method + " policy request...")
+    response = Response()
+    mongo = Policy_Storage() 
+    #add policy is outside of rpt validation, as it only requires a client pat to register a new policy
+    try:
+        if request.method == "POST":
+            if request.is_json:
+                data = request.get_json()
+                if data.get("name") and data.get("config"):
+                    return mongo.insert_policy(data.get("name"), data.get("description"), data.get("config"), data.get("scopes"))
+                else:
+                    response.status_code = 500
+                    response.headers["Error"] = "Invalid data or incorrect policy name passed on URL called for policy creation!"
+                    return response
+
+        elif request.method == "GET":
+            if request.is_json:
+                data = request.get_json()
+                if data.get("resource_id"):
+                    return mongo.get_policy_from_resource_id(resource_id)
+                elif data.get("_id"):
+                    return mongo.get_policy_from_id(resource_id)
+            #update resource
+        elif request.method == "PUT":
+            if request.is_json:
+                data = request.get_json()
+                if data.get("_id"):
+                    return mongo.update_policy(data.get("_id"), data.get())
+                else:
+                    response.status_code = 500
+                    response.headers["Error"] = "Invalid data or incorrect policy name passed on URL called for policy creation!"
+                    return response
+
+
+        elif request.method == "DELETE":
+                    mongo.delete_policy(resource_id)
+                    response.status_code = 204
+                    return response
+    except Exception as e:
+        print("Error while creating resource: "+str(e))
+        response.status_code = 500
+        response.headers["Error"] = str(e)
+        return response
+
 app.run(
     debug=g_config["debug_mode"],
     port=g_config["port"],
     host=g_config["host"]
 )
+
+
+        
