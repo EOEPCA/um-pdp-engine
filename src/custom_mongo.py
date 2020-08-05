@@ -8,6 +8,7 @@ class Mongo_Handler:
     def __init__(self, **kwargs):
         self.modified = []
         self.__dict__.update(kwargs)
+        
         self.myclient = pymongo.MongoClient('localhost', 27017)
         self.db = self.myclient["policy_db"]
 
@@ -35,7 +36,11 @@ class Mongo_Handler:
     def parse_id(self, _id):
         myId=None
         if 'ObjectId' in str(_id):
-            myId = _id
+            if type(_id) == str:
+                a=_id[_id.find("(")+2:_id.find(")")-1]
+                myId = ObjectId(str(a))
+            else:
+                myId = _id
         else:
             myId = ObjectId(_id)
         return myId
@@ -112,15 +117,17 @@ class Mongo_Handler:
             if self.policy_exists(name=name):
                 myId= self.get_id_from_name(name)
                 x= self.update_policy(myId, myres)
+                return x
             # Add the resource since it doesn't exist on the database
             else:
                 x = col.insert_one(myres)
+                return 'New Policy with ID: ' + str(x.inserted_id)
             return x
         else:
             col = self.db['policies']
             myres = self.create_policy_json(name,description, config, scopes)
             x = col.insert_one(myres)
-            return x
+            return 'New Policy with ID: ' + str(x.inserted_id)
 
     def delete_policy(self, _id):
         '''
@@ -139,11 +146,15 @@ class Mongo_Handler:
         '''
         col = self.db['policies']
         myid = self.parse_id(_id)
-        if not self.policy_exists(name=dict_data['name']):
+        if self.policy_exists(_id=_id):
             myquery= {'_id': myid}
             new_val= {"$set": dict_data}
             x = col.update_many(myquery, new_val)
-            return x
+            if x.modified_count == 1:
+                return 'Updated'
+            elif x.modified_count == 0:
+                return 'No changes made'
+            return str(x.modified_count)
         else:
-            print('Can not update the policy with that name since it alredy exists in the database')
-            return
+            return print('Can not update the policy, it does not exist')
+             
