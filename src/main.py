@@ -7,6 +7,8 @@ from string import ascii_lowercase
 import json
 from policies.policies import policy_bp
 from config import config_parser
+from flask import Flask, request, Response
+from requests import get, post, put, delete
 import os
 import sys
 
@@ -124,6 +126,7 @@ def policy_operation(policy_id):
 
 app.run(
     debug=g_config["debug_mode"],
+    threads= True,
     port=g_config["port"],
     host=g_config["host"]
 )
