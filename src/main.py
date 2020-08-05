@@ -126,7 +126,6 @@ def policy_operation(policy_id):
 
 app.run(
     debug=g_config["debug_mode"],
-    threads= True,
     port=g_config["port"],
     host=g_config["host"]
 )
