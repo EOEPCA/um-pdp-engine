@@ -7,6 +7,7 @@ from string import ascii_lowercase
 import json
 from policies.policies import policy_bp
 from config import config_parser
+from authentication.scim_handler import ScimHandler
 import os
 import sys
 
@@ -26,12 +27,16 @@ for env_var in env_vars:
     if env_var not in os.environ:
         use_env_var = False
 
-g_config = {}
-# Global config objects
-if use_env_var is False:
-    g_config = config_parser.load_config()
-
+#We need to load to load the config to check if a client_id is specified, otherwise we risk duplicating the client when restarting the container
+g_config = config_parser.load_config()
+if "client_id" in g_config and "client_secret" in g_config:
+    print("Client found in config, using: "+g_config["client_id"])
+    use_env_var = False
 else:
+    g_config = {}
+
+# Global config objects
+if use_env_var is True:
     for env_var in env_vars:
         env_var_config = env_var.replace('PDP_', '')
 
@@ -41,7 +46,10 @@ else:
             g_config[env_var_config.lower()] = False
         else:
             g_config[env_var_config.lower()] = os.environ[env_var].replace('"', '')
-
+    print ("NOTICE: Client not found, generating one... ")
+    ScimHandler.registerClient(g_config["auth_server_url"], verify_ssl=g_config["check_ssl_certs"])
+else:
+    ScimHandler.registerClient(g_config["auth_server_url"], g_config["client_id"], g_config["client_secret"], g_config["check_ssl_certs"])
 
 #example rule policy a:
 a= {
