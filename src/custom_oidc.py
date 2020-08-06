@@ -3,7 +3,7 @@
 from base64 import b64encode
 from WellKnownHandler import TYPE_OIDC, KEY_OIDC_TOKEN_ENDPOINT
 from eoepca_scim import EOEPCA_Scim, ENDPOINT_AUTH_CLIENT_POST
-
+from WellKnownHandler import WellKnownHandler
 from requests import post
 
 class OIDCHandler:
