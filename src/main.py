@@ -11,7 +11,10 @@ from flask import Flask, request, Response
 from requests import get, post, put, delete
 import os
 import sys
-
+from custom_oidc import OIDCHandler
+from WellKnownHandler import WellKnownHandler
+from WellKnownHandler import TYPE_UMA_V2, KEY_UMA_V2_RESOURCE_REGISTRATION_ENDPOINT, KEY_UMA_V2_PERMISSION_ENDPOINT, KEY_UMA_V2_INTROSPECTION_ENDPOINT
+from eoepca_uma import rpt as class_rpt
 #env vars definition
 env_vars = [
     'PDP_AUTH_SERVER_URL',        
@@ -22,7 +25,7 @@ env_vars = [
     'PDP_DEBUG_MODE'
     ]
 
-use_env_var = True
+use_env_var = False
 
 for env_var in env_vars:
     if env_var not in os.environ:
@@ -44,7 +47,11 @@ else:
         else:
             g_config[env_var_config.lower()] = os.environ[env_var].replace('"', '')
 
-
+oidc_client = OIDCHandler(g_config['host'],
+                            redirect_uri = "",
+                            scopes = ['openid', 'uma_protection', 'permission'],
+                            verify_ssl = False)
+client_id, client_secret=oidc_client.register_client()
 #example rule policy a:
 a= {
     "resource_id": "20248583",
@@ -55,7 +62,7 @@ a= {
         ]
     }]
 }
-#example rule policy a:
+#example rule policy b:
 b= {
     "resource_id": "202485830",
     "rules": [{
@@ -101,46 +108,56 @@ def policy_insert():
         response.status_code = 500
         response.headers["Error"] = str(e)
         return response
+        
 @app.route("/policy/<policy_id>", methods=["GET", "PUT", "POST", "DELETE"])
 def policy_operation(policy_id):
     
     print("Processing " + request.method + " policy request...")
     response = Response()
     mongo = Policy_Storage('mongodb') 
+    rpt = request.headers.get('Authorization')
     #add policy is outside of rpt validation, as it only requires a client pat to register a new policy
-    try:
-        if request.method == "POST" or request.method == 'PUT':
-            if request.is_json:
-                data = request.get_json()
-                if data.get("name") and data.get("config"):
-                    return mongo.update_policy(policy_id, data)
-                else:
-                    response.status_code = 500
-                    response.headers["Error"] = "Invalid data or incorrect policy name passed on URL called for policy creation!"
-                    return response
+    if rpt:
+        print("Token found: "+rpt)
+        rpt = rpt.replace("Bearer ","").strip()
+        g_wkh = WellKnownHandler(g_config["auth_server_url"], secure=False)
+        try:
+            introspection_endpoint=g_wkh.get(TYPE_UMA_V2, KEY_UMA_V2_INTROSPECTION_ENDPOINT)
+            pat = oidc_client.get_new_pat()
+            accep = class_rpt.introspect(rpt=rpt, pat=pat, introspection_endpoint=introspection_endpoint, secure=False)
+            print(accep)
+            if request.method == "POST" or request.method == 'PUT':
+                if request.is_json:
+                    data = request.get_json()
+                    if data.get("name") and data.get("config"):
+                        return mongo.update_policy(policy_id, data)
+                    else:
+                        response.status_code = 500
+                        response.headers["Error"] = "Invalid data or incorrect policy name passed on URL called for policy creation!"
+                        return response
 
-        elif request.method == "GET":
-                data = request.data
-                if 'resource_id' in str(data):
-                    a= mongo.get_policy_from_resource_id(data.get("resource_id"))
-                    a['_id'] = str(a['_id'])
-                    return json.dumps(a)
-                else:
-                    a= mongo.get_policy_from_id(policy_id)
-                    a['_id'] = str(a['_id'])
-                    return json.dumps(a)
-            #update resource
-        elif request.method == "DELETE":
-            mongo.delete_policy(policy_id)
-            response.status_code = 204
+            elif request.method == "GET":
+                    data = request.data
+                    if 'resource_id' in str(data):
+                        a= mongo.get_policy_from_resource_id(data.get("resource_id"))
+                        a['_id'] = str(a['_id'])
+                        return json.dumps(a)
+                    else:
+                        a= mongo.get_policy_from_id(policy_id)
+                        a['_id'] = str(a['_id'])
+                        return json.dumps(a)
+                #update resource
+            elif request.method == "DELETE":
+                mongo.delete_policy(policy_id)
+                response.status_code = 204
+                return response
+            else:
+                return ''
+        except Exception as e:
+            print("Error while creating resource: "+str(e))
+            response.status_code = 500
+            response.headers["Error"] = str(e)
             return response
-        else:
-            return ''
-    except Exception as e:
-        print("Error while creating resource: "+str(e))
-        response.status_code = 500
-        response.headers["Error"] = str(e)
-        return response
 
 app.run(
     debug=g_config["debug_mode"],
