@@ -48,10 +48,13 @@ else:
             g_config[env_var_config.lower()] = os.environ[env_var].replace('"', '')
 
 oidc_client = OIDCHandler(g_config['host'],
+                            client_id= None,
+                            client_secret= None,
                             redirect_uri = "",
                             scopes = ['openid', 'uma_protection', 'permission'],
                             verify_ssl = False)
 client_id, client_secret=oidc_client.register_client()
+
 #example rule policy a:
 a= {
     "resource_id": "20248583",
