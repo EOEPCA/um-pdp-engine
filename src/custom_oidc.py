@@ -14,8 +14,7 @@ class OIDCHandler:
         self.verify_ssl = verify_ssl
         self.redirect_uri = redirect_uri
         self.scopes = scopes
-        self.wkh = wkh
-        g_wkh = WellKnownHandler(server_url, secure=False)
+        self.wkh = WellKnownHandler(server_url, secure=False)
 
     def register_client(self):
         # Generate client dynamically if one is not configured.
