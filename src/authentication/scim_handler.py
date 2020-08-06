@@ -30,7 +30,7 @@ class ScimHandler:
     def registerScimClient(self, auth_server_url: str, client_id: str = None, client_secret: str = None, verify_ssl: bool = False):
         if not ScimHandler.__eoepca_scim_instance:
             ScimHandler.__eoepca_scim_instance = EOEPCA_Scim(host=auth_server_url, clientID=client_id, clientSecret=client_secret)
-            if not client_id and not client_secret:
+            if not client_id or not client_secret:
                 ScimHandler.__scim_client = ScimHandler.__eoepca_scim_instance.registerClient("PDP Dynamic Client",
                                     grantTypes = ["client_credentials"],
                                     redirectURIs = [""],

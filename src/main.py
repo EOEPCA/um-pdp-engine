@@ -46,10 +46,14 @@ if use_env_var is True:
             g_config[env_var_config.lower()] = False
         else:
             g_config[env_var_config.lower()] = os.environ[env_var].replace('"', '')
+    #TODO Solve this part
     print ("NOTICE: Client not found, generating one... ")
-    ScimHandler.registerClient(g_config["auth_server_url"], verify_ssl=g_config["check_ssl_certs"])
+    new_client = ScimHandler.registerClient(g_config["auth_server_url"], verify_ssl=g_config["check_ssl_certs"])
+    g_config["client_id"] = new_client["client_id"]
+    g_config["client_secret"] = new_client["client_secret"]
 else:
     ScimHandler.registerClient(g_config["auth_server_url"], g_config["client_id"], g_config["client_secret"], g_config["check_ssl_certs"])
+
 
 #example rule policy a:
 a= {
