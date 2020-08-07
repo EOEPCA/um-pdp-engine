@@ -117,13 +117,20 @@ def policy_operation(policy_id):
     
     print("Processing " + request.method + " policy request...")
     response = Response()
-    mongo = Policy_Storage('mongodb') 
-    # rpt = request.headers.get('Authorization')
-    # #add policy is outside of rpt validation, as it only requires a client pat to register a new policy
-    # if rpt:
-    #     print("Token found: "+rpt)
-    #     rpt = rpt.replace("Bearer ","").strip()
-    #     g_wkh = WellKnownHandler(g_config["auth_server_url"], secure=False)
+    mongo = Policy_Storage('mongodb')
+    try:
+        #add policy is outside of rpt validation, as it only requires a client pat to register a new policy
+        rpt = request.headers.get('Authorization')
+        if rpt:
+            rpt = rpt.replace("Bearer ","").strip()
+            print("Token found: "+rpt)
+            a=oidc_client.verify_OAuth_token(rpt)
+            print(a)
+        else:
+            print('NO TOKEN FOUND')
+    except Exception as e:
+        print("Error While passing the token: "+str(e))
+        
     try:
         # introspection_endpoint=g_wkh.get(TYPE_UMA_V2, KEY_UMA_V2_INTROSPECTION_ENDPOINT)
         # pat = oidc_client.get_new_pat()

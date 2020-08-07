@@ -37,20 +37,22 @@ class OIDCHandler:
             print(self.client_secret)
             return self.client_id, self.client_secret
 
-    def get_new_pat(self):
-        """
-        Returns a new PAT
-        """
-        token_endpoint = self.wkh.get(TYPE_OIDC, KEY_OIDC_TOKEN_ENDPOINT)
-        headers = {"content-type": "application/x-www-form-urlencoded", 'cache-control': "no-cache"}
-        payload = "grant_type=client_credentials&client_id="+self.client_id+"&client_secret="+self.client_secret+"&scope="+" ".join(self.scopes).replace(" ","%20")+"&redirect_uri="+self.redirect_uri
-        response = post(token_endpoint, data=payload, headers=headers, verify = self.verify_ssl)
-        
+    def verify_OAuth_token(self, token):
+        headers = { 'content-type': "application/x-www-form-urlencoded", 'Authorization' : 'Bearer '+token}
+        msg = "Host unreachable"
+        status = 401
+        payload = { 'filter' : query }
+        url = self.wkh.get(TYPE_SCIM, KEY_SCIM_USER_ENDPOINT)
         try:
-            access_token = response.json()["access_token"]
-        except Exception as e:
-            print("Error while getting access_token: "+str(response.text))
-            exit(-1)
-        
-        return access_token
-            
+            res = requests.get(url, headers=headers, params=payload, verify=False)
+            status = res.status_code
+            msg = res.text
+            print("SCIM Handler: Get User attributes reply code: " + str(status))
+            user = (res.json())['Resources']
+            self.authRetries = 3
+            return status, user[0]
+        except:
+            print("SCIM Handler: Get User attributes: Exception occured!")
+            print(traceback.format_exc())
+            status = 500
+            return status, {}
