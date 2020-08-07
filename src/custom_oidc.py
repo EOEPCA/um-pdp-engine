@@ -14,13 +14,14 @@ class OIDCHandler:
         self.verify_ssl = verify_ssl
         self.redirect_uri = redirect_uri
         self.scopes = scopes
+        self.server_url=server_url
         self.wkh = WellKnownHandler(server_url, secure=False)
 
     def register_client(self):
         # Generate client dynamically if one is not configured.
         if not self.client_id or not self.client_secret:
             print ("NOTICE: Client not found, generating one... ")
-            scim_client = EOEPCA_Scim(server_url)
+            scim_client = EOEPCA_Scim(self.server_url)
             new_client = scim_client.registerClient("PDP Dynamic Client",
                                         grantTypes = ["client_credentials"],
                                         redirectURIs = [""],
