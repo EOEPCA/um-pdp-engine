@@ -1,4 +1,4 @@
-from WellKnownHandler import WellKnownHandler, TYPE_OIDC, KEY_OIDC_TOKEN_ENDPOINT
+from WellKnownHandler import WellKnownHandler, TYPE_OIDC, TYPE_SCIM, KEY_OIDC_TOKEN_ENDPOINT, KEY_SCIM_USER_ENDPOINT
 from eoepca_scim import EOEPCA_Scim, ENDPOINT_AUTH_CLIENT_POST
 from requests import post
 from base64 import b64encode
@@ -45,8 +45,7 @@ class ScimHandler:
             ScimHandler.__verify_ssl = verify_ssl
         return ScimHandler.__scim_client
 
-    @staticmethod
-    def get_pat(self):
+    def __getPat(self):
         if not ScimHandler.__scim_client:
             raise Exception("SCIM Handler: Client not initialized! Please register new client first.")
         token_endpoint = self.wkh.get(TYPE_OIDC, KEY_OIDC_TOKEN_ENDPOINT)
@@ -64,4 +63,28 @@ class ScimHandler:
             exit(-1)
         
         return access_token
-                    
+    
+    def getUserAttributes(self, userId):
+        print("SCIM Handler: Get User attributes for user " + str(userId))
+        if not ScimHandler.__scim_client:
+            raise Exception("SCIM Handler: Client not initialized! Please register new client first.")
+        headers = { 'content-type': "application/x-www-form-urlencoded", 'Authorization' : 'Bearer '+ScimHandler.__getPat()}
+        msg = "Host unreachable"
+        status = 404
+        query = "userName eq \"" + userID +"\""
+        payload = { 'filter' : query }
+        url = ScimHandler.__wkh.get(TYPE_SCIM, KEY_SCIM_USER_ENDPOINT)
+        try:
+            res = requests.get(url, headers=headers, params=payload, verify=False)
+            status = res.status_code
+            msg = res.text
+            print("SCIM Handler: Get User attributes reply code: " + str(status))
+            user = (res.json())['Resources']
+            self.authRetries = 3
+            return status, user[0]
+        except:
+            print("SCIM Handler: Get User attributes: Exception occured!")
+            print(traceback.format_exc())
+            status = 500
+            return status, {}
+        
