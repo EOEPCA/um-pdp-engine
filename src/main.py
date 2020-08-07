@@ -25,7 +25,7 @@ env_vars = [
     'PDP_DEBUG_MODE'
     ]
 
-use_env_var = False
+use_env_var = True
 
 for env_var in env_vars:
     if env_var not in os.environ:
@@ -47,12 +47,12 @@ else:
         else:
             g_config[env_var_config.lower()] = os.environ[env_var].replace('"', '')
 
-oidc_client = OIDCHandler(g_config['host'],
+oidc_client = OIDCHandler(g_config['auth_server_url'],
                             client_id= None,
                             client_secret= None,
                             redirect_uri = "",
                             scopes = ['openid', 'uma_protection', 'permission'],
-                            verify_ssl = False)
+                            verify_ssl = g_config['check_ssl_certs'])
 client_id, client_secret=oidc_client.register_client()
 
 #example rule policy a:
