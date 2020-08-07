@@ -18,9 +18,9 @@ class OIDCHandler:
 
     def register_client(self):
         # Generate client dynamically if one is not configured.
-        if not client_id or not client_secret:
+        if not self.client_id or not self.client_secret:
             print ("NOTICE: Client not found, generating one... ")
-            scim_client = EOEPCA_Scim(g_config["auth_server_url"])
+            scim_client = EOEPCA_Scim(server_url)
             new_client = scim_client.registerClient("PDP Dynamic Client",
                                         grantTypes = ["client_credentials"],
                                         redirectURIs = [""],
