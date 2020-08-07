@@ -118,49 +118,49 @@ def policy_operation(policy_id):
     print("Processing " + request.method + " policy request...")
     response = Response()
     mongo = Policy_Storage('mongodb') 
-    rpt = request.headers.get('Authorization')
-    #add policy is outside of rpt validation, as it only requires a client pat to register a new policy
-    if rpt:
-        print("Token found: "+rpt)
-        rpt = rpt.replace("Bearer ","").strip()
-        g_wkh = WellKnownHandler(g_config["auth_server_url"], secure=False)
-        try:
-            introspection_endpoint=g_wkh.get(TYPE_UMA_V2, KEY_UMA_V2_INTROSPECTION_ENDPOINT)
-            pat = oidc_client.get_new_pat()
-            accep = class_rpt.introspect(rpt=rpt, pat=pat, introspection_endpoint=introspection_endpoint, secure=False)
-            print(accep)
-            if request.method == "POST" or request.method == 'PUT':
-                if request.is_json:
-                    data = request.get_json()
-                    if data.get("name") and data.get("config"):
-                        return mongo.update_policy(policy_id, data)
-                    else:
-                        response.status_code = 500
-                        response.headers["Error"] = "Invalid data or incorrect policy name passed on URL called for policy creation!"
-                        return response
+    # rpt = request.headers.get('Authorization')
+    # #add policy is outside of rpt validation, as it only requires a client pat to register a new policy
+    # if rpt:
+    #     print("Token found: "+rpt)
+    #     rpt = rpt.replace("Bearer ","").strip()
+    #     g_wkh = WellKnownHandler(g_config["auth_server_url"], secure=False)
+    try:
+        # introspection_endpoint=g_wkh.get(TYPE_UMA_V2, KEY_UMA_V2_INTROSPECTION_ENDPOINT)
+        # pat = oidc_client.get_new_pat()
+        # accep = class_rpt.introspect(rpt=rpt, pat=pat, introspection_endpoint=introspection_endpoint, secure=False)
+        # print(accep)
+        if request.method == "POST" or request.method == 'PUT':
+            if request.is_json:
+                data = request.get_json()
+                if data.get("name") and data.get("config"):
+                    return mongo.update_policy(policy_id, data)
+                else:
+                    response.status_code = 500
+                    response.headers["Error"] = "Invalid data or incorrect policy name passed on URL called for policy creation!"
+                    return response
 
-            elif request.method == "GET":
-                    data = request.data
+        elif request.method == "GET":
+                if request.data:
                     if 'resource_id' in str(data):
                         a= mongo.get_policy_from_resource_id(data.get("resource_id"))
                         a['_id'] = str(a['_id'])
                         return json.dumps(a)
-                    else:
-                        a= mongo.get_policy_from_id(policy_id)
-                        a['_id'] = str(a['_id'])
-                        return json.dumps(a)
-                #update resource
-            elif request.method == "DELETE":
-                mongo.delete_policy(policy_id)
-                response.status_code = 204
-                return response
-            else:
-                return ''
-        except Exception as e:
-            print("Error while creating resource: "+str(e))
-            response.status_code = 500
-            response.headers["Error"] = str(e)
+                else:
+                    a= mongo.get_policy_from_id(policy_id)
+                    a['_id'] = str(a['_id'])
+                    return json.dumps(a)
+            #update resource
+        elif request.method == "DELETE":
+            mongo.delete_policy(policy_id)
+            response.status_code = 204
             return response
+        else:
+            return ''
+    except Exception as e:
+        print("Error while creating resource: "+str(e))
+        response.status_code = 500
+        response.headers["Error"] = str(e)
+        return response
 
 app.run(
     debug=g_config["debug_mode"],
