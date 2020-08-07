@@ -15,6 +15,7 @@ from custom_oidc import OIDCHandler
 from WellKnownHandler import WellKnownHandler
 from WellKnownHandler import TYPE_UMA_V2, KEY_UMA_V2_RESOURCE_REGISTRATION_ENDPOINT, KEY_UMA_V2_PERMISSION_ENDPOINT, KEY_UMA_V2_INTROSPECTION_ENDPOINT
 from eoepca_uma import rpt as class_rpt
+import logging
 #env vars definition
 env_vars = [
     'PDP_AUTH_SERVER_URL',        
@@ -120,13 +121,17 @@ def policy_operation(policy_id):
     mongo = Policy_Storage('mongodb')
     try:
         #add policy is outside of rpt validation, as it only requires a client pat to register a new policy
+        logging.info("Trying TOKEN!")
         rpt = request.headers.get('Authorization')
+        
         if rpt:
             rpt = rpt.replace("Bearer ","").strip()
             print("Token found: "+rpt)
+            logging.info(rpt)
             a=oidc_client.verify_OAuth_token(rpt)
             print(a)
         else:
+            logging.info("NO TOKEN!")
             print('NO TOKEN FOUND')
     except Exception as e:
         print("Error While passing the token: "+str(e))

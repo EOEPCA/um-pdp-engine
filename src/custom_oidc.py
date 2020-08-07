@@ -5,6 +5,7 @@ from WellKnownHandler import TYPE_OIDC, KEY_OIDC_TOKEN_ENDPOINT
 from eoepca_scim import EOEPCA_Scim, ENDPOINT_AUTH_CLIENT_POST
 from WellKnownHandler import WellKnownHandler
 from requests import post
+import logging
 
 class OIDCHandler:
 
@@ -44,9 +45,11 @@ class OIDCHandler:
         payload = { 'filter' : query }
         url = self.wkh.get(TYPE_SCIM, KEY_SCIM_USER_ENDPOINT)
         try:
+            logging.info("verifying!")
             res = requests.get(url, headers=headers, params=payload, verify=False)
             status = res.status_code
             msg = res.text
+            logging.info(msg)
             print("SCIM Handler: Get User attributes reply code: " + str(status))
             user = (res.json())['Resources']
             self.authRetries = 3
