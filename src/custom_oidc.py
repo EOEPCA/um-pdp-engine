@@ -4,7 +4,7 @@ from base64 import b64encode
 from WellKnownHandler import TYPE_OIDC, KEY_OIDC_TOKEN_ENDPOINT, TYPE_SCIM, KEY_SCIM_USER_ENDPOINT
 from eoepca_scim import EOEPCA_Scim, ENDPOINT_AUTH_CLIENT_POST
 from WellKnownHandler import WellKnownHandler
-from requests import post
+from requests import post, get
 import logging
 
 class OIDCHandler:
@@ -48,7 +48,7 @@ class OIDCHandler:
             logging.info("verifying!")
             print('verifying')
             print(url)
-            res = requests.get(url, headers=headers, verify=False)
+            res = get(url, headers=headers, verify=False)
             status = res.status_code
             msg = res.text
             logging.info(msg)
@@ -58,7 +58,6 @@ class OIDCHandler:
             return status, user
         except:
             print("SCIM Handler: Get User attributes: Exception occured!")
-            print(traceback.format_exc())
             status = 500
             return status, {}
 
