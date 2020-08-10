@@ -1,16 +1,16 @@
 from WellKnownHandler import WellKnownHandler, TYPE_OIDC, TYPE_SCIM, KEY_OIDC_TOKEN_ENDPOINT, KEY_SCIM_USER_ENDPOINT
 from eoepca_scim import EOEPCA_Scim, ENDPOINT_AUTH_CLIENT_POST
-from requests import post
+from requests import post, get
 from base64 import b64encode
 
 class ScimHandler:
-   __instance__ = None
-   __eoepca_scim_instance = None
-   __scim_client = None
-   __wkh = None
-   __verify_ssl = None
+    __instance__ = None
+    __eoepca_scim_instance = None
+    __scim_client = None
+    __wkh = None
+    __verify_ssl = None
 
-   def __init__(self):
+    def __init__(self):
        """ Constructor.
        """
        if ScimHandler.__instance__ is None:
@@ -18,8 +18,8 @@ class ScimHandler:
        else:
            raise Exception("SCIM Handler: You cannot create another ScimHandler class")
 
-   @staticmethod
-   def get_instance():
+    @staticmethod
+    def get_instance():
        """ Static method to fetch the current instance.
        """
        if not ScimHandler.__instance__:
@@ -27,17 +27,11 @@ class ScimHandler:
        return ScimHandler.__instance__
 
     @staticmethod
-    def registerScimClient(self, auth_server_url: str, client_id: str = None, client_secret: str = None, verify_ssl: bool = False):
+    def registerScimClient(auth_server_url: str, client_id: str = None, client_secret: str = None, verify_ssl: bool = False):
         if not ScimHandler.__eoepca_scim_instance:
             ScimHandler.__eoepca_scim_instance = EOEPCA_Scim(host=auth_server_url, clientID=client_id, clientSecret=client_secret)
             if not client_id or not client_secret:
-                ScimHandler.__scim_client = ScimHandler.__eoepca_scim_instance.registerClient("PDP Dynamic Client",
-                                    grantTypes = ["client_credentials"],
-                                    redirectURIs = [""],
-                                    logoutURI = "", 
-                                    responseTypes = ["code","token","id_token"],
-                                    scopes = ['openid', 'uma_protection', 'permission'],
-                                    token_endpoint_auth_method = ENDPOINT_AUTH_CLIENT_POST)
+                ScimHandler.__scim_client = ScimHandler.__eoepca_scim_instance.registerClient("PDP Dynamic Client", grantTypes = ["client_credentials"], redirectURIs = [""], logoutURI = "", responseTypes = ["code","token","id_token"], scopes = ['openid', 'uma_protection', 'permission'], token_endpoint_auth_method = ENDPOINT_AUTH_CLIENT_POST)
                 print("SCIM Handler: created new PDP client: " + ScimHandler.__scim_client["client_id"] )
             else:
                 ScimHandler.__scim_client = {"client_id": client_id, "client_secret": client_secret}
@@ -45,10 +39,10 @@ class ScimHandler:
             ScimHandler.__verify_ssl = verify_ssl
         return ScimHandler.__scim_client
 
-    def __getPat(self):
+    def __getPat():
         if not ScimHandler.__scim_client:
             raise Exception("SCIM Handler: Client not initialized! Please register new client first.")
-        token_endpoint = self.wkh.get(TYPE_OIDC, KEY_OIDC_TOKEN_ENDPOINT)
+        token_endpoint = ScimHandler.__wkh.get(TYPE_OIDC, KEY_OIDC_TOKEN_ENDPOINT)
         headers = {"content-type": "application/x-www-form-urlencoded", 'cache-control': "no-cache"}
         payload = ("grant_type=client_credentials&client_id="
                     +ScimHandler.__scim_client["client_id"]
@@ -64,27 +58,27 @@ class ScimHandler:
         
         return access_token
     
-    def getUserAttributes(self, userId):
+    def getUserAttributes(self, userId: str):
         print("SCIM Handler: Get User attributes for user " + str(userId))
         if not ScimHandler.__scim_client:
             raise Exception("SCIM Handler: Client not initialized! Please register new client first.")
         headers = { 'content-type': "application/x-www-form-urlencoded", 'Authorization' : 'Bearer '+ScimHandler.__getPat()}
         msg = "Host unreachable"
         status = 404
-        query = "userName eq \"" + userID +"\""
+        query = "userName eq \"" + userId +"\""
         payload = { 'filter' : query }
         url = ScimHandler.__wkh.get(TYPE_SCIM, KEY_SCIM_USER_ENDPOINT)
         try:
-            res = requests.get(url, headers=headers, params=payload, verify=False)
+            res = get(url, headers=headers, params=payload, verify=False)
             status = res.status_code
             msg = res.text
             print("SCIM Handler: Get User attributes reply code: " + str(status))
             user = (res.json())['Resources']
             self.authRetries = 3
             return status, user[0]
-        except:
+        except Exception as e:
             print("SCIM Handler: Get User attributes: Exception occured!")
-            print(traceback.format_exc())
+            print(str(e))
             status = 500
             return status, {}
         
