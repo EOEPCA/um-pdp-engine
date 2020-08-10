@@ -40,7 +40,7 @@ class Policy_Storage:
         return self.current_db.policy_exists(_id, name)
 
 
-    def insert_policy(self, name:str, description:str, config: dict, scopes: list):
+    def insert_policy(self, name:str, description:str, ownership_id: str, config: dict, scopes: list):
         '''
             Generates a document with json format (name: str, description: str, id: str,cfg: dict, scopes:list ): 
                 -NAME: Name generic for the policy

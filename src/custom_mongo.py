@@ -12,13 +12,14 @@ class Mongo_Handler:
         self.myclient = pymongo.MongoClient('localhost', 27017)
         self.db = self.myclient["policy_db"]
 
-    def create_policy_json(self, name: str, description:str, policyCFG: list, scopes: list):
+    def create_policy_json(self, name: str, description:str, ownership_id: str, policyCFG: list, scopes: list):
         '''
         Creates a template of policy to insert in the database
         '''
         plcy= {
             "name" : name,
             "description" : description,
+            "ownership_id" : ownership_id,
             "config" : policyCFG,
             "scopes" : scopes
         }
@@ -101,7 +102,7 @@ class Mongo_Handler:
             
 
 
-    def insert_policy(self, name:str, description:str, config: dict, scopes: list):
+    def insert_policy(self, name:str, description:str, ownership_id: str, config: dict, scopes: list):
         '''
             Generates a document with json format (name: str, description: str, id: str,cfg: dict, scopes:list ): 
                 -NAME: Name generic for the policy
@@ -117,7 +118,7 @@ class Mongo_Handler:
         # Check if the database alredy exists
         if "policy_db" in dblist:
             col = self.db['policies']
-            myres = self.create_policy_json(name,description, config, scopes)
+            myres = self.create_policy_json(name,description, ownership_id, config, scopes)
             x=None
             if self.policy_exists(name=name):
                 myId= self.get_id_from_name(name)

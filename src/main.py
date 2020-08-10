@@ -78,9 +78,9 @@ b= {
 #instance
 mongo = Policy_Storage('mongodb')
 #register policy:
-mongo.insert_policy(name='Policy1', description= '', config= a, scopes=[''])
+mongo.insert_policy(name='Policy1', description= '',ownership_id= '123', config= a, scopes=[''])
 #register policy:
-mongo.insert_policy(name='Policy2', description= '', config= b, scopes=[''])
+mongo.insert_policy(name='Policy2', description= '',ownership_id= '234', config= b, scopes=[''])
 
 
 app = Flask(__name__)
@@ -98,11 +98,23 @@ def policy_insert():
     mongo = Policy_Storage('mongodb') 
     #add policy is outside of rpt validation, as it only requires a client pat to register a new policy
     try:
+        rpt = request.headers.get('Authorization')
+        if rpt:
+            rpt = rpt.replace("Bearer ","").strip()
+            print("Token found: "+rpt)
+            logging.info(rpt)
+            a=oidc_client.verify_OAuth_token(rpt)
+            #see a response example to retrieve the uuid
+            print(a)
+        else:
+            logging.info("NO TOKEN!")
+            print('NO TOKEN FOUND')
+        ownership_id=''
         if request.is_json:
             data = request.get_json()
             print(data)
             if data.get("name") and data.get("config"):
-                return mongo.insert_policy(data.get("name"), data.get("description"), data.get("config"), data.get("scopes"))
+                return mongo.insert_policy(data.get("name"), data.get("description"), ownership_id ,data.get("config"), data.get("scopes"))
             else:
                 response.status_code = 500
                 response.headers["Error"] = "Invalid data or incorrect policy name passed on URL called for policy creation!"
@@ -123,12 +135,12 @@ def policy_operation(policy_id):
         #add policy is outside of rpt validation, as it only requires a client pat to register a new policy
         logging.info("Trying TOKEN!")
         rpt = request.headers.get('Authorization')
-        
         if rpt:
             rpt = rpt.replace("Bearer ","").strip()
             print("Token found: "+rpt)
             logging.info(rpt)
             a=oidc_client.verify_OAuth_token(rpt)
+            #see a response example to retrieve the uuid
             print(a)
         else:
             logging.info("NO TOKEN!")
@@ -141,6 +153,7 @@ def policy_operation(policy_id):
         # pat = oidc_client.get_new_pat()
         # accep = class_rpt.introspect(rpt=rpt, pat=pat, introspection_endpoint=introspection_endpoint, secure=False)
         # print(accep)
+        
         if request.method == "POST" or request.method == 'PUT':
             if request.is_json:
                 data = request.get_json()
