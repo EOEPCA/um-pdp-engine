@@ -42,20 +42,24 @@ class OIDCHandler:
         headers = { 'content-type': "application/x-www-form-urlencoded", 'Authorization' : 'Bearer '+token}
         msg = "Host unreachable"
         status = 401
-        payload = { 'filter' : query }
+        print('ehh')
         url = self.wkh.get(TYPE_SCIM, KEY_SCIM_USER_ENDPOINT)
         try:
             logging.info("verifying!")
-            res = requests.get(url, headers=headers, params=payload, verify=False)
+            print('verifying')
+            print(url)
+            res = requests.get(url, headers=headers, verify=False)
             status = res.status_code
             msg = res.text
             logging.info(msg)
+            print(msg)
             print("SCIM Handler: Get User attributes reply code: " + str(status))
-            user = (res.json())['Resources']
-            self.authRetries = 3
-            return status, user[0]
+            user = (res.json())
+            return status, user
         except:
             print("SCIM Handler: Get User attributes: Exception occured!")
             print(traceback.format_exc())
             status = 500
             return status, {}
+
+
