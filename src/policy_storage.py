@@ -52,7 +52,7 @@ class Policy_Storage:
             If alredy registered will update the values
             If not registered will add it and return the query result
         '''
-        return self.current_db.insert_policy(name,description,config,scopes)
+        return self.current_db.insert_policy(name, description, ownership_id, config, scopes)
 
     def delete_policy(self, _id):
         '''
