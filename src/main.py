@@ -105,14 +105,16 @@ def policy_insert():
     try:
         myfile.write(str(request.headers))
         a = str(request.headers)
-        a = a.split()
-        myfile.write(a) 
-        m = re.search('Bearer (.+?)Content', a)
-        if m: found = m.group(1)
-        myfile.write(found)             
+        headers_alone = a.split()
+        for i in headers_alone:
+            myfile.write(str(i))
+            if 'Bearer' in str(i):
+                a=headers_alone.index('Bearer')
+                b = headers_alone[a+1]
+                myfile.write(b)           
         
         #add policy is outside of rpt validation, as it only requires a client pat to register a new policy
-        token = found
+        token = b
         myfile.write(str(token))
         if token:
             token = token.replace("Bearer ","").strip()
