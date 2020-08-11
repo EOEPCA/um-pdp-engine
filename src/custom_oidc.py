@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from base64 import b64encode
-from WellKnownHandler import TYPE_OIDC, KEY_OIDC_TOKEN_ENDPOINT, TYPE_SCIM, KEY_SCIM_USER_ENDPOINT
+from WellKnownHandler import TYPE_OIDC, KEY_OIDC_TOKEN_ENDPOINT, KEY_OIDC_USERINFO_ENDPOINT, TYPE_SCIM, KEY_SCIM_USER_ENDPOINT
 from eoepca_scim import EOEPCA_Scim, ENDPOINT_AUTH_CLIENT_POST
 from WellKnownHandler import WellKnownHandler
 from requests import post, get
@@ -38,26 +38,31 @@ class OIDCHandler:
             print(self.client_secret)
             return self.client_id, self.client_secret
 
+
+    def verify_JWT_token(self, token):
+        try:
+            payload = str(token).split(".")[1]
+            paddedPayload = payload + '=' * (4 - len(payload) % 4)
+            decoded = base64.b64decode(paddedPayload)
+            userInum = json.loads(decoded)["sub"]
+            return userInum
+        except:
+            print("Authenticated RPT Policy. No Valid JWT id token passed!")
+            return False
+
     def verify_OAuth_token(self, token):
-        headers = { 'content-type': "application/x-www-form-urlencoded", 'Authorization' : 'Bearer '+token}
+        headers = { 'content-type': "application/json", 'Authorization' : 'Bearer '+token}
         msg = "Host unreachable"
         status = 401
-        print('ehh')
-        url = self.wkh.get(TYPE_SCIM, KEY_SCIM_USER_ENDPOINT)
+        url = self.wkh.get(TYPE_OIDC, KEY_OIDC_USERINFO_ENDPOINT )
         try:
-            logging.info("verifying!")
-            print('verifying')
-            print(url)
             res = get(url, headers=headers, verify=False)
             status = res.status_code
             msg = res.text
-            logging.info(msg)
-            print(msg)
-            print("SCIM Handler: Get User attributes reply code: " + str(status))
             user = (res.json())
-            return status, user
+            return user['sub']
         except:
-            print("SCIM Handler: Get User attributes: Exception occured!")
+            print("OIDC Handler: Get User Unique Identifier: Exception occured!")
             status = 500
             return status, {}
 

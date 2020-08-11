@@ -96,29 +96,46 @@ def policy_insert():
     print("Processing " + request.method + " policy request...")
     response = Response()
     mongo = Policy_Storage('mongodb') 
-    #add policy is outside of rpt validation, as it only requires a client pat to register a new policy
+    uid= None
+    rpt= None
+    id_tkn= None
     try:
-        rpt = request.headers.get('Authorization')
-        if rpt:
-            rpt = rpt.replace("Bearer ","").strip()
-            print("Token found: "+rpt)
-            logging.info(rpt)
-            a=oidc_client.verify_OAuth_token(rpt)
-            #see a response example to retrieve the uuid
-            print(a)
+        #add policy is outside of rpt validation, as it only requires a client pat to register a new policy
+        logging.info("Trying TOKEN!")
+        token = request.headers.get('Authorization')
+        
+        if token:
+            token = token.replace("Bearer ","").strip()
+            print("Token found: "+token)
+            if len(str(token))>40:
+                id_tkn = token
+                uid=oidc_client.verify_JWT_token(id_tkn)
+            else:
+                rpt = token
+                uid=oidc_client.verify_OAuth_token(rpt)
         else:
             logging.info("NO TOKEN!")
             print('NO TOKEN FOUND')
-        ownership_id=''
-        if request.is_json:
-            data = request.get_json()
-            print(data)
-            if data.get("name") and data.get("config"):
-                return mongo.insert_policy(data.get("name"), data.get("description"), ownership_id ,data.get("config"), data.get("scopes"))
-            else:
-                response.status_code = 500
-                response.headers["Error"] = "Invalid data or incorrect policy name passed on URL called for policy creation!"
-                return response
+    except Exception as e:
+        print("Error While passing the token: "+str(resp))
+        response.status_code = 500
+        response.headers["Error"] = str(e)
+        return response 
+    #add policy is outside of rpt validation, as it only requires a client pat to register a new policy
+    try:
+        if uid:
+            if request.is_json:
+                data = request.get_json()
+                if data.get("name") and data.get("config"):
+                    return mongo.insert_policy(data.get("name"), data.get("description"), uid ,data.get("config"), data.get("scopes"))
+                else:
+                    response.status_code = 500
+                    response.headers["Error"] = "Invalid data or incorrect policy name passed on URL called for policy creation!"
+                    return response
+        else: 
+            response.status_code = 401
+            response.headers["Error"] = 'Could not get the UID for the user'
+            return response
     except Exception as e:
         print("Error while creating resource: "+str(e))
         response.status_code = 500
@@ -131,56 +148,65 @@ def policy_operation(policy_id):
     print("Processing " + request.method + " policy request...")
     response = Response()
     mongo = Policy_Storage('mongodb')
+    uid= None
+    rpt= None
+    id_tkn= None
     try:
         #add policy is outside of rpt validation, as it only requires a client pat to register a new policy
         logging.info("Trying TOKEN!")
-        rpt = request.headers.get('Authorization')
-        if rpt:
-            rpt = rpt.replace("Bearer ","").strip()
-            print("Token found: "+rpt)
-            logging.info(rpt)
-            a=oidc_client.verify_OAuth_token(rpt)
-            #see a response example to retrieve the uuid
-            print(a)
+        token = request.headers.get('Authorization')
+        
+        if token:
+            token = token.replace("Bearer ","").strip()
+            print("Token found: "+token)
+            if len(str(token))>40:
+                id_tkn = token
+                uid=oidc_client.verify_JWT_token(id_tkn)
+            else:
+                rpt = token
+                uid=oidc_client.verify_OAuth_token(rpt)
         else:
             logging.info("NO TOKEN!")
             print('NO TOKEN FOUND')
     except Exception as e:
-        print("Error While passing the token: "+str(e))
-        
+        print("Error While passing the token: "+str(resp))
+        response.status_code = 500
+        response.headers["Error"] = str(e)
+        return response 
     try:
-        # introspection_endpoint=g_wkh.get(TYPE_UMA_V2, KEY_UMA_V2_INTROSPECTION_ENDPOINT)
-        # pat = oidc_client.get_new_pat()
-        # accep = class_rpt.introspect(rpt=rpt, pat=pat, introspection_endpoint=introspection_endpoint, secure=False)
-        # print(accep)
-        
-        if request.method == "POST" or request.method == 'PUT':
-            if request.is_json:
-                data = request.get_json()
-                if data.get("name") and data.get("config"):
-                    return mongo.update_policy(policy_id, data)
-                else:
-                    response.status_code = 500
-                    response.headers["Error"] = "Invalid data or incorrect policy name passed on URL called for policy creation!"
-                    return response
-
-        elif request.method == "GET":
-                if request.data:
-                    if 'resource_id' in str(data):
-                        a= mongo.get_policy_from_resource_id(data.get("resource_id"))
+        if uid and mongo.verify_uid(policy_id, uid):
+            if request.method == "POST" or request.method == 'PUT':
+                if request.is_json:
+                    data = request.get_json()
+                    if data.get("name") and data.get("config"):
+                        return mongo.update_policy(policy_id, data)
+                    else:
+                        response.status_code = 500
+                        response.headers["Error"] = "Invalid data or incorrect policy name passed on URL called for policy creation!"
+                        return response
+            elif request.method == "GET":
+                if mongo.verify_uid(policy_id, uid):
+                    if request.data:
+                        if 'resource_id' in str(data):
+                            if mongo.verify_uid(policy_id, uid):
+                                a= mongo.get_policy_from_resource_id(data.get("resource_id"))
+                                a['_id'] = str(a['_id'])
+                                return json.dumps(a)     
+                    else:
+                        a= mongo.get_policy_from_id(policy_id)
                         a['_id'] = str(a['_id'])
                         return json.dumps(a)
-                else:
-                    a= mongo.get_policy_from_id(policy_id)
-                    a['_id'] = str(a['_id'])
-                    return json.dumps(a)
-            #update resource
-        elif request.method == "DELETE":
-            mongo.delete_policy(policy_id)
-            response.status_code = 204
-            return response
+                #update resource
+            elif request.method == "DELETE":
+                mongo.delete_policy(policy_id)
+                response.status_code = 204
+                return response
+            else:
+                return ''
         else:
-            return ''
+            response.status_code = 401
+            response.headers["Error"] = "Can not operate. No UID valid for that Policy: { policy_id: "+policy_id+", UUID: "+uid+"}"
+            return response
     except Exception as e:
         print("Error while creating resource: "+str(e))
         response.status_code = 500
