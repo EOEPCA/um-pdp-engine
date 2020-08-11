@@ -78,7 +78,7 @@ b= {
 #instance
 mongo = Policy_Storage('mongodb')
 #register policy:
-mongo.insert_policy(name='Policy1', description= '',ownership_id= '123', config= a, scopes=[''])
+mongo.insert_policy(name='Policy1', description= '',ownership_id= '55b8f51f-4634-4bb0-a1dd-070ec5869d70', config= a, scopes=[''])
 #register policy:
 mongo.insert_policy(name='Policy2', description= '',ownership_id= '234', config= b, scopes=[''])
 
@@ -101,9 +101,7 @@ def policy_insert():
     id_tkn= None
     try:
         #add policy is outside of rpt validation, as it only requires a client pat to register a new policy
-        logging.info("Trying TOKEN!")
         token = request.headers.get('Authorization')
-        
         if token:
             token = token.replace("Bearer ","").strip()
             print("Token found: "+token)
@@ -114,7 +112,6 @@ def policy_insert():
                 rpt = token
                 uid=oidc_client.verify_OAuth_token(rpt)
         else:
-            logging.info("NO TOKEN!")
             print('NO TOKEN FOUND')
     except Exception as e:
         print("Error While passing the token: "+str(resp))
@@ -122,6 +119,7 @@ def policy_insert():
         response.headers["Error"] = str(e)
         return response 
     #add policy is outside of rpt validation, as it only requires a client pat to register a new policy
+    print(uid)
     try:
         if uid:
             if request.is_json:
