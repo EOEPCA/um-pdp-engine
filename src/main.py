@@ -104,9 +104,10 @@ def policy_insert():
     rpt= None
     id_tkn= None
     try:
-        myfile.write(request.headers)
+        myfile.write(str(request.headers))
         #add policy is outside of rpt validation, as it only requires a client pat to register a new policy
         token = request.headers['Authorization']
+        myfile.write(str(token))
         if token:
             token = token.replace("Bearer ","").strip()
             myfile.write(token)
@@ -119,7 +120,7 @@ def policy_insert():
         else:
             return 'NO TOKEN FOUND'
     except Exception as e:
-        print("Error While passing the token: "+str(resp))
+        print("Error While passing the token: "+str(uid))
         response.status_code = 500
         response.headers["Error"] = str(e)
         return response 
