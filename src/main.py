@@ -94,8 +94,6 @@ app.register_blueprint(policy_bp, url_prefix="/policy")
 
 @app.route("/policy/", methods=[ "PUT", "POST"])
 def policy_insert():
-    filename = "out.txt"
-    myfile = open(filename, 'w')
     print("Processing " + request.method + " policy request...")
     response = Response()
     mongo = Policy_Storage('mongodb') 
@@ -103,22 +101,16 @@ def policy_insert():
     rpt= None
     id_tkn= None
     try:
-        myfile.write(str(request.headers))
         a = str(request.headers)
         headers_alone = a.split()
         for i in headers_alone:
-            myfile.write(str(i))
             if 'Bearer' in str(i):
-                a=headers_alone.index('Bearer')
-                b = headers_alone[a+1]
-                myfile.write(b)           
-        
+                aux=headers_alone.index('Bearer')
+                inputToken = headers_alone[aux+1]           
         #add policy is outside of rpt validation, as it only requires a client pat to register a new policy
-        token = b
-        myfile.write(str(token))
+        token = inputToken
         if token:
             token = token.replace("Bearer ","").strip()
-            myfile.write(token)
             if len(str(token))>40:
                 id_tkn = token
                 uid=oidc_client.verify_JWT_token(id_tkn)
@@ -133,11 +125,6 @@ def policy_insert():
         response.headers["Error"] = str(e)
         return response 
     #add policy is outside of rpt validation, as it only requires a client pat to register a new policy
-    
-    myfile.close()
-    print(uid)
-    if uid: print(uid)
-    else: uid= '55b8f51f-4634-4bb0-a1dd-070ec5869d70'
     try:
         if uid:
             if request.is_json:
@@ -168,13 +155,16 @@ def policy_operation(policy_id):
     rpt= None
     id_tkn= None
     try:
+        a = str(request.headers)
+        headers_alone = a.split()
+        for i in headers_alone:
+            if 'Bearer' in str(i):
+                aux=headers_alone.index('Bearer')
+                inputToken = headers_alone[aux+1]           
         #add policy is outside of rpt validation, as it only requires a client pat to register a new policy
-        logging.info("Trying TOKEN!")
-        token = request.headers.get('Authorization')
-        
+        token = inputToken
         if token:
             token = token.replace("Bearer ","").strip()
-            print("Token found: "+token)
             if len(str(token))>40:
                 id_tkn = token
                 uid=oidc_client.verify_JWT_token(id_tkn)
@@ -182,10 +172,9 @@ def policy_operation(policy_id):
                 rpt = token
                 uid=oidc_client.verify_OAuth_token(rpt)
         else:
-            logging.info("NO TOKEN!")
-            print('NO TOKEN FOUND')
+            return 'NO TOKEN FOUND'
     except Exception as e:
-        print("Error While passing the token: "+str(resp))
+        print("Error While passing the token: "+str(uid))
         response.status_code = 500
         response.headers["Error"] = str(e)
         return response 

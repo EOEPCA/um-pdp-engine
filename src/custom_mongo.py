@@ -103,8 +103,10 @@ class Mongo_Handler:
     def verify_uid(self, policy_id, uid):
         col = self.db['policies']
         try:
-            myquery = { "policy_id": policy_id, "ownership_id": uid }
-            if col.find_one(myquery): return True
+            myquery = {"_id": ObjectId(policy_id), "ownership_id": uid }
+            a= col.find_one(myquery)
+            if a:                
+                return True
             else: return False
         except:
             print('no policy with that UID associated')

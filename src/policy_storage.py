@@ -12,7 +12,10 @@ class Policy_Storage:
             if 'mongo' in database:
                 self.current_db = Mongo_Handler()
         
+    def verify_uid(self, policy_id, uid):
 
+        return self.current_db.verify_uid(policy_id, uid)
+        
     def get_policy_from_resource_id(self,resource_id):
         '''
             Finds the policy, attached to a resource by a resource_id given
