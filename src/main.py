@@ -103,8 +103,12 @@ def policy_insert():
     id_tkn= None
     try:
         myfile.write(str(request.headers))
-        for i in request.headers:
-            if 'Bearer' in i:
+        myfile.write('++++++++++++++++++++++++')
+                
+        for i in str(request.headers):
+            myfile.write('++++++++++++++++++++++++')
+            myfile.write(str(i))    
+            if 'Bearer' in str(i):
                 
                 myfile.write('++++++++++++++++++++++++')
                 myfile.write(str(i))
