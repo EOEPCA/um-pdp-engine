@@ -11,6 +11,7 @@ from flask import Flask, request, Response
 from requests import get, post, put, delete
 import os
 import sys
+import base64
 from custom_oidc import OIDCHandler
 from WellKnownHandler import WellKnownHandler
 from WellKnownHandler import TYPE_UMA_V2, KEY_UMA_V2_RESOURCE_REGISTRATION_ENDPOINT, KEY_UMA_V2_PERMISSION_ENDPOINT, KEY_UMA_V2_INTROSPECTION_ENDPOINT
@@ -99,12 +100,14 @@ def policy_insert():
     uid= None
     rpt= None
     id_tkn= None
+    filename = "out.txt"
+    myfile = open(filename, 'w')
     try:
         #add policy is outside of rpt validation, as it only requires a client pat to register a new policy
         token = request.headers.get('Authorization')
         if token:
             token = token.replace("Bearer ","").strip()
-            print("Token found: "+token)
+            myfile.write(token)
             if len(str(token))>40:
                 id_tkn = token
                 uid=oidc_client.verify_JWT_token(id_tkn)
@@ -119,6 +122,8 @@ def policy_insert():
         response.headers["Error"] = str(e)
         return response 
     #add policy is outside of rpt validation, as it only requires a client pat to register a new policy
+    myfile.write(uid)
+    myfile.close()
     print(uid)
     try:
         if uid:
