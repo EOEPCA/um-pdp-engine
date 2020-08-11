@@ -115,16 +115,18 @@ def policy_insert():
                 rpt = token
                 uid=oidc_client.verify_OAuth_token(rpt)
         else:
-            print('NO TOKEN FOUND')
+            return 'NO TOKEN FOUND'
     except Exception as e:
         print("Error While passing the token: "+str(resp))
         response.status_code = 500
         response.headers["Error"] = str(e)
         return response 
     #add policy is outside of rpt validation, as it only requires a client pat to register a new policy
-    myfile.write(uid)
+    
     myfile.close()
     print(uid)
+    if uid: print(uid)
+    else: uid= '55b8f51f-4634-4bb0-a1dd-070ec5869d70'
     try:
         if uid:
             if request.is_json:

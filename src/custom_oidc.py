@@ -6,6 +6,8 @@ from eoepca_scim import EOEPCA_Scim, ENDPOINT_AUTH_CLIENT_POST
 from WellKnownHandler import WellKnownHandler
 from requests import post, get
 import logging
+import base64
+import json
 
 class OIDCHandler:
 
