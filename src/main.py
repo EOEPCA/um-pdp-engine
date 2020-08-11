@@ -10,6 +10,7 @@ from config import config_parser
 from flask import Flask, request, Response
 from requests import get, post, put, delete
 import os
+import re
 import sys
 import base64
 from custom_oidc import OIDCHandler
@@ -102,18 +103,13 @@ def policy_insert():
     rpt= None
     id_tkn= None
     try:
-        myfile.write(str(request.headers))
-        myfile.write('++++++++++++++++++++++++')
-                
-        for i in str(request.headers):
-            myfile.write('++++++++++++++++++++++++')
-            myfile.write(str(i))    
-            if 'Bearer' in str(i):
-                
-                myfile.write('++++++++++++++++++++++++')
-                myfile.write(str(i))
+        myfile.write(str(request.headers))   
+        m = re.search('Bearer (.+?)Content', str(request.headers))
+        if m: found = m.group(1)
+        myfile.write(found)             
+        
         #add policy is outside of rpt validation, as it only requires a client pat to register a new policy
-        token = request.headers['Authorization']
+        token = found
         myfile.write(str(token))
         if token:
             token = token.replace("Bearer ","").strip()
