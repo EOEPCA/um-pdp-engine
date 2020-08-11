@@ -95,8 +95,6 @@ app.register_blueprint(policy_bp, url_prefix="/policy")
 def policy_insert():
     filename = "out.txt"
     myfile = open(filename, 'w')
-    myfile.write(request.method)
-
     print("Processing " + request.method + " policy request...")
     response = Response()
     mongo = Policy_Storage('mongodb') 
@@ -105,6 +103,11 @@ def policy_insert():
     id_tkn= None
     try:
         myfile.write(str(request.headers))
+        for i in request.headers:
+            if 'Bearer' in i:
+                
+                myfile.write('++++++++++++++++++++++++')
+                myfile.write(str(i))
         #add policy is outside of rpt validation, as it only requires a client pat to register a new policy
         token = request.headers['Authorization']
         myfile.write(str(token))
