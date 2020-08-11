@@ -103,8 +103,9 @@ def policy_insert():
     rpt= None
     id_tkn= None
     try:
+        myfile.write(type(request.headers))
         myfile.write(str(request.headers))   
-        m = re.search('Bearer (.+?)Content', str(request.headers))
+        m = re.search('Bearer (.+?)Content', str(request.headers).strip())
         if m: found = m.group(1)
         myfile.write(found)             
         
