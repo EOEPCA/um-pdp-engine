@@ -190,21 +190,21 @@ def policy_operation(policy_id):
                         response.headers["Error"] = "Invalid data or incorrect policy name passed on URL called for policy creation!"
                         return response
             elif request.method == "GET":
-                if mongo.verify_uid(policy_id, uid):
-                    if request.data:
-                        if 'resource_id' in str(data):
-                            if mongo.verify_uid(policy_id, uid):
-                                a= mongo.get_policy_from_resource_id(data.get("resource_id"))
-                                a['_id'] = str(a['_id'])
-                                return json.dumps(a)     
-                    else:
-                        a= mongo.get_policy_from_id(policy_id)
+                if request.data:
+                    data = request.get_json()
+                    if data.get("resource_id"):
+                        a= mongo.get_policy_from_resource_id(data.get("resource_id"))
                         a['_id'] = str(a['_id'])
-                        return json.dumps(a)
-                #update resource
+                        return json.dumps(a)     
+                else:
+                    a= mongo.get_policy_from_id(policy_id)
+                    a['_id'] = str(a['_id'])
+                    return json.dumps(a)
+            #update resource
             elif request.method == "DELETE":
                 mongo.delete_policy(policy_id)
                 response.status_code = 204
+                response.text = 'DELETED'
                 return response
             else:
                 return ''
