@@ -222,7 +222,7 @@ def policy_operation(policy_id):
                                 n['_id'] = str(n['_id'])
                                 f.write(str(n))
                         f.write('return:')
-                        fwrite(str(list_of_policies))
+                        f.write(str(list_of_policies))
                         return json.dumps(list_of_policies)
                     f.close()   
                 else:
