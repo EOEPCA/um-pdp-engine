@@ -127,9 +127,11 @@ For the endpoint: <DOMAIN>/policy/<policy_id or ObjectId(policy_id)>
     curl -k -v -XGET 'http://<DOMAIN>/policy/5f32f236ea1bacfddd396e97' -H 'Content-Type: application/json, Authorization: Bearer <token>'
 
   By its resource_id:
+
     curl -k -v -XGET 'http://<DOMAIN>/policy/5f339a1e8e8f28850cb2e6e7' -H 'Content-Type: application/json, Authorization: Bearer <token>' -d '{"resource_id": "6666666"'
 
   Delete Policy (DELETE):
+  
     curl -k -v -XDELETE 'http://<DOMAIN>/policy/5f32f236ea1bacfddd396e97' -H 'Content-Type: application/json, Authorization: Bearer <token>'
 
 ## Roadmap
