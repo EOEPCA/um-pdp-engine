@@ -208,11 +208,21 @@ def policy_operation(policy_id):
             elif request.method == "GET":
                 if request.data:
                     data = request.get_json()
+                    f= open("out.txt","w+")
+                    f.write(str(data))
+                    f.write('----')
                     if data.get("resource_id"):
                         list_of_policies={}
                         a= mongo.get_policy_from_resource_id(data.get("resource_id"))
+                        f.write(str(a))
                         list_of_policies['policies'] = a
-                        return json.dumps(list_of_policies)     
+                        for n in list_of_policies['policies']:
+                            f.write(str(n))
+                            if '_id' in n:
+                                f.write(str(n)
+                        f.write('returneo:')
+                        return json.dumps(list_of_policies)
+                    f.close()   
                 else:
                     a= mongo.get_policy_from_id(policy_id)
                     a['_id'] = str(a['_id'])
