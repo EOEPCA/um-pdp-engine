@@ -219,8 +219,10 @@ def policy_operation(policy_id):
                         for n in list_of_policies['policies']:
                             f.write(str(n))
                             if '_id' in n:
+                                n['_id'] = str(n['_id'])
                                 f.write(str(n))
                         f.write('return:')
+                        fwrite(str(list_of_policies)
                         return json.dumps(list_of_policies)
                     f.close()   
                 else:
