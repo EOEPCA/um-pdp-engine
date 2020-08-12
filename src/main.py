@@ -10,8 +10,14 @@ from config import config_parser
 from flask import Flask, request, Response
 from requests import get, post, put, delete
 import os
+import re
 import sys
-
+import base64
+from custom_oidc import OIDCHandler
+from WellKnownHandler import WellKnownHandler
+from WellKnownHandler import TYPE_UMA_V2, KEY_UMA_V2_RESOURCE_REGISTRATION_ENDPOINT, KEY_UMA_V2_PERMISSION_ENDPOINT, KEY_UMA_V2_INTROSPECTION_ENDPOINT
+from eoepca_uma import rpt as class_rpt
+import logging
 #env vars definition
 env_vars = [
     'PDP_AUTH_SERVER_URL',        
@@ -44,6 +50,13 @@ else:
         else:
             g_config[env_var_config.lower()] = os.environ[env_var].replace('"', '')
 
+oidc_client = OIDCHandler(g_config['auth_server_url'],
+                            client_id= None,
+                            client_secret= None,
+                            redirect_uri = "",
+                            scopes = ['openid', 'uma_protection', 'permission'],
+                            verify_ssl = g_config['check_ssl_certs'])
+client_id, client_secret=oidc_client.register_client()
 
 #example rule policy a:
 a= {
@@ -55,7 +68,7 @@ a= {
         ]
     }]
 }
-#example rule policy a:
+#example rule policy b:
 b= {
     "resource_id": "202485830",
     "rules": [{
@@ -66,10 +79,10 @@ b= {
 }
 #instance
 mongo = Policy_Storage('mongodb')
-#register policy:
-mongo.insert_policy(name='Policy1', description= '', config= a, scopes=[''])
-#register policy:
-mongo.insert_policy(name='Policy2', description= '', config= b, scopes=[''])
+#register example policy:
+mongo.insert_policy(name='Policy1', description= '',ownership_id= '55b8f51f-4634-4bb0-a1dd-070ec5869d70', config= a, scopes=[''])
+#register example policy:
+mongo.insert_policy(name='Policy2', description= '',ownership_id= '55b8f51f-4634-4bb0-a1dd-070ec5869d70', config= b, scopes=[''])
 
 
 app = Flask(__name__)
@@ -81,61 +94,144 @@ app.register_blueprint(policy_bp, url_prefix="/policy")
 
 @app.route("/policy/", methods=[ "PUT", "POST"])
 def policy_insert():
-    
+    '''
+    PUT/POST will create or insert a policy in the repository
+    This endpoint will check the headers of the request to retrieve a token
+    Mandatory parameters:
+        - endpoint: <DOMAIN>/policy
+        - headers(JWT_id_token/OAuth_access_token): to verify the user credentials
+        - body(policy_data_model): As a dicionary/json it must have at least the name, description, config and scope keys to add it
+    '''
     print("Processing " + request.method + " policy request...")
     response = Response()
     mongo = Policy_Storage('mongodb') 
-    #add policy is outside of rpt validation, as it only requires a client pat to register a new policy
+    uid= None
     try:
-        if request.is_json:
-            data = request.get_json()
-            print(data)
-            if data.get("name") and data.get("config"):
-                return mongo.insert_policy(data.get("name"), data.get("description"), data.get("config"), data.get("scopes"))
+        head = str(request.headers)
+        headers_alone = head.split()
+        #Retrieve the token from the headers
+        for i in headers_alone:
+            if 'Bearer' in str(i):
+                aux=headers_alone.index('Bearer')
+                inputToken = headers_alone[aux+1]           
+        token = inputToken
+        if token:
+            #Compares between JWT id_token and OAuth access token to retrieve the UUID
+            if len(str(token))>40:
+                uid=oidc_client.verify_JWT_token(token)
             else:
-                response.status_code = 500
-                response.headers["Error"] = "Invalid data or incorrect policy name passed on URL called for policy creation!"
-                return response
+                uid=oidc_client.verify_OAuth_token(token)
+        else:
+            return 'NO TOKEN FOUND'
+    except Exception as e:
+        print("Error While passing the token: "+str(uid))
+        response.status_code = 500
+        response.headers["Error"] = str(e)
+        return response 
+    #Insert once is authorized
+    try:
+        #If the user is authorized it must find his UUID
+        if uid:
+            if request.is_json:
+                data = request.get_json()
+                if data.get("name") and data.get("config"):
+                    #Insert in database the body parameters
+                    return mongo.insert_policy(data.get("name"), data.get("description"), uid ,data.get("config"), data.get("scopes"))
+                else:
+                    response.status_code = 500
+                    response.headers["Error"] = "Invalid data or incorrect policy name passed on URL called for policy creation!"
+                    return response
+        else: 
+            response.status_code = 401
+            response.headers["Error"] = 'Could not get the UID for the user'
+            return response
     except Exception as e:
         print("Error while creating resource: "+str(e))
         response.status_code = 500
         response.headers["Error"] = str(e)
         return response
+        
 @app.route("/policy/<policy_id>", methods=["GET", "PUT", "POST", "DELETE"])
 def policy_operation(policy_id):
-    
+    '''
+    PUT/POST will update a policy in the repository by its _id
+    GET will return the policy by its _id or by specifying the resource_id on the body
+    DELETE will delete the policy by its _id
+    This endpoint will check the headers of the request to retrieve a token
+    To operate against any policy the UUID of the user must match with the one associated to the policy
+    Mandatory parameters:
+        - endpoint: <DOMAIN>/policy/<policy_id>    <-   The policy_id can be specify with both formats: [policy_id/ObjectId(policy_id)]
+        - headers(JWT_id_token/OAuth_access_token): to verify the user credentials
+        - body(policy_data_model): Only for the GET/PUT/POST, As a dicionary/json.
+    '''
     print("Processing " + request.method + " policy request...")
     response = Response()
-    mongo = Policy_Storage('mongodb') 
-    #add policy is outside of rpt validation, as it only requires a client pat to register a new policy
+    mongo = Policy_Storage('mongodb')
+    uid= None
     try:
-        if request.method == "POST" or request.method == 'PUT':
-            if request.is_json:
-                data = request.get_json()
-                if data.get("name") and data.get("config"):
-                    return mongo.update_policy(policy_id, data)
-                else:
-                    response.status_code = 500
-                    response.headers["Error"] = "Invalid data or incorrect policy name passed on URL called for policy creation!"
-                    return response
-
-        elif request.method == "GET":
-                data = request.data
-                if 'resource_id' in str(data):
-                    a= mongo.get_policy_from_resource_id(data.get("resource_id"))
-                    a['_id'] = str(a['_id'])
-                    return json.dumps(a)
+        a = str(request.headers)
+        headers_alone = a.split()
+        for i in headers_alone:
+            #Retrieve the token from the headers
+            if 'Bearer' in str(i):
+                aux=headers_alone.index('Bearer')
+                inputToken = headers_alone[aux+1]           
+        token = inputToken
+        if token: 
+            #Compares between JWT id_token and OAuth access token to retrieve the UUID
+            if len(str(token))>40:
+                uid=oidc_client.verify_JWT_token(token)
+            else:
+                uid=oidc_client.verify_OAuth_token(token)
+        else:
+            return 'NO TOKEN FOUND'
+    except Exception as e:
+        print("Error While passing the token: "+str(uid))
+        response.status_code = 500
+        response.headers["Error"] = str(e)
+        return response
+    #once Authorized performs operations against the policy
+    try:
+        #If UUID exists and policy requested has same UUID
+        if uid and mongo.verify_uid(policy_id, uid):
+            #Updates policy
+            if request.method == "POST" or request.method == 'PUT':
+                if request.is_json:
+                    data = request.get_json()
+                    if data.get("name") and data.get("config"):
+                        return mongo.update_policy(policy_id, data)
+                    else:
+                        response.status_code = 500
+                        response.headers["Error"] = "Invalid data or incorrect policy name passed on URL called for policy creation!"
+                        return response
+            #return policy or list of policies if the resource_id is in the body
+            elif request.method == "GET":
+                if request.data:
+                    data = request.get_json()
+                    if data.get("resource_id"):
+                        list_of_policies={}
+                        a= mongo.get_policy_from_resource_id(data.get("resource_id"))
+                        list_of_policies['policies'] = a
+                        for n in list_of_policies['policies']:
+                            if '_id' in n:
+                                n['_id'] = str(n['_id'])
+                        return json.dumps(list_of_policies)  
                 else:
                     a= mongo.get_policy_from_id(policy_id)
                     a['_id'] = str(a['_id'])
                     return json.dumps(a)
-            #update resource
-        elif request.method == "DELETE":
-            mongo.delete_policy(policy_id)
-            response.status_code = 204
-            return response
+            #Deletes a policy by its _id
+            elif request.method == "DELETE":
+                mongo.delete_policy(policy_id)
+                response.status_code = 204
+                response.text = 'DELETED'
+                return response
+            else:
+                return ''
         else:
-            return ''
+            response.status_code = 401
+            response.headers["Error"] = "Can not operate. No UID valid for that Policy: { policy_id: "+policy_id+", UUID: "+uid+"}"
+            return response
     except Exception as e:
         print("Error while creating resource: "+str(e))
         response.status_code = 500

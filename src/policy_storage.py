@@ -12,7 +12,10 @@ class Policy_Storage:
             if 'mongo' in database:
                 self.current_db = Mongo_Handler()
         
+    def verify_uid(self, policy_id, uid):
 
+        return self.current_db.verify_uid(policy_id, uid)
+        
     def get_policy_from_resource_id(self,resource_id):
         '''
             Finds the policy, attached to a resource by a resource_id given
@@ -40,7 +43,7 @@ class Policy_Storage:
         return self.current_db.policy_exists(_id, name)
 
 
-    def insert_policy(self, name:str, description:str, config: dict, scopes: list):
+    def insert_policy(self, name:str, description:str, ownership_id: str, config: dict, scopes: list):
         '''
             Generates a document with json format (name: str, description: str, id: str,cfg: dict, scopes:list ): 
                 -NAME: Name generic for the policy
@@ -52,7 +55,7 @@ class Policy_Storage:
             If alredy registered will update the values
             If not registered will add it and return the query result
         '''
-        return self.current_db.insert_policy(name,description,config,scopes)
+        return self.current_db.insert_policy(name, description, ownership_id, config, scopes)
 
     def delete_policy(self, _id):
         '''
