@@ -55,19 +55,6 @@ if use_env_var is True:
             g_config[env_var_config.lower()] = False
         else:
             g_config[env_var_config.lower()] = os.environ[env_var].replace('"', '')
-#     if not os_var_client:
-#         print ("NOTICE: Client not found, generating one... ")
-#         new_client = ScimHandler.registerScimClient(g_config["auth_server_url"], verify_ssl=g_config["check_ssl_certs"])
-#         g_config["client_id"] = new_client["client_id"]
-#         g_config["client_secret"] = new_client["client_secret"]
-#         config_parser.save_config()
-#         os.environ["PEP_CLIENT_ID"] = new_client["client_id"]
-#         os.environ["PEP_CLIENT_SECRET"] = new_client["client_secret"]
-#     else:
-#         ScimHandler.registerScimClient(os.environ["PDP_AUTH_SERVER_URL"], os.environ["PDP_CLIENT_ID"], os.environ["PDP_CLIENT_SECRET"], os.environ["PDP_CHECK_SSL_CERTS"])    
-# else:
-#     print(g_config)
-#     ScimHandler.registerScimClient(g_config["auth_server_url"], g_config["client_id"], g_config["client_secret"], g_config["check_ssl_certs"])
 
 if os_var_client:
     ScimHandler.registerScimClient(auth_server_url = os.environ["PDP_AUTH_SERVER_URL"], client_id = os.environ["PDP_CLIENT_ID"], client_secret = os.environ["PDP_CLIENT_SECRET"], verify_ssl = os.environ["PDP_CHECK_SSL_CERTS"])    
