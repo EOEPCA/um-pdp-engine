@@ -16,3 +16,6 @@ Flask==1.1.2
 mock
 WellKnownHandler==0.2.0
 eoepca-scim==2.7.3
+urllib3==1.25.9
+pyjwkest==1.4.2
+pycrypto==2.6.1
