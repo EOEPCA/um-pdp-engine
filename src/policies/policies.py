@@ -1,8 +1,10 @@
 from flask import Blueprint, request, Response, jsonify
 import json
-from policies import policies_operations
 
-from xacml import parser
+from policies import policies_operations
+from models import response
+from xacml import parser, decision
+from utils import ClassEncoder
 
 policy_bp = Blueprint('policy_bp', __name__)
 
@@ -36,13 +38,14 @@ def validate_resource():
                 break
     else:
         result_validation = policies_operations.validate_access_policies(resource_id, user_name)
-
-    response = {'Response':[]}
+    
     if result_validation:
-        response["Response"].append({'Decision': "Permit"})
+        r = response.Response(decision.PERMIT)
+        status = 200
     else:
-        response["Response"].append({'Decision': "Deny"})
-
-    return jsonify(response)
+        r = response.Response(decision.DENY, "fail_to_permit", "obligation-id", "You cannot access this resource")
+        status = 401
+    
+    return json.dumps(r, cls=ClassEncoder), status
 
     

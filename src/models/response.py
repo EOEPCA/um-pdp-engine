@@ -1,4 +1,5 @@
 import json
+from flask import jsonify
 
 class Response:
     """
@@ -13,8 +14,8 @@ class Response:
                  data_type="http://www.w3.org/2001/XMLSchema#string"):
         self.Response = [self.ResponseStructure(decision, obligations_id, attr_id, value, status_code, data_type)]
 
-    def __str__(self):
-        return json.dumps(self, default=lambda o: o.__dict__, indent=4)
+    #def __str__(self):
+    #    return json.loads(self, default=lambda o: o.__dict__)
 
 
     class ResponseStructure:
@@ -23,11 +24,11 @@ class Response:
         """
         def __init__(self,
                     decision: str,
-                    obligations_id=None,
-                    attr_id=None,
-                    value=None,
-                    status_code="urn:oasis:names:tc:xacml:1.0:status:ok",
-                    data_type="http://www.w3.org/2001/XMLSchema#string"):
+                    obligations_id: str,
+                    attr_id: str,
+                    value: str,
+                    status_code: str,
+                    data_type: str):
             self.Decision = decision
             self.Status = self.Status(self.StatusCode(status_code))
             if (obligations_id is not None or attr_id is not None or value is not None):
@@ -51,10 +52,3 @@ class Response:
                 self.AttributeId = attr_id
                 self.Value = value
                 self.DataType = data_type
-    
-
-a = Response("Deny", "fail_to_permit", "obligations-id", "You can not access the resource")
-b = Response("Permit")
-print(a)
-print("\n\n")
-print(b)

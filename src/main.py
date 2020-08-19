@@ -1,16 +1,20 @@
 #!/usr/bin/env python3
 import time
-from policy_storage import Policy_Storage
+import json
+import os
+import sys
+
 from flask import Flask
 from random import choice
 from string import ascii_lowercase
-import json
-from policies.policies import policy_bp
-from config import config_parser
 from flask import Flask, request, Response
 from requests import get, post, put, delete
-import os
-import sys
+
+from policy_storage import Policy_Storage
+from policies.policies import policy_bp
+from config import config_parser
+
+
 
 #env vars definition
 env_vars = [
