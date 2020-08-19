@@ -14,3 +14,4 @@ requests
 pymongo
 Flask==1.1.2
 mock
+jsonschema
