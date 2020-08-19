@@ -1,5 +1,6 @@
 import json
-from flask import jsonify
+
+#TODO Improve list of dicts
 
 class Response:
     """
@@ -14,8 +15,8 @@ class Response:
                  data_type="http://www.w3.org/2001/XMLSchema#string"):
         self.Response = [self.ResponseStructure(decision, obligations_id, attr_id, value, status_code, data_type)]
 
-    #def __str__(self):
-    #    return json.loads(self, default=lambda o: o.__dict__)
+    #def deserialize(self):
+    #    return self.__dict__
 
 
     class ResponseStructure:
