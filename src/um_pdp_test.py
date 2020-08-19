@@ -10,7 +10,7 @@ import requests
 
 class TestPDP(unittest.TestCase):
     def test_pdp_parse_request_xacml(self):
-        with open('../src/standards/request_template.json') as json_file:
+        with open('standards/request_template.json') as json_file:
             data = json.load(json_file)
 
         subject, action, resource = parser.load_request(data)
@@ -22,7 +22,7 @@ class TestPDP(unittest.TestCase):
         self.assertEqual(isinstance(user_name, str), True, "User name should be a string")
 
     def test_pdp_parse_request_xacml_multiple_resources(self):
-        with open('../src/standards/request_template.json') as json_file:
+        with open('standards/request_template.json') as json_file:
             data = json.load(json_file)
 
         data["Request"]["Resource"].append({"Attribute":[{"AttributeId":"resource-id","Value":"20248583","DataType":"string","IncludeInResult":"True"}]})
@@ -44,7 +44,7 @@ class TestPDP(unittest.TestCase):
         self.assertEqual(policies_operations.validate_access_policies("20248583", "test"), False, "Validate access policies 3 should be false")
 
     def test_pdp_validate_all_functionality_permit(self):
-        with open('../src/standards/request_template.json') as json_file:
+        with open('standards/request_template.json') as json_file:
             data = json.load(json_file)
 
         headers = {'Accept': 'application/json'}
@@ -55,7 +55,7 @@ class TestPDP(unittest.TestCase):
         self.assertEqual(result['Response'][0]['Decision'], "Permit", "This flow should be a decision Permit")
 
     def test_pdp_validate_all_functionality_deny(self):
-        with open('../src/standards/request_template.json') as json_file:
+        with open('standards/request_template.json') as json_file:
             data = json.load(json_file)
 
         headers = {'Accept': 'application/json'}
