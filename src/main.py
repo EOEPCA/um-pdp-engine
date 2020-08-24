@@ -6,6 +6,7 @@ from random import choice
 from string import ascii_lowercase
 import json
 from policies.policies import policy_bp
+from policies.policies_operations import validate_policy_language
 from config import config_parser
 from flask import Flask, request, Response
 from requests import get, post, put, delete
@@ -77,12 +78,40 @@ b= {
         ]
     }]
 }
+
+c= {
+    "resource_id": "123456",
+    "rules" : [
+        {
+          "AND": [{
+            "EQUAL" : {"user_name" : "admin" }
+          }]
+        },
+        {
+          "AND": [{
+          "NOT" : {
+            "OR" : [
+                    {"GREATER": {"num_acces" : 10} },
+                    {"GREATEREQUAL" : {"attemps" : 18 }}
+            ]
+          },
+            "EQUAL" : {"company" : "Deimos" }
+          }]
+        },
+        { 
+          "LESSEQUAL" : {"system_load" : 90 }
+        }
+      ]
+}
+
 #instance
 mongo = Policy_Storage('mongodb')
 #register example policy:
 mongo.insert_policy(name='Policy1', description= '',ownership_id= '55b8f51f-4634-4bb0-a1dd-070ec5869d70', config= a, scopes=[''])
 #register example policy:
 mongo.insert_policy(name='Policy2', description= '',ownership_id= '55b8f51f-4634-4bb0-a1dd-070ec5869d70', config= b, scopes=[''])
+#register example policy:
+mongo.insert_policy(name='Policy30', description= '',ownership_id= '55b8f51f-4634-4bb0-a1dd-070ec5869d70', config= c, scopes=[''])
 
 
 app = Flask(__name__)
@@ -135,8 +164,15 @@ def policy_insert():
             if request.is_json:
                 data = request.get_json()
                 if data.get("name") and data.get("config"):
-                    #Insert in database the body parameters
-                    return mongo.insert_policy(data.get("name"), data.get("description"), uid ,data.get("config"), data.get("scopes"))
+                    policy_structure = data.get("config")
+                    result_format = validate_policy_language(policy_structure['rules'])
+                    if result_format is True:
+                        #Insert in database the body parameters
+                        return mongo.insert_policy(data.get("name"), data.get("description"), uid ,data.get("config"), data.get("scopes"))
+                    else:
+                        response.status_code = 500
+                        response.headers["Error"] = "Invalid policy structure"
+                        return response
                 else:
                     response.status_code = 500
                     response.headers["Error"] = "Invalid data or incorrect policy name passed on URL called for policy creation!"
@@ -199,7 +235,14 @@ def policy_operation(policy_id):
                 if request.is_json:
                     data = request.get_json()
                     if data.get("name") and data.get("config"):
-                        return mongo.update_policy(policy_id, data)
+                        policy_structure = data.get("config")
+                        result_format = validate_policy_language(policy_structure['rules'])
+                        if result_format is True:
+                            return mongo.update_policy(policy_id, data)
+                        else:
+                            response.status_code = 500
+                            response.headers["Error"] = "Invalid policy structure"
+                            return response
                     else:
                         response.status_code = 500
                         response.headers["Error"] = "Invalid data or incorrect policy name passed on URL called for policy creation!"

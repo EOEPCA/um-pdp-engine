@@ -2,17 +2,35 @@
     "Request": {
         "AccessSubject": [{
             "Attribute": [{
-                    "AttributeId": "user-id",
+                    "AttributeId": "user_name",
                     "Value": "admin",
                     "DataType": "string",
                     "IncludeInResult": true
                 },
                 {
-                    "AttributeId": "claim-token",
-                    "Value": "js3...",
+                    "AttributeId": "num_acces",
+                    "Value": 6,
+                    "DataType": "int",
+                    "IncludeInResult": true
+                },
+                {
+                    "AttributeId": "attemps",
+                    "Value": 20,
+                    "DataType": "int",
+                    "IncludeInResult": true
+                },
+                {
+                    "AttributeId": "company",
+                    "Value": "Deimos",
                     "DataType": "string",
                     "IncludeInResult": true
-                }
+                },
+                {
+                    "AttributeId": "system_load",
+                    "Value": 4,
+                    "DataType": "int",
+                    "IncludeInResult": true
+                }  
             ]
         }],
         "Action": [{
