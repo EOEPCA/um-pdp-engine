@@ -81,6 +81,21 @@ The design of the PDP allows for further improvements if need be. For example:
 * EOEPCA's Well Known Handler - https://github.com/EOEPCA/well-known-handler
 * Flask - https://github.com/pallets/flask
 
+== POLICY VALIDATION
+=== Overview and Purpose
+The functionality is to validate that the policy is fulfilled with the request received at the /validate endpoint, and return a response with the access or denied access.
+
+* **validate_policy_language**: Function that validates that the policy follows the expected structure (https://app.swaggerhub.com/apis/hector-rodriguez/PolicyAPI/1-oas3)
+
+* **conditions_validator**: Function that validates the policy conditions (AND, OR, XOR, NOT) and returns True or False
+
+* **validate_operations**: Function that will validate the value received in the request with the policy values together with the condition (LESS, LESSEQUAL, GREATER, GREATEREQUAL, EQUAL) and return True or False
+
+* **validate_multiples_conditions**: New function that will split the policy rule in order to obtain the value for each condition. For this reason it calls the conditions_validator and validate_operations functions
+
+* **validate_all_acces_policies**: Function that goes through the list of policy conditions to obtain the result for each one. For that reason it makes calls to the function of validate_multiples_conditions
+
+* **validate_complete_policies**: This is the main function that makes calls to the previous ones, it makes the function that made validate_access_policies before
 
 == POLICY RESPOSITORY
 === Overview and Purpose
