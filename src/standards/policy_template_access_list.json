@@ -1,5 +1,5 @@
 {
-    "resource_id": "20248583",
+    "resource_id": "789",
     "rules": [{
       "OR": [
                   {"EQUAL": {"user_name" : "mami"} },
