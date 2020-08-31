@@ -37,13 +37,48 @@ class TestPDP(unittest.TestCase):
         self.assertEqual(isinstance(user_name, str), True, "User name should be a string")
 
     def test_pdp_validate_access_policies_true(self):
-        self.assertEqual(policies_operations.validate_access_policies("20248583", "admin"), True, "Validate access policies 1 should be true")
+        with open('standards/request_template.json') as json_file:
+            data = json.load(json_file)
+
+        subject, action, resource = parser.load_request(data)
+
+        resource_id = resource.attributes[0]['Value']
+        dict_values = {}
+
+        for i in range(0, len(subject.attributes)):
+            dict_values[subject.attributes[i]['AttributeId']] = subject.attributes[i]['Value']
+
+        self.assertEqual(policies_operations.validate_complete_policies(resource_id, dict_values), True, "Validate access policies 1 should be true")
 
     def test_pdp_validate_access_policies_resourceid_false(self):
-        self.assertEqual(policies_operations.validate_access_policies("202485839", "admin"), False, "Validate access policies 2 should be false")
+        with open('standards/request_template.json') as json_file:
+            data = json.load(json_file)
+
+        subject, action, resource = parser.load_request(data)
+
+        resource_id = "173"
+        dict_values = {}
+
+        for i in range(0, len(subject.attributes)):
+            dict_values[subject.attributes[i]['AttributeId']] = subject.attributes[i]['Value']
+
+        self.assertEqual(policies_operations.validate_complete_policies(resource_id, dict_values), False, "Validate access policies 2 should be false")
 
     def test_pdp_validate_access_policies_resourceid_true_user_name_false(self):
-        self.assertEqual(policies_operations.validate_access_policies("20248583", "test"), False, "Validate access policies 3 should be false")
+        with open('standards/request_template.json') as json_file:
+            data = json.load(json_file)
+
+        subject, action, resource = parser.load_request(data)
+
+        resource_id = resource.attributes[0]['Value']
+        dict_values = {}
+
+        for i in range(0, len(subject.attributes)):
+            dict_values[subject.attributes[i]['AttributeId']] = subject.attributes[i]['Value']
+        
+        dict_values['user_name'] = "test"
+
+        self.assertEqual(policies_operations.validate_complete_policies(resource_id, dict_values), False, "Validate access policies 3 should be false")
 
     def test_pdp_validate_schema_permit(self):
         with open('standards/request_template.json') as json_file:
@@ -102,6 +137,36 @@ class TestPDP(unittest.TestCase):
         result = r.json()
 
         self.assertEqual(result['Response'][0]['Decision'], "Deny", "This flow should be a decision Deny")
+
+    def test_pdp_policy_rule_with_conditions_false(self):
+        with open('standards/request_template.json') as json_file:
+            data = json.load(json_file)
+
+        subject, action, resource = parser.load_request(data)
+
+        resource_id = "123456"
+        dict_values = {}
+
+        for i in range(0, len(subject.attributes)):
+            dict_values[subject.attributes[i]['AttributeId']] = subject.attributes[i]['Value']
+
+        self.assertEqual(policies_operations.validate_complete_policies(resource_id, dict_values), False, "Validate conditional policy rule should be false")
+
+    def test_pdp_policy_rule_with_conditions_true(self):
+        with open('standards/request_template.json') as json_file:
+            data = json.load(json_file)
+
+        subject, action, resource = parser.load_request(data)
+
+        resource_id = "123456"
+        dict_values = {}
+
+        for i in range(0, len(subject.attributes)):
+            dict_values[subject.attributes[i]['AttributeId']] = subject.attributes[i]['Value']
+
+        dict_values['attemps'] = 5
+
+        self.assertEqual(policies_operations.validate_complete_policies(resource_id, dict_values), True, "Validate conditional policy rule should be true")
 
 if __name__ == '__main__':
     unittest.main()

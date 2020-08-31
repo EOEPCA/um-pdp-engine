@@ -12,13 +12,14 @@ class Mongo_Handler:
         self.myclient = pymongo.MongoClient('localhost', 27017)
         self.db = self.myclient["policy_db"]
 
-    def create_policy_json(self, name: str, description:str, policyCFG: list, scopes: list):
+    def create_policy_json(self, name: str, description:str, ownership_id: str, policyCFG: list, scopes: list):
         '''
         Creates a template of policy to insert in the database
         '''
         plcy= {
             "name" : name,
             "description" : description,
+            "ownership_id" : ownership_id,
             "config" : policyCFG,
             "scopes" : scopes
         }
@@ -36,13 +37,18 @@ class Mongo_Handler:
     def parse_id(self, _id):
         myId=None
         if 'ObjectId' in str(_id):
+            print('1')
             if type(_id) == str:
-                a=_id[_id.find("(")+2:_id.find(")")-1]
+                print('2')
+                a=_id[_id.find("(")+1:_id.find(")")]
                 myId = ObjectId(str(a))
             else:
+                print('3')
                 myId = _id
         else:
+            print('4')
             myId = ObjectId(_id)
+        print(myId)
         return myId
 
     def get_policy_from_resource_id(self,resource_id):
@@ -94,9 +100,19 @@ class Mongo_Handler:
         else:
             return False
             
+    def verify_uid(self, policy_id, uid):
+        col = self.db['policies']
+        try:
+            myquery = {"_id": ObjectId(policy_id), "ownership_id": uid }
+            a= col.find_one(myquery)
+            if a:                
+                return True
+            else: return False
+        except:
+            print('no policy with that UID associated')
+            return False
 
-
-    def insert_policy(self, name:str, description:str, config: dict, scopes: list):
+    def insert_policy(self, name:str, description:str, ownership_id: str, config: dict, scopes: list):
         '''
             Generates a document with json format (name: str, description: str, id: str,cfg: dict, scopes:list ): 
                 -NAME: Name generic for the policy
@@ -112,7 +128,7 @@ class Mongo_Handler:
         # Check if the database alredy exists
         if "policy_db" in dblist:
             col = self.db['policies']
-            myres = self.create_policy_json(name,description, config, scopes)
+            myres = self.create_policy_json(name,description, ownership_id, config, scopes)
             x=None
             if self.policy_exists(name=name):
                 myId= self.get_id_from_name(name)
@@ -125,7 +141,7 @@ class Mongo_Handler:
             return x
         else:
             col = self.db['policies']
-            myres = self.create_policy_json(name,description, config, scopes)
+            myres = self.create_policy_json(name,description, ownership_id, config, scopes)
             x = col.insert_one(myres)
             return 'New Policy with ID: ' + str(x.inserted_id)
 

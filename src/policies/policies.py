@@ -28,17 +28,20 @@ def validate_resource():
     subject, action, resource = parser.load_request(xacml)
 
     resource_id = resource.attributes[0]['Value']
-    user_name = subject.attributes[0]['Value']
+    dict_values = {}
+
+    for i in range(0, len(subject.attributes)):
+        dict_values[subject.attributes[i]['AttributeId']] = subject.attributes[i]['Value']
 
     # Pending: Complete when xacml receives several resources
     if isinstance(resource_id, list):
         for resource_from_list in resource.attributes[0]['Value']:
-            result_validation = policies_operations.validate_access_policies(resource_from_list, user_name)
+            result_validation = policies_operations.validate_complete_policies(resource_from_list, dict_values)
             if result_validation:
                 break
     else:
-        result_validation = policies_operations.validate_access_policies(resource_id, user_name)
-    
+        result_validation = policies_operations.validate_complete_policies(resource_id, dict_values)
+
     if result_validation:
         r = response.Response(decision.PERMIT)
         status = 200
