@@ -39,11 +39,10 @@ def validate_resource():
     #To be expanded when implementing more complex policies
     #For now it serves only as a check if the user attributes were reachable on the AS
     #handler_user_attributes uses this schema: https://gluu.org/docs/gluu-server/4.1/api-guide/scim-api/#/definitions/User
-    handler_status, handler_user_attributes = ScimHandler.get_instance().getUserAttributes(user_name)
-    if handler_status == 500:
-        if not handler_user_attributes:
-            return "Exception occured when retrieving user attributes from AS. Please check logs."
-        return handler_user_attributes
+
+    # Call to be used later in development
+    #handler_status, handler_user_attributes = ScimHandler.get_instance().getUserAttributes(user_name)
+
 
     # Pending: Complete when xacml receives several resources
     if isinstance(resource_id, list):
