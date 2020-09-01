@@ -18,5 +18,6 @@ WellKnownHandler==0.2.0
 eoepca-scim==2.7.3
 eoepca-uma==0.2.3
 eoepca-oidc==0.0.2
+urllib3==1.25.9
 pyjwkest==1.4.2
 pycrypto==2.6.1

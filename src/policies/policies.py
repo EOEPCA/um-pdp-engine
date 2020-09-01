@@ -1,6 +1,7 @@
 from flask import Blueprint, request, Response, jsonify
 import json
 from policies import policies_operations
+from handlers.scim_handler import ScimHandler
 
 from xacml import parser
 
@@ -30,6 +31,15 @@ def validate_resource():
 
     for i in range(0, len(subject.attributes)):
         dict_values[subject.attributes[i]['AttributeId']] = subject.attributes[i]['Value']
+
+    #To be expanded when implementing more complex policies
+    #For now it serves only as a check if the user attributes were reachable on the AS
+    #handler_user_attributes uses this schema: https://gluu.org/docs/gluu-server/4.1/api-guide/scim-api/#/definitions/User
+    handler_status, handler_user_attributes = ScimHandler.get_instance().getUserAttributes(user_name)
+    if handler_status == 500:
+        if not handler_user_attributes:
+            return "Exception occured when retrieving user attributes from AS. Please check logs."
+        return handler_user_attributes
 
     # Pending: Complete when xacml receives several resources
     if isinstance(resource_id, list):
