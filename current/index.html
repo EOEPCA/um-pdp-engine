@@ -79,17 +79,12 @@
 <li><a href="#_applicable_resources">3.1.6. Applicable Resources</a></li>
 </ul>
 </li>
-<li><a href="#_policy_validation">3.2. POLICY VALIDATION</a>
+<li><a href="#_policy_respository">3.2. POLICY RESPOSITORY</a>
 <ul class="sectlevel3">
 <li><a href="#_overview_and_purpose_2">3.2.1. Overview and Purpose</a></li>
-</ul>
-</li>
-<li><a href="#_policy_respository">3.3. POLICY RESPOSITORY</a>
-<ul class="sectlevel3">
-<li><a href="#_overview_and_purpose_3">3.3.1. Overview and Purpose</a></li>
-<li><a href="#_software_reuse_and_dependencies_2">3.3.2. Software Reuse and Dependencies</a></li>
-<li><a href="#_data_flow_2">3.3.3. Data flow</a></li>
-<li><a href="#_applicable_resources_2">3.3.4. Applicable Resources</a></li>
+<li><a href="#_software_reuse_and_dependencies_2">3.2.2. Software Reuse and Dependencies</a></li>
+<li><a href="#_data_flow_2">3.2.3. Data flow</a></li>
+<li><a href="#_applicable_resources_2">3.2.4. Applicable Resources</a></li>
 </ul>
 </li>
 </ul>
@@ -1377,40 +1372,9 @@ This is the only input interface to interact directly with the PDP from outside,
 </div>
 </div>
 <div class="sect2">
-<h3 id="_policy_validation">3.2. POLICY VALIDATION</h3>
+<h3 id="_policy_respository">3.2. POLICY RESPOSITORY</h3>
 <div class="sect3">
 <h4 id="_overview_and_purpose_2">3.2.1. Overview and Purpose</h4>
-<div class="paragraph">
-<p>The functionality is to validate that the policy is fulfilled with the request received at the /validate endpoint, and return a response with the access or denied access.</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><strong>validate_policy_language</strong>: Function that validates that the policy follows the expected structure (<a href="https://app.swaggerhub.com/apis/hector-rodriguez/PolicyAPI/1-oas3" class="bare">https://app.swaggerhub.com/apis/hector-rodriguez/PolicyAPI/1-oas3</a>)</p>
-</li>
-<li>
-<p><strong>conditions_validator</strong>: Function that validates the policy conditions (AND, OR, XOR, NOT) and returns True or False</p>
-</li>
-<li>
-<p><strong>validate_operations</strong>: Function that will validate the value received in the request with the policy values together with the condition (LESS, LESSEQUAL, GREATER, GREATEREQUAL, EQUAL) and return True or False</p>
-</li>
-<li>
-<p><strong>validate_multiples_conditions</strong>: New function that will split the policy rule in order to obtain the value for each condition. For this reason it calls the conditions_validator and validate_operations functions</p>
-</li>
-<li>
-<p><strong>validate_all_acces_policies</strong>: Function that goes through the list of policy conditions to obtain the result for each one. For that reason it makes calls to the function of validate_multiples_conditions</p>
-</li>
-<li>
-<p><strong>validate_complete_policies</strong>: This is the main function that makes calls to the previous ones, it makes the function that made validate_access_policies before</p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_policy_respository">3.3. POLICY RESPOSITORY</h3>
-<div class="sect3">
-<h4 id="_overview_and_purpose_3">3.3.1. Overview and Purpose</h4>
 <div class="paragraph">
 <p>It is the database based on MongoDB where the policies are stored and queried for the PDP pourposes</p>
 </div>
@@ -1444,7 +1408,7 @@ In the future this will be complient with other databases in order to unify the 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_software_reuse_and_dependencies_2">3.3.2. Software Reuse and Dependencies</h4>
+<h4 id="_software_reuse_and_dependencies_2">3.2.2. Software Reuse and Dependencies</h4>
 <div class="paragraph">
 <p>The script needs the library 'pymongo', to query the database. It will expect a MongoDB service running on the default&#8217;s Mongo port 27017<br>
 In order to simulate database responses for unit tests, is needed to use the python mock library.</p>
@@ -1454,14 +1418,14 @@ In order to simulate database responses for unit tests, is needed to use the pyt
 </div>
 </div>
 <div class="sect3">
-<h4 id="_data_flow_2">3.3.3. Data flow</h4>
+<h4 id="_data_flow_2">3.2.3. Data flow</h4>
 <div class="paragraph">
 <p>The database will only be accesible by the API or the Proxy.<br>
 The main methods for the interaction with the database are displayed in this dataflow as a summary of its scope:</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_applicable_resources_2">3.3.4. Applicable Resources</h4>
+<h4 id="_applicable_resources_2">3.2.4. Applicable Resources</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -1481,7 +1445,7 @@ The main methods for the interaction with the database are displayed in this dat
 <div id="footer">
 <div id="footer-text">
 Version 0.1<br>
-Last updated 2020-09-01 12:36:19 UTC
+Last updated 2020-09-01 13:00:36 UTC
 </div>
 </div>
 </body>
