@@ -29,6 +29,8 @@ def validate_resource():
     subject, action, resource = parser.load_request(xacml)
 
     resource_id = resource.attributes[0]['Value']
+    user_name = subject.attributes[0]['Value']
+    
     dict_values = {}
 
     for i in range(0, len(subject.attributes)):
