@@ -1,9 +1,11 @@
 from flask import Blueprint, request, Response, jsonify
 import json
-from policies import policies_operations
-from handlers.scim_handler import ScimHandler
 
-from xacml import parser
+from handlers.scim_handler import ScimHandler
+from policies import policies_operations
+from models import response
+from xacml import parser, decision
+from utils import ClassEncoder
 
 policy_bp = Blueprint('policy_bp', __name__)
 
@@ -27,6 +29,8 @@ def validate_resource():
     subject, action, resource = parser.load_request(xacml)
 
     resource_id = resource.attributes[0]['Value']
+    user_name = subject.attributes[0]['Value']
+    
     dict_values = {}
 
     for i in range(0, len(subject.attributes)):
@@ -35,11 +39,10 @@ def validate_resource():
     #To be expanded when implementing more complex policies
     #For now it serves only as a check if the user attributes were reachable on the AS
     #handler_user_attributes uses this schema: https://gluu.org/docs/gluu-server/4.1/api-guide/scim-api/#/definitions/User
-    handler_status, handler_user_attributes = ScimHandler.get_instance().getUserAttributes(user_name)
-    if handler_status == 500:
-        if not handler_user_attributes:
-            return "Exception occured when retrieving user attributes from AS. Please check logs."
-        return handler_user_attributes
+
+    # Call to be used later in development
+    #handler_status, handler_user_attributes = ScimHandler.get_instance().getUserAttributes(user_name)
+
 
     # Pending: Complete when xacml receives several resources
     if isinstance(resource_id, list):
@@ -50,12 +53,13 @@ def validate_resource():
     else:
         result_validation = policies_operations.validate_complete_policies(resource_id, dict_values)
 
-    response = {'Response':[]}
     if result_validation:
-        response["Response"].append({'Decision': "Permit"})
+        r = response.Response(decision.PERMIT)
+        status = 200
     else:
-        response["Response"].append({'Decision': "Deny"})
-
-    return jsonify(response)
+        r = response.Response(decision.DENY, "fail_to_permit", "obligation-id", "You cannot access this resource")
+        status = 401
+    
+    return json.dumps(r, cls=ClassEncoder), status
 
     

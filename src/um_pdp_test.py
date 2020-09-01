@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 import unittest
 import json
+import jsonschema
 from policies.policies import validate_json
 from policies import policies_operations
 from xacml import parser
 from bson.objectid import ObjectId
 from policy_storage import Policy_Storage
+from utils import ClassEncoder
 import requests
 
 class TestPDP(unittest.TestCase):
@@ -78,10 +80,44 @@ class TestPDP(unittest.TestCase):
 
         self.assertEqual(policies_operations.validate_complete_policies(resource_id, dict_values), False, "Validate access policies 3 should be false")
 
-    def test_pdp_validate_all_functionality_permit(self):
+    def test_pdp_validate_schema_permit(self):
+        with open('standards/request_template.json') as json_file:
+            data = json.load(json_file)
+        
+        headers = {'Accept': 'application/json'}
+
+        r = requests.get('http://0.0.0.0:5567/policy/validate', headers=headers, json=data)
+        result = r.json()
+
+        # Validate XACML JSON response against schema
+        with open("standards/response.schema.json", "r") as f:
+            schema = json.load(f)
+        validation = jsonschema.validate(result, schema)
+        
+        self.assertEqual(validation, None, "Schema validation should return None for the response to be a valid JSON XACML")
+
+    def test_pdp_validate_schema_deny(self):
         with open('standards/request_template.json') as json_file:
             data = json.load(json_file)
 
+        headers = {'Accept': 'application/json'}
+
+        data["Request"]["Resource"][0]["Attribute"][0]["Value"] = "202485839"
+
+        r = requests.get('http://0.0.0.0:5567/policy/validate', headers=headers, json=data)
+        result = r.json()
+
+        # Validate XACML JSON response against schema
+        with open("standards/response.schema.json", "r") as f:
+            schema = json.load(f)
+        validation = jsonschema.validate(result, schema)
+        
+        self.assertEqual(validation, None, "Schema validation should return None for the response to be a valid JSON XACML")
+
+    def test_pdp_validate_all_functionality_permit(self):
+        with open('standards/request_template.json') as json_file:
+            data = json.load(json_file)
+        
         headers = {'Accept': 'application/json'}
 
         r = requests.get('http://0.0.0.0:5567/policy/validate', headers=headers, json=data)

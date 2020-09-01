@@ -1,25 +1,28 @@
 #!/usr/bin/env python3
 import time
-from policy_storage import Policy_Storage
-from flask import Flask
+import json
+import os
+import sys
+import re
+import base64
+import logging
+
 from random import choice
 from string import ascii_lowercase
-import json
-from policies.policies import policy_bp
-from policies.policies_operations import validate_policy_language
-from config import config_parser
 from flask import Flask, request, Response
 from requests import get, post, put, delete
+
+from policy_storage import Policy_Storage
+from config import config_parser
+from policies.policies import policy_bp
+from policies.policies_operations import validate_policy_language
 from handlers.scim_handler import ScimHandler
-import os
-import re
-import sys
-import base64
 from custom_oidc import OIDCHandler
 from WellKnownHandler import WellKnownHandler
 from WellKnownHandler import TYPE_UMA_V2, KEY_UMA_V2_RESOURCE_REGISTRATION_ENDPOINT, KEY_UMA_V2_PERMISSION_ENDPOINT, KEY_UMA_V2_INTROSPECTION_ENDPOINT
 from eoepca_uma import rpt as class_rpt
-import logging
+
+
 #env vars definition
 env_vars = [
     'PDP_AUTH_SERVER_URL',        

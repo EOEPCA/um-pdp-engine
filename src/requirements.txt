@@ -14,6 +14,7 @@ requests
 pymongo
 Flask==1.1.2
 mock
+jsonschema
 WellKnownHandler==0.2.0
 eoepca-scim==2.7.4
 eoepca-uma==0.2.3
