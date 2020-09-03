@@ -23,12 +23,38 @@ The main functionality of the PDP is to be able to perform complex Policy Decisi
 The PDP, when started, follows these steps:
 
 . Load the configuration from the config file
-
-. Insert policies using Policy_Storage class
-
+. If no client is configured at the config file, it will register itself, using the SCIM Client
+. If the PDP had to register itself, then it will save the client’s information on the config file, saving it in case a restart is needed.
+. Create OIDC client
+. If some policies don`t exist yet, default policies will be created and registered in a database like Mongo. This is intended as a demo registration, and can be safely deleted when not needed. Scheme of a policy in mongo:
+..[{'_id': <mongo_i>, 'name': <policy_name>, 'description': <description>, 'config': {'resource_id': <resource_id>, 'rules': <policy_rules>}, 'scopes': <policy_scopes>}]
 . Start reverse proxy using Flask and await requests
 
-When launched, the PDP will answer to all requests that start with the configured path. The request has a json that follows an xacml format where access will be requested for a resource.
+When launched, the PDP will answer to all requests to 2 specific paths:
+
+. /policy/ and /policy/<policy_id or ObjectId(policy_id)>: To perform operations like GET/UPDATE/DELETE policies
+. /policy/validate: to check the policy access to a resource using a xacml from the request
+The requests should be accompained by an "Authorization: Bearer <valid_RPT>" for all endpoints except for the de /validate
+
+Examples, given the example values of:
+- path configured: "/pdp"
+- PDP is at pdp.domain.com/policy
+- For Validate policies : "/policy/validate"
+
+[cols="4*"]
+|===
+| Token | Request to PDP | PDP Action | PDP answer
+
+| No RPT/OAuth token | pdp.domain.com | None (request does not get to PDP endpoint) | None (the PDP doesn't see this request) |
+| No RPT/OAuth token and Valid data | pdp.domain.com/policy/validate with a json as data | Validates the policy access related to the json request | Return a response with Permit access |
+| No RPT/OAuth token and Not valid data | pdp.domain.com/policy/validate with a json as data | Validates the policy access related to the json request | Return a response with Deny access |
+| RPT/OAuth token + Policy information as data  | pdp.domain.com/policy/ | Register Policy in MongoDB | Policy_id for the policy just created |
+| No RPT/OAuth token + Policy information as data | pdp.domain.com/policy/ | Register Policy in MongoDB | 401 |
+| RPT/OAuth token + Policy information as data | pdp.domain.com/policy/<policy_id or ObjectId(policy_id)> | Performs the operations of Get/Update/Delete policy  | Get: Return the policy Update: "updated" or "no changes made"  Delete: 204 if exists|
+| No RPT/OAuth token + Policy information as data | pdp.domain.com/policy/<policy_id or ObjectId(policy_id)> | Performs the operations of Get/Update/Delete policy | 401 |
+
+|===
+
 
 == External Interfaces
 
@@ -47,6 +73,8 @@ The PDP exposes a policy check endpoint compliant with XACML 3.1 standards, whit
 === Resource API (to Policy Enforcement Point)
 
 The PDP queries the corresponding PEP to retrieve information about a resource. 
+
+== Used Interfaces
 
 === OIDC (to Login Service) 
 
@@ -117,20 +145,27 @@ This section contains:
 
 ================================
 
-image::../images/PDPFlow.png[top=5%, align=right, pdfwidth=6.5in]
+image::../images/UseCasePDP2.png[top=5%, align=right, pdfwidth=6.5in]
 
 === Registration of policies
 
 The process of registering the policies is performed in the main, for this purpose the Policy_Storage class is used which will allow actions such as inserting policies in the pod where the Mongo database is located
 
+=== Get User Attributes
+
+(Represented in the above graph by the request to Login Service called "ScimHandler.getAttributes(userName)")
+
+SCIM will be used in order to obtain the attributes for the user that have been extracted from the XACML of the request and then use them in the PDP functions
+
 === Policy Retrieval
 
-(Represented in the above graph by the request to Login Service called "Get the policies related to the resources ids")
+(Represented in the above graph by the request to Mongo called "Get the policies related to the resources ids")
 
 The PDP access through the resource id that was extracted from the XACML in the request and using the Policy_Storage class, allows to access MongoDB and extracts all the policies information stored for that resource id
 
 === Access Check
 
-(Represented in the above graph by the request to Login Service called "Validate policies with values extracted from XACML")
+(Represented in the above graph by the request to PDP called "Validate policies with user attributes obtained from ScimHandler")
 
-When the PDP has obtained the policies, we proceed to compare the content of these policies with the values obtained from the request, mainly they are the resource id and the user_name, in case that some of these do not coincide, it will be response with "Deny" in the json or with a "Permit" if everything is correct
+When the PDP has obtained the policies, we proceed to compare the content of these policies with the values obtained from the request using the ScimHandler, mainly they are the resource id and the user_name, in case that some of these do not coincide, it will be response with "Deny" in the json or with a "Permit" if everything is correct.
+Now validates that the policy follows the expected structure (https://app.swaggerhub.com/apis/hector-rodriguez/PolicyAPI/1-oas3)
