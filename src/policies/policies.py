@@ -31,27 +31,21 @@ def validate_resource():
     resource_id = resource.attributes[0]['Value']
     user_name = subject.attributes[0]['Value']
     
-    dict_values = {}
-
-    for i in range(0, len(subject.attributes)):
-        dict_values[subject.attributes[i]['AttributeId']] = subject.attributes[i]['Value']
-
     #To be expanded when implementing more complex policies
     #For now it serves only as a check if the user attributes were reachable on the AS
     #handler_user_attributes uses this schema: https://gluu.org/docs/gluu-server/4.1/api-guide/scim-api/#/definitions/User
 
     # Call to be used later in development
-    #handler_status, handler_user_attributes = ScimHandler.get_instance().getUserAttributes(user_name)
-
+    handler_status, handler_user_attributes = ScimHandler.get_instance().getUserAttributes(user_name)
 
     # Pending: Complete when xacml receives several resources
     if isinstance(resource_id, list):
         for resource_from_list in resource.attributes[0]['Value']:
-            result_validation = policies_operations.validate_complete_policies(resource_from_list, dict_values)
+            result_validation = policies_operations.validate_complete_policies(resource_from_list, handler_user_attributes)
             if result_validation:
                 break
     else:
-        result_validation = policies_operations.validate_complete_policies(resource_id, dict_values)
+        result_validation = policies_operations.validate_complete_policies(resource_id, handler_user_attributes)
 
     if result_validation:
         r = response.Response(decision.PERMIT)

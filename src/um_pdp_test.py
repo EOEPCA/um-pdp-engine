@@ -120,6 +120,36 @@ class TestPDP(unittest.TestCase):
         
         headers = {'Accept': 'application/json'}
 
+        data["Request"]["Resource"][0]["Attribute"][0]["Value"] = "12345678"
+
+        d= {
+            "resource_id": "12345678",
+            "rules" : [
+                {
+                    "AND": [{
+                    "EQUAL" : {"userName" : "admin" }
+                    }]
+                },
+                {
+                    "AND": [{
+                        "NOT" : {
+                            "OR" : [
+                                    {"EQUAL": {"emails" : [{'value': 'mamuniz@test.com', 'primary': False}]} },
+                                    {"EQUAL" : {"nickName" : "Mami" }}
+                                ]
+                        },
+                        "EQUAL" : {"displayName" : "Default Admin User" }
+                    }]
+                },
+                {
+                    "EQUAL" : {"groups" : [{'value': '60B7', 'display': 'Gluu Manager Group', 'type': 'direct', 'ref': 'https://test.10.0.2.15.nip.io/identity/restv1/scim/v2/Groups/60B7'}] }
+                }
+            ]
+        }
+
+        mongo = Policy_Storage('mongodb')
+        mongo.insert_policy(name='PolicyUnitTest1', description= '',ownership_id= '55b8f51f-4634-4bb0-a1dd-070ec5869d70', config= d, scopes=[''])
+
         r = requests.get('http://0.0.0.0:5567/policy/validate', headers=headers, json=data)
         result = r.json()
 
@@ -128,10 +158,38 @@ class TestPDP(unittest.TestCase):
     def test_pdp_validate_all_functionality_deny(self):
         with open('standards/request_template.json') as json_file:
             data = json.load(json_file)
-
+        
         headers = {'Accept': 'application/json'}
 
-        data["Request"]["Resource"][0]["Attribute"][0]["Value"] = "202485839"
+        data["Request"]["Resource"][0]["Attribute"][0]["Value"] = "123456789"
+
+        d= {
+            "resource_id": "123456789",
+            "rules" : [
+                {
+                    "AND": [{
+                    "EQUAL" : {"userName" : "admin" }
+                    }]
+                },
+                {
+                    "AND": [{
+                        "NOT" : {
+                            "OR" : [
+                                    {"EQUAL": {"emails" : [{'value': 'mamuniz@test.com', 'primary': False}]} },
+                                    {"EQUAL" : {"nickName" : "Admin" }}
+                                ]
+                        },
+                        "EQUAL" : {"displayName" : "Default Admin User" }
+                    }]
+                },
+                {
+                    "EQUAL" : {"groups" : [{'value': '60B7', 'display': 'Gluu Manager Group', 'type': 'direct', 'ref': 'https://test.10.0.2.15.nip.io/identity/restv1/scim/v2/Groups/60B7'}] }
+                }
+            ]
+        }
+
+        mongo = Policy_Storage('mongodb')
+        mongo.insert_policy(name='PolicyUnitTest2', description= '',ownership_id= '55b8f51f-4634-4bb0-a1dd-070ec5869d70', config= d, scopes=[''])
 
         r = requests.get('http://0.0.0.0:5567/policy/validate', headers=headers, json=data)
         result = r.json()

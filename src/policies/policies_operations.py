@@ -91,7 +91,6 @@ def validate_all_acces_policies(data, dict_request_values):
                 
                 list_values = validate_operations(operations, values_operations, dict_request_values)
                 aux_list_result = aux_list_result + list_values
-    
     permit_acces = True
     for i in range(0, len(aux_list)):
         if aux_list_result[i] is False:
@@ -126,13 +125,24 @@ def validate_operations(operations, values_operations, dict_request_values):
                     else:
                         list_values.append(False)
                 elif operations[i] == 'EQUAL':
-                    if dict_request_values[key] == values_operations[i][key]:
-                        list_values.append(True)
+                    if key == 'emails' or key == 'groups':
+                        valid = False
+                        for row in range(0, len(dict_request_values[key])):
+                            if dict_request_values[key][row]['value'] == values_operations[i][key][row]['value']:
+                                valid = True
+                                break
+
+                        if valid is True:
+                            list_values.append(True)
+                        else:
+                            list_values.append(False)
                     else:
-                        list_values.append(False)
+                        if dict_request_values[key] == values_operations[i][key]:
+                            list_values.append(True)
+                        else:
+                            list_values.append(False)
             else:
                 list_values.append(False)
-            
     return list_values
 
 def validate_multiples_conditions(policy_row, dict_request_values):
@@ -144,7 +154,6 @@ def validate_multiples_conditions(policy_row, dict_request_values):
     for key3 in policy_row.keys():
         if ('AND' == key3) or ('NOT' == key3) or ('OR' == key3) or ('XOR' == key3):
             operations_conditions.append(key3)
-        
         if isinstance(policy_row[key3], list):
             operations = []
             values_operations = []

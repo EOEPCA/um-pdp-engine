@@ -134,6 +134,31 @@ c= {
       ]
 }
 
+d= {
+        "resource_id": "1234567",
+        "rules" : [
+            {
+                "AND": [{
+                "EQUAL" : {"userName" : "admin" }
+                }]
+            },
+            {
+                "AND": [{
+                    "NOT" : {
+                        "OR" : [
+                                {"EQUAL": {"emails" : [{'value': 'mamuniz@test.com', 'primary': False}]} },
+                                {"EQUAL" : {"nickName" : "Mami" }}
+                            ]
+                    },
+                    "EQUAL" : {"displayName" : "Default Admin User" }
+                }]
+            },
+            {
+                "EQUAL" : {"groups" : [{'value': '60B7', 'display': 'Gluu Manager Group', 'type': 'direct', 'ref': 'https://test.10.0.2.15.nip.io/identity/restv1/scim/v2/Groups/60B7'}] }
+            }
+        ]
+    }
+
 #instance
 mongo = Policy_Storage('mongodb')
 #register example policy:
@@ -142,6 +167,7 @@ mongo.insert_policy(name='Policy1', description= '',ownership_id= '55b8f51f-4634
 mongo.insert_policy(name='Policy2', description= '',ownership_id= '55b8f51f-4634-4bb0-a1dd-070ec5869d70', config= b, scopes=[''])
 #register example policy:
 mongo.insert_policy(name='Policy30', description= '',ownership_id= '55b8f51f-4634-4bb0-a1dd-070ec5869d70', config= c, scopes=[''])
+mongo.insert_policy(name='Policy31', description= '',ownership_id= '55b8f51f-4634-4bb0-a1dd-070ec5869d70', config= d, scopes=[''])
 
 
 app = Flask(__name__)
