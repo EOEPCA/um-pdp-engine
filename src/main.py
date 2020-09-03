@@ -74,7 +74,6 @@ oidc_client = OIDCHandler(g_config['auth_server_url'],
                             redirect_uri = "",
                             scopes = ['openid', 'uma_protection', 'permission'],
                             verify_ssl = g_config['check_ssl_certs'])
-client_id, client_secret=oidc_client.register_client()
 
 if os_var_client:
     ScimHandler.registerScimClient(auth_server_url = os.environ["PDP_AUTH_SERVER_URL"], client_id = os.environ["PDP_CLIENT_ID"], client_secret = os.environ["PDP_CLIENT_SECRET"], verify_ssl = os.environ["PDP_CHECK_SSL_CERTS"])    
