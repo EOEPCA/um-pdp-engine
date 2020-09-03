@@ -12,6 +12,10 @@ jobs:
       install: pip install -r src/requirements.txt
       script: python3 -m unittest tests/test_database.py
 
+    - stage: Testing PDP
+      install: pip3 install -r src/requirements.txt
+      script: python3 -m unittest src/um_pdp_test.py
+
     - stage: container creation and publishing
       install: skip
       script: travis/containerCreation.sh um-pdp-engine
