@@ -37,18 +37,13 @@ class Mongo_Handler:
     def parse_id(self, _id):
         myId=None
         if 'ObjectId' in str(_id):
-            print('1')
             if type(_id) == str:
-                print('2')
                 a=_id[_id.find("(")+1:_id.find(")")]
                 myId = ObjectId(str(a))
             else:
-                print('3')
                 myId = _id
         else:
-            print('4')
             myId = ObjectId(_id)
-        print(myId)
         return myId
 
     def get_policy_from_resource_id(self,resource_id):

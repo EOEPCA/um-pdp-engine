@@ -36,8 +36,6 @@ class OIDCHandler:
 
             self.client_id = new_client["client_id"]
             self.client_secret = new_client["client_secret"]
-            print(self.client_id)
-            print(self.client_secret)
             return self.client_id, self.client_secret
 
 
