@@ -69,8 +69,6 @@ image::../images/UseCasePDP2.png[top=5%, align=right, pdfwidth=6.5in]
 
 The design of the PDP allows for further improvements if need be. For example:
 
-- The parser script can be expanded to parse all the configuration for a XACML formatted.
-- The registration of policies can be expanded to insert the policies without hardcoded values like resource id
 - The proxy can be expanded to parse further parameters on top of the HTTP protocol, allowing for any kind of plugin or complex mechanism desired.
 
 === Applicable Resources

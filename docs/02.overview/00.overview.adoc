@@ -45,13 +45,13 @@ Examples, given the example values of:
 |===
 | Token | Request to PDP | PDP Action | PDP answer
 
-| No RPT/OAuth token | pdp.domain.com | None (request does not get to PDP endpoint) | None (the PDP doesn't see this request) |
-| No RPT/OAuth token and Valid data | pdp.domain.com/policy/validate with a json as data | Validates the policy access related to the json request | Return a response with Permit access |
-| No RPT/OAuth token and Not valid data | pdp.domain.com/policy/validate with a json as data | Validates the policy access related to the json request | Return a response with Deny access |
-| RPT/OAuth token + Policy information as data  | pdp.domain.com/policy/ | Register Policy in MongoDB | Policy_id for the policy just created |
-| No RPT/OAuth token + Policy information as data | pdp.domain.com/policy/ | Register Policy in MongoDB | 401 |
-| RPT/OAuth token + Policy information as data | pdp.domain.com/policy/<policy_id or ObjectId(policy_id)> | Performs the operations of Get/Update/Delete policy  | Get: Return the policy Update: "updated" or "no changes made"  Delete: 204 if exists|
-| No RPT/OAuth token + Policy information as data | pdp.domain.com/policy/<policy_id or ObjectId(policy_id)> | Performs the operations of Get/Update/Delete policy | 401 |
+| No RPT/OAuth token | pdp.domain.com | None (request does not get to PDP endpoint) | None (the PDP doesn't see this request)
+| No RPT/OAuth token and Valid data | pdp.domain.com/policy/validate with a json as data | Validates the policy access related to the json request | Return a response with Permit access 
+| No RPT/OAuth token and Not valid data | pdp.domain.com/policy/validate with a json as data | Validates the policy access related to the json request | Return a response with Deny access 
+| RPT/OAuth token + Policy information as data  | pdp.domain.com/policy/ | Register Policy in MongoDB | Policy_id for the policy just created 
+| No RPT/OAuth token + Policy information as data | pdp.domain.com/policy/ | Register Policy in MongoDB | 401 
+| RPT/OAuth token + Policy information as data | pdp.domain.com/policy/<policy_id or ObjectId(policy_id)> | Performs the operations of Get/Update/Delete policy  | Get: Return the policy Update: "updated" or "no changes made"  Delete: 204 if exists
+| No RPT/OAuth token + Policy information as data | pdp.domain.com/policy/<policy_id or ObjectId(policy_id)> | Performs the operations of Get/Update/Delete policy | 401
 
 |===
 
