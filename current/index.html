@@ -1047,28 +1047,22 @@ The requests should be accompained by an "Authorization: Bearer &lt;valid_RPT&gt
 <td class="tableblock halign-left valign-top"><p class="tableblock">None (the PDP doesn&#8217;t see this request)</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">No RPT/OAuth token and Valid data</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">pdp.domain.com/policy/validate with a json as data</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Validates the policy access related to the json request</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Return a response with Permit access</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Return a response with Permit access</p></td>
-<td class="tableblock halign-left valign-top"></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">No RPT/OAuth token and Not valid data</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">pdp.domain.com/policy/validate with a json as data</p></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Validates the policy access related to the json request</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Return a response with Deny access</p></td>
-<td class="tableblock halign-left valign-top"></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">RPT/OAuth token + Policy information as data</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">RPT/OAuth token + Policy information as data</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">pdp.domain.com/policy/</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Register Policy in MongoDB</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Policy_id for the policy just created</p></td>
-<td class="tableblock halign-left valign-top"></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">No RPT/OAuth token + Policy information as data</p></td>
@@ -1077,16 +1071,16 @@ The requests should be accompained by an "Authorization: Bearer &lt;valid_RPT&gt
 <td class="tableblock halign-left valign-top"><p class="tableblock">401</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">RPT/OAuth token + Policy information as data</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">pdp.domain.com/policy/&lt;policy_id or ObjectId(policy_id)&gt;</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Performs the operations of Get/Update/Delete policy</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Get: Return the policy Update: "updated" or "no changes made"  Delete: 204 if exists</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Get: Return the policy Update: "updated" or "no changes made"  Delete: 204 if exists</p></td>
-<td class="tableblock halign-left valign-top"></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">No RPT/OAuth token + Policy information as data</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">pdp.domain.com/policy/&lt;policy_id or ObjectId(policy_id)&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Performs the operations of Get/Update/Delete policy</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">401</p></td>
 </tr>
 </tbody>
 </table>
@@ -1453,12 +1447,6 @@ Now validates that the policy follows the expected structure (<a href="https://a
 <div class="ulist">
 <ul>
 <li>
-<p>The parser script can be expanded to parse all the configuration for a XACML formatted.</p>
-</li>
-<li>
-<p>The registration of policies can be expanded to insert the policies without hardcoded values like resource id</p>
-</li>
-<li>
 <p>The proxy can be expanded to parse further parameters on top of the HTTP protocol, allowing for any kind of plugin or complex mechanism desired.</p>
 </li>
 </ul>
@@ -1585,7 +1573,7 @@ The main methods for the interaction with the database are displayed in this dat
 <div id="footer">
 <div id="footer-text">
 Version 0.1<br>
-Last updated 2020-09-03 15:50:54 UTC
+Last updated 2020-09-04 11:02:19 UTC
 </div>
 </div>
 </body>
