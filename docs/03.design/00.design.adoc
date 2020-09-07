@@ -78,6 +78,7 @@ The design of the PDP allows for further improvements if need be. For example:
 * EOEPCA's OIDC Client - https://github.com/EOEPCA/um-common-uma-client
 * EOEPCA's Well Known Handler - https://github.com/EOEPCA/well-known-handler
 * Flask - https://github.com/pallets/flask
+* Policy Language - https://app.swaggerhub.com/apis/hector-rodriguez/PolicyAPI/1-oas3
 
 == Policy Validation
 === Overview and Purpose

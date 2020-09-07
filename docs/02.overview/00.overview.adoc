@@ -26,8 +26,7 @@ The PDP, when started, follows these steps:
 . If no client is configured at the config file, it will register itself, using the SCIM Client
 . If the PDP had to register itself, then it will save the client’s information on the config file, saving it in case a restart is needed.
 . Create OIDC client
-. If some policies don`t exist yet, default policies will be created and registered in a database like Mongo. This is intended as a demo registration, and can be safely deleted when not needed. Scheme of a policy in mongo:
-..[{'_id': <mongo_i>, 'name': <policy_name>, 'description': <description>, 'config': {'resource_id': <resource_id>, 'rules': <policy_rules>}, 'scopes': <policy_scopes>}]
+. If some policies don`t exist yet, default policies will be created and registered in a database like Mongo. This is intended as a demo registration, and can be safely deleted when not needed. Scheme of a policy in mongo: [{'_id': <mongo_i>, 'name': <policy_name>, 'description': <description>, 'config': {'resource_id': <resource_id>, 'rules': <policy_rules>}, 'scopes': <policy_scopes>}]
 . Start reverse proxy using Flask and await requests
 
 When launched, the PDP will answer to all requests to 2 specific paths:
@@ -58,45 +57,47 @@ Examples, given the example values of:
 
 == External Interfaces
 
-=== HTTP(S) (Reverse Proxy Listener)
-An HTTP listener, which can be configured through the config file.
-This is the only input interface to interact directly with the PDP from outside, and is managed by the reverse proxy.
+=== Exposed Interfaces
 
-The default listener for this interface is `0.0.0.0:5567/policy/validate`.
-
-This interface will parse accept requests to get a decision about the access to a policy.
-
-=== XACML (from/to Login Service)
+==== XACML (from/to Login Service)
 
 The PDP exposes a policy check endpoint compliant with XACML 3.1 standards, whith a content-type application/json due to its JSON Profile.
 
-=== Resource API (to Policy Enforcement Point)
+For the function of parse XACML requests to get a decision about the access to a policy, you can use `0.0.0.0:5567/policy/validate`.
 
-The PDP queries the corresponding PEP to retrieve information about a resource. 
+==== Resource API (to Policy Decision Point)
 
-== Used Interfaces
+The PDP queries the corresponding PDP to retrieve information about a policy.
+For this case we can use the `0.0.0.0:5567/policy/<policy_id or ObjectId(policy_id)>` to do all the operations related to insert, get, update and delete policies.
 
-=== OIDC (to Login Service) 
+=== Consumed Interfaces
+
+==== OIDC (to Login Service) 
 
 The PDP uses the OIDC protocol in order to authenticate itself as a valid UMA client, and uses this OIDC client in all UMA-related queries.
+It allows Clients to verify the identity of the End-User.(https://gluu.org/docs/gluu-server/4.0/admin-guide/openid-connect/)
 
 These queries are done against the Login Service, and the endpoints used are:
 
-* TOKEN_ENDPOINT
+* TYPE_OIDC
+* KEY_OIDC_TOKEN_ENDPOINT
+* KEY_OIDC_USERINFO_ENDPOINT
 
-=== SCIM (to Login Service)
+==== SCIM (to Login Service)
 
-The PDP has the capability to auto-register itself as a client if there is no client pre-configured from previous starts or previous configuration.
-
-In order to do this, it utilizes the SCIM protocol, and queries the Login Service.
+The PDP has the capability to auto-register itself as a client if there is no client pre-configured from previous starts or previous configuration. In order to do this, it utilizes the SCIM protocol which is designed to reduce the complexity of user management operations.(https://gluu.org/docs/gluu-server/3.1.1/user-management/scim2/)
 
 The endpoints used for SCIM are:
 
-* AUTH_CLIENT_POST
+* KEY_SCIM_USER_ENDPOINT
+* ENDPOINT_AUTH_CLIENT_PRIVATE_KEY_JWT
+
+== Internal Interfaces
 
 === MongoDB as Database
 
-In order to access the policies, these policies will be stored in a non-relational database which will be MongoDB
+In order to access the policies, these policies will be stored in a non-relational database which will be MongoDB.
+MongoDB is a cross-platform document-oriented database program, classified as a NoSQL database program. This database is characterized by storing information such as uses JSON-like documents with optional schemas
 
 == Required resources
 
@@ -115,6 +116,7 @@ This section contains:
 The following Open-Source Software is required to support the deployment and integration of the Policy Enforcement Point:
 
 * EOEPCA's SCIM Client - https://github.com/EOEPCA/um-common-scim-client
+* EOEPCA's OpenID - https://github.com/EOEPCA/um-common-oidc-client
 * EOEPCA's Well Known Handler - https://github.com/EOEPCA/well-known-handler
 * Flask - https://github.com/pallets/flask
 * MongoDB for python - https://pymongo.readthedocs.io/en/stable/index.html
