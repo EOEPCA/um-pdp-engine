@@ -15,4 +15,3 @@ sleep 15 # wait until the container is running
 # INSERT BELOW THE ACCEPTANCE TEST:
 #curl -s http://localhost:$2/search # trivial smoke test
 #python3 -m unittest discover -s ../src/ -p 'um_pdp_test*'
-docker exec -it $1 python3 -m unittest um_pdp_test.py
