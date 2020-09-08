@@ -75,7 +75,7 @@ For this case we can use the `0.0.0.0:5567/policy/<policy_id or ObjectId(policy_
 ==== OIDC (to Login Service) 
 
 The PDP uses the OIDC protocol in order to authenticate itself as a valid UMA client, and uses this OIDC client in all UMA-related queries.
-It allows Clients to verify the identity of the End-User.(https://gluu.org/docs/gluu-server/4.0/admin-guide/openid-connect/)
+It allows Clients to verify the identity of the End-User. (https://gluu.org/docs/gluu-server/4.0/admin-guide/openid-connect/)
 
 These queries are done against the Login Service, and the endpoints used are:
 
@@ -85,7 +85,7 @@ These queries are done against the Login Service, and the endpoints used are:
 
 ==== SCIM (to Login Service)
 
-The PDP has the capability to auto-register itself as a client if there is no client pre-configured from previous starts or previous configuration. In order to do this, it utilizes the SCIM protocol which is designed to reduce the complexity of user management operations.(https://gluu.org/docs/gluu-server/3.1.1/user-management/scim2/)
+The PDP has the capability to auto-register itself as a client if there is no client pre-configured from previous starts or previous configuration. In order to do this, it utilizes the SCIM protocol which is designed to reduce the complexity of user management operations. (https://gluu.org/docs/gluu-server/3.1.1/user-management/scim2/)
 
 The endpoints used for SCIM are:
 
@@ -97,7 +97,7 @@ The endpoints used for SCIM are:
 === MongoDB as Database
 
 In order to access the policies, these policies will be stored in a non-relational database which will be MongoDB.
-MongoDB is a cross-platform document-oriented database program, classified as a NoSQL database program. This database is characterized by storing information such as uses JSON-like documents with optional schemas
+MongoDB is a cross-platform document-oriented database program, classified as a NoSQL database program. This database is characterized by storing information such as JSON-like documents with optional schemas.
 
 == Required resources
 

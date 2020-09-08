@@ -36,9 +36,8 @@
 - [Configuration](#configuration)
 - [Usage & functionality](#usage--functionality)
 - [Developer documentation](#developer-documentation)
-  - [Demo functionality](#demo-functionality)
+  - [Test functionality](#test-functionality)
   - [Endpoints](#endpoints)
-  - [Resources cache](#resources-cache)
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [License](#license)
@@ -194,7 +193,7 @@ python3  src/main.py
 3. Run the unittest
 
 ```sh
-python3 -m unittest src/um_pdp_test.py
+python3 -m unittest tests/um_pdp_test.py
 ```
 
 ### Test functionality
