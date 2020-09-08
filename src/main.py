@@ -115,7 +115,7 @@ app.secret_key = ''.join(choice(ascii_lowercase) for i in range(30)) # Random ke
 app.register_blueprint(policy_bp, url_prefix="/policy")
 
 
-@app.route("/policy/", methods=[ "PUT", "POST"])
+@app.route("/policy/", methods=[ "PUT", "POST", "GET"])
 def policy_insert():
     '''
     PUT/POST will create or insert a policy in the repository
@@ -155,22 +155,34 @@ def policy_insert():
     try:
         #If the user is authorized it must find his UUID
         if uid:
-            if request.is_json:
-                data = request.get_json()
-                if data.get("name") and data.get("config"):
-                    policy_structure = data.get("config")
-                    result_format = validate_policy_language(policy_structure['rules'])
-                    if result_format is True:
-                        #Insert in database the body parameters
-                        return mongo.insert_policy(data.get("name"), data.get("description"), uid ,data.get("config"), data.get("scopes"))
+            if request.method == "GET":
+                if request.data:
+                    data = request.get_json()
+                    if data.get("resource_id"):
+                        list_of_policies={}
+                        a= mongo.get_policy_from_resource_id(data.get("resource_id"))
+                        list_of_policies['policies'] = a
+                        for n in list_of_policies['policies']:
+                            if '_id' in n:
+                                n['_id'] = str(n['_id'])
+                        return json.dumps(list_of_policies) 
+            else:
+                if request.is_json:
+                    data = request.get_json()
+                    if data.get("name") and data.get("config"):
+                        policy_structure = data.get("config")
+                        result_format = validate_policy_language(policy_structure['rules'])
+                        if result_format is True:
+                            #Insert in database the body parameters
+                            return mongo.insert_policy(data.get("name"), data.get("description"), uid ,data.get("config"), data.get("scopes"))
+                        else:
+                            response.status_code = 500
+                            response.headers["Error"] = "Invalid policy structure"
+                            return response
                     else:
                         response.status_code = 500
-                        response.headers["Error"] = "Invalid policy structure"
+                        response.headers["Error"] = "Invalid data or incorrect policy name passed on URL called for policy creation!"
                         return response
-                else:
-                    response.status_code = 500
-                    response.headers["Error"] = "Invalid data or incorrect policy name passed on URL called for policy creation!"
-                    return response
         else: 
             response.status_code = 401
             response.headers["Error"] = 'Could not get the UID for the user'
