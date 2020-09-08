@@ -5,25 +5,25 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<meta name="description" content="&lt;Template Service&gt; Design Document for the Common Architecture">
+<meta name="description" content="PDP Engine Design Document for the Common Architecture">
 <meta name="keywords" content="common architecture design">
 <meta name="author" content="TVUK System Team">
-<title>&lt;Template Service&gt; Design Document: EOEPCA.SDD.xxx</title>
+<title>PDP Engine Design Document: EOEPCA.SDD.xxx</title>
 <link rel="stylesheet" href="stylesheets/eoepca.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body class="book toc2 toc-left">
 <div id="header">
-<h1>&lt;Template Service&gt; Design Document: EOEPCA.SDD.xxx</h1>
+<h1>PDP Engine Design Document: EOEPCA.SDD.xxx</h1>
 <div class="details">
 <span id="author" class="author">TVUK System Team</span><br>
 <span id="email" class="email">&lt;<a href="mailto:Eoepca.SystemTeam@telespazio.com">Eoepca.SystemTeam@telespazio.com</a>&gt;</span><br>
-<span id="revnumber">version 0.1,</span>
+<span id="revnumber">version 0.2,</span>
 <span id="revdate">dd/mm/yyyy</span>
 <br><span id="revremark"></span>
 </div>
 <div id="toc" class="toc2">
-<div id="toctitle">&lt;Template Service&gt; Design Document</div>
+<div id="toctitle">PDP Engine Design Document</div>
 <ul class="sectlevel1">
 <li><a href="#_introduction">1. Introduction</a>
 <ul class="sectlevel2">
@@ -39,25 +39,37 @@
 <li><a href="#_building_block_overview">2.1. Building Block Overview</a></li>
 <li><a href="#_external_interfaces">2.2. External Interfaces</a>
 <ul class="sectlevel3">
-<li><a href="#_https_reverse_proxy_listener">2.2.1. HTTP(S) (Reverse Proxy Listener)</a></li>
-<li><a href="#_xacml_fromto_login_service">2.2.2. XACML (from/to Login Service)</a></li>
-<li><a href="#_resource_api_to_policy_enforcement_point">2.2.3. Resource API (to Policy Enforcement Point)</a></li>
-<li><a href="#_oidc_to_login_service">2.2.4. OIDC (to Login Service)</a></li>
-<li><a href="#_scim_to_login_service">2.2.5. SCIM (to Login Service)</a></li>
-<li><a href="#_mongodb_as_database">2.2.6. MongoDB as Database</a></li>
+<li><a href="#_exposed_interfaces">2.2.1. Exposed Interfaces</a>
+<ul class="sectlevel4">
+<li><a href="#_xacml_fromto_login_service">2.2.1.1. XACML (from/to Login Service)</a></li>
+<li><a href="#_resource_api_to_policy_decision_point">2.2.1.2. Resource API (to Policy Decision Point)</a></li>
 </ul>
 </li>
-<li><a href="#_required_resources">2.3. Required resources</a>
-<ul class="sectlevel3">
-<li><a href="#_software">2.3.1. Software</a></li>
+<li><a href="#_consumed_interfaces">2.2.2. Consumed Interfaces</a>
+<ul class="sectlevel4">
+<li><a href="#_oidc_to_login_service">2.2.2.1. OIDC (to Login Service)</a></li>
+<li><a href="#_scim_to_login_service">2.2.2.2. SCIM (to Login Service)</a></li>
 </ul>
 </li>
-<li><a href="#_static_architecture">2.4. Static Architecture</a></li>
-<li><a href="#_use_cases">2.5. Use cases</a>
+</ul>
+</li>
+<li><a href="#_internal_interfaces">2.3. Internal Interfaces</a>
 <ul class="sectlevel3">
-<li><a href="#_registration_of_policies">2.5.1. Registration of policies</a></li>
-<li><a href="#_policy_retrieval">2.5.2. Policy Retrieval</a></li>
-<li><a href="#_access_check">2.5.3. Access Check</a></li>
+<li><a href="#_mongodb_as_database">2.3.1. MongoDB as Database</a></li>
+</ul>
+</li>
+<li><a href="#_required_resources">2.4. Required resources</a>
+<ul class="sectlevel3">
+<li><a href="#_software">2.4.1. Software</a></li>
+</ul>
+</li>
+<li><a href="#_static_architecture">2.5. Static Architecture</a></li>
+<li><a href="#_use_cases">2.6. Use cases</a>
+<ul class="sectlevel3">
+<li><a href="#_registration_of_policies">2.6.1. Registration of policies</a></li>
+<li><a href="#_get_user_attributes">2.6.2. Get User Attributes</a></li>
+<li><a href="#_policy_retrieval">2.6.3. Policy Retrieval</a></li>
+<li><a href="#_access_check">2.6.4. Access Check</a></li>
 </ul>
 </li>
 </ul>
@@ -79,12 +91,12 @@
 <li><a href="#_applicable_resources">3.1.6. Applicable Resources</a></li>
 </ul>
 </li>
-<li><a href="#_policy_validation">3.2. POLICY VALIDATION</a>
+<li><a href="#_policy_validation">3.2. Policy Validation</a>
 <ul class="sectlevel3">
 <li><a href="#_overview_and_purpose_2">3.2.1. Overview and Purpose</a></li>
 </ul>
 </li>
-<li><a href="#_policy_respository">3.3. POLICY RESPOSITORY</a>
+<li><a href="#_policy_repository">3.3. Policy Repository</a>
 <ul class="sectlevel3">
 <li><a href="#_overview_and_purpose_3">3.3.1. Overview and Purpose</a></li>
 <li><a href="#_software_reuse_and_dependencies_2">3.3.2. Software Reuse and Dependencies</a></li>
@@ -102,7 +114,7 @@
 <div class="sectionbody">
 <div class="paragraph">
 <p>EO Exploitation Platform Common Architecture<br>
-<em>&lt;Template Service&gt; Design Document</em><br>
+<em>PDP Engine Design Document</em><br>
 EOEPCA.SDD.xxx</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
@@ -113,9 +125,9 @@ EOEPCA.SDD.xxx</p>
 <tbody>
 <tr>
 <td class="tableblock halign-center valign-top"><p class="tableblock"><strong>COMMENTS and ISSUES</strong><br>
-If you would like to raise comments or issues on this document, please do so by raising an Issue at the following URL <a href="https://github.com/EOEPCA/template-svce/issues" class="bare">https://github.com/EOEPCA/template-svce/issues</a>.</p></td>
+If you would like to raise comments or issues on this document, please do so by raising an Issue at the following URL <a href="https://github.com/EOEPCA/um-pdp-engine/issues" class="bare">https://github.com/EOEPCA/um-pdp-engine/issues</a>.</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock"><strong>PDF</strong><br>
-This document is available in PDF format <a href="EOEPCA-template-svce.pdf" target="_blank" rel="noopener">here</a>.</p></td>
+This document is available in PDF format <a href="EOEPCA-um-pdp-engine.pdf" target="_blank" rel="noopener">here</a>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-center valign-top"><p class="tableblock"><strong>EUROPEAN SPACE AGENCY CONTRACT REPORT</strong><br>
@@ -170,7 +182,7 @@ The Amendment Record Sheet below records the history and issue status of this do
 <div class="sect2">
 <h3 id="_purpose_and_scope">1.1. Purpose and Scope</h3>
 <div class="paragraph">
-<p>This document presents the &lt;Template Service&gt; Design for the Common Architecture.</p>
+<p>This document presents the PDP Engine Design for the Common Architecture.</p>
 </div>
 </div>
 <div class="sect2">
@@ -179,11 +191,11 @@ The Amendment Record Sheet below records the history and issue status of this do
 <dl>
 <dt class="hdlist1">Section 2 - <a href="#mainOverview">Overview</a></dt>
 <dd>
-<p>Provides an over of the &lt;Template Service&gt; component, within the context of the wider Common Architecture design.</p>
+<p>Provides an over of the PDP Engine component, within the context of the wider Common Architecture design.</p>
 </dd>
 <dt class="hdlist1">Section 3 - <a href="#mainDesign">[mainDesign]</a></dt>
 <dd>
-<p>Provides the design of the &lt;Template Service&gt; component.</p>
+<p>Provides the design of the PDP Engine component.</p>
 </dd>
 </dl>
 </div>
@@ -982,7 +994,16 @@ OGC 08-068r2,<br>
 <p>Load the configuration from the config file</p>
 </li>
 <li>
-<p>Insert policies using Policy_Storage class</p>
+<p>If no client is configured at the config file, it will register itself, using the SCIM Client</p>
+</li>
+<li>
+<p>If the PDP had to register itself, then it will save the client’s information on the config file, saving it in case a restart is needed.</p>
+</li>
+<li>
+<p>Create OIDC client</p>
+</li>
+<li>
+<p>If some policies don`t exist yet, default policies will be created and registered in a database like Mongo. This is intended as a demo registration, and can be safely deleted when not needed. Scheme of a policy in mongo: [{'_id': &lt;mongo_i&gt;, 'name': &lt;policy_name&gt;, 'description': &lt;description&gt;, 'config': {'resource_id': &lt;resource_id&gt;, 'rules': &lt;policy_rules&gt;}, 'scopes': &lt;policy_scopes&gt;}]</p>
 </li>
 <li>
 <p>Start reverse proxy using Flask and await requests</p>
@@ -990,40 +1011,114 @@ OGC 08-068r2,<br>
 </ol>
 </div>
 <div class="paragraph">
-<p>When launched, the PDP will answer to all requests that start with the configured path. The request has a json that follows an xacml format where access will be requested for a resource.</p>
+<p>When launched, the PDP will answer to all requests to 2 specific paths:</p>
 </div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>/policy/ and /policy/&lt;policy_id or ObjectId(policy_id)&gt;: To perform operations like GET/UPDATE/DELETE policies</p>
+</li>
+<li>
+<p>/policy/validate: to check the policy access to a resource using a xacml from the request<br>
+The requests should be accompained by an "Authorization: Bearer &lt;valid_RPT&gt;" for all endpoints except for the de /validate</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Examples, given the example values of:<br>
+- path configured: "/pdp"<br>
+- PDP is at pdp.domain.com/policy<br>
+- For Validate policies : "/policy/validate"</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Token</th>
+<th class="tableblock halign-left valign-top">Request to PDP</th>
+<th class="tableblock halign-left valign-top">PDP Action</th>
+<th class="tableblock halign-left valign-top">PDP answer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No RPT/OAuth token</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">pdp.domain.com</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">None (request does not get to PDP endpoint)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">None (the PDP doesn&#8217;t see this request)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No RPT/OAuth token and Valid data</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">pdp.domain.com/policy/validate with a json as data</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Validates the policy access related to the json request</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Return a response with Permit access</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No RPT/OAuth token and Not valid data</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">pdp.domain.com/policy/validate with a json as data</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Validates the policy access related to the json request</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Return a response with Deny access</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">RPT/OAuth token + Policy information as data</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">pdp.domain.com/policy/</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Register Policy in MongoDB</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Policy_id for the policy just created</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No RPT/OAuth token + Policy information as data</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">pdp.domain.com/policy/</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Register Policy in MongoDB</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">401</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">RPT/OAuth token + Policy information as data</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">pdp.domain.com/policy/&lt;policy_id or ObjectId(policy_id)&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Performs the operations of Get/Update/Delete policy</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Get: Return the policy Update: "updated" or "no changes made"  Delete: 204 if exists</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No RPT/OAuth token + Policy information as data</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">pdp.domain.com/policy/&lt;policy_id or ObjectId(policy_id)&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Performs the operations of Get/Update/Delete policy</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">401</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="sect2">
 <h3 id="_external_interfaces">2.2. External Interfaces</h3>
 <div class="sect3">
-<h4 id="_https_reverse_proxy_listener">2.2.1. HTTP(S) (Reverse Proxy Listener)</h4>
-<div class="paragraph">
-<p>An HTTP listener, which can be configured through the config file.<br>
-This is the only input interface to interact directly with the PDP from outside, and is managed by the reverse proxy.</p>
-</div>
-<div class="paragraph">
-<p>The default listener for this interface is <code>0.0.0.0:5567/policy/validate</code>.</p>
-</div>
-<div class="paragraph">
-<p>This interface will parse accept requests to get a decision about the access to a policy.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_xacml_fromto_login_service">2.2.2. XACML (from/to Login Service)</h4>
+<h4 id="_exposed_interfaces">2.2.1. Exposed Interfaces</h4>
+<div class="sect4">
+<h5 id="_xacml_fromto_login_service">2.2.1.1. XACML (from/to Login Service)</h5>
 <div class="paragraph">
 <p>The PDP exposes a policy check endpoint compliant with XACML 3.1 standards, whith a content-type application/json due to its JSON Profile.</p>
 </div>
+<div class="paragraph">
+<p>For the function of parse XACML requests to get a decision about the access to a policy, you can use <code>0.0.0.0:5567/policy/validate</code>.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_resource_api_to_policy_decision_point">2.2.1.2. Resource API (to Policy Decision Point)</h5>
+<div class="paragraph">
+<p>The PDP queries the corresponding PDP to retrieve information about a policy.<br>
+For this case we can use the <code>0.0.0.0:5567/policy/&lt;policy_id or ObjectId(policy_id)&gt;</code> to do all the operations related to insert, get, update and delete policies.</p>
+</div>
+</div>
 </div>
 <div class="sect3">
-<h4 id="_resource_api_to_policy_enforcement_point">2.2.3. Resource API (to Policy Enforcement Point)</h4>
+<h4 id="_consumed_interfaces">2.2.2. Consumed Interfaces</h4>
+<div class="sect4">
+<h5 id="_oidc_to_login_service">2.2.2.1. OIDC (to Login Service)</h5>
 <div class="paragraph">
-<p>The PDP queries the corresponding PEP to retrieve information about a resource.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_oidc_to_login_service">2.2.4. OIDC (to Login Service)</h4>
-<div class="paragraph">
-<p>The PDP uses the OIDC protocol in order to authenticate itself as a valid UMA client, and uses this OIDC client in all UMA-related queries.</p>
+<p>The PDP uses the OIDC protocol in order to authenticate itself as a valid UMA client, and uses this OIDC client in all UMA-related queries.<br>
+It allows Clients to verify the identity of the End-User. (<a href="https://gluu.org/docs/gluu-server/4.0/admin-guide/openid-connect/" class="bare">https://gluu.org/docs/gluu-server/4.0/admin-guide/openid-connect/</a>)</p>
 </div>
 <div class="paragraph">
 <p>These queries are done against the Login Service, and the endpoints used are:</p>
@@ -1031,18 +1126,21 @@ This is the only input interface to interact directly with the PDP from outside,
 <div class="ulist">
 <ul>
 <li>
-<p>TOKEN_ENDPOINT</p>
+<p>TYPE_OIDC</p>
+</li>
+<li>
+<p>KEY_OIDC_TOKEN_ENDPOINT</p>
+</li>
+<li>
+<p>KEY_OIDC_USERINFO_ENDPOINT</p>
 </li>
 </ul>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_scim_to_login_service">2.2.5. SCIM (to Login Service)</h4>
+<div class="sect4">
+<h5 id="_scim_to_login_service">2.2.2.2. SCIM (to Login Service)</h5>
 <div class="paragraph">
-<p>The PDP has the capability to auto-register itself as a client if there is no client pre-configured from previous starts or previous configuration.</p>
-</div>
-<div class="paragraph">
-<p>In order to do this, it utilizes the SCIM protocol, and queries the Login Service.</p>
+<p>The PDP has the capability to auto-register itself as a client if there is no client pre-configured from previous starts or previous configuration. In order to do this, it utilizes the SCIM protocol which is designed to reduce the complexity of user management operations. (<a href="https://gluu.org/docs/gluu-server/3.1.1/user-management/scim2/" class="bare">https://gluu.org/docs/gluu-server/3.1.1/user-management/scim2/</a>)</p>
 </div>
 <div class="paragraph">
 <p>The endpoints used for SCIM are:</p>
@@ -1050,20 +1148,28 @@ This is the only input interface to interact directly with the PDP from outside,
 <div class="ulist">
 <ul>
 <li>
-<p>AUTH_CLIENT_POST</p>
+<p>KEY_SCIM_USER_ENDPOINT</p>
+</li>
+<li>
+<p>ENDPOINT_AUTH_CLIENT_PRIVATE_KEY_JWT</p>
 </li>
 </ul>
 </div>
 </div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_internal_interfaces">2.3. Internal Interfaces</h3>
 <div class="sect3">
-<h4 id="_mongodb_as_database">2.2.6. MongoDB as Database</h4>
+<h4 id="_mongodb_as_database">2.3.1. MongoDB as Database</h4>
 <div class="paragraph">
-<p>In order to access the policies, these policies will be stored in a non-relational database which will be MongoDB</p>
+<p>In order to access the policies, these policies will be stored in a non-relational database which will be MongoDB.<br>
+MongoDB is a cross-platform document-oriented database program, classified as a NoSQL database program. This database is characterized by storing information such as JSON-like documents with optional schemas.</p>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_required_resources">2.3. Required resources</h3>
+<h3 id="_required_resources">2.4. Required resources</h3>
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -1090,7 +1196,7 @@ This is the only input interface to interact directly with the PDP from outside,
 </table>
 </div>
 <div class="sect3">
-<h4 id="_software">2.3.1. Software</h4>
+<h4 id="_software">2.4.1. Software</h4>
 <div class="paragraph">
 <p>The following Open-Source Software is required to support the deployment and integration of the Policy Enforcement Point:</p>
 </div>
@@ -1098,6 +1204,9 @@ This is the only input interface to interact directly with the PDP from outside,
 <ul>
 <li>
 <p>EOEPCA&#8217;s SCIM Client - <a href="https://github.com/EOEPCA/um-common-scim-client" class="bare">https://github.com/EOEPCA/um-common-scim-client</a></p>
+</li>
+<li>
+<p>EOEPCA&#8217;s OpenID - <a href="https://github.com/EOEPCA/um-common-oidc-client" class="bare">https://github.com/EOEPCA/um-common-oidc-client</a></p>
 </li>
 <li>
 <p>EOEPCA&#8217;s Well Known Handler - <a href="https://github.com/EOEPCA/well-known-handler" class="bare">https://github.com/EOEPCA/well-known-handler</a></p>
@@ -1113,7 +1222,7 @@ This is the only input interface to interact directly with the PDP from outside,
 </div>
 </div>
 <div class="sect2">
-<h3 id="_static_architecture">2.4. Static Architecture</h3>
+<h3 id="_static_architecture">2.5. Static Architecture</h3>
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -1144,7 +1253,7 @@ This is the only input interface to interact directly with the PDP from outside,
 </div>
 </div>
 <div class="sect2">
-<h3 id="_use_cases">2.5. Use cases</h3>
+<h3 id="_use_cases">2.6. Use cases</h3>
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -1169,31 +1278,41 @@ This is the only input interface to interact directly with the PDP from outside,
 </div>
 <div class="imageblock text-right">
 <div class="content">
-<img src="./images/PDPFlow.png" alt="PDPFlow">
+<img src="./images/UseCasePDP2.png" alt="UseCasePDP2">
 </div>
 </div>
 <div class="sect3">
-<h4 id="_registration_of_policies">2.5.1. Registration of policies</h4>
+<h4 id="_registration_of_policies">2.6.1. Registration of policies</h4>
 <div class="paragraph">
 <p>The process of registering the policies is performed in the main, for this purpose the Policy_Storage class is used which will allow actions such as inserting policies in the pod where the Mongo database is located</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_policy_retrieval">2.5.2. Policy Retrieval</h4>
+<h4 id="_get_user_attributes">2.6.2. Get User Attributes</h4>
 <div class="paragraph">
-<p>(Represented in the above graph by the request to Login Service called "Get the policies related to the resources ids")</p>
+<p>(Represented in the above graph by the request to Login Service called "ScimHandler.getAttributes(userName)")</p>
+</div>
+<div class="paragraph">
+<p>SCIM will be used in order to obtain the attributes for the user that have been extracted from the XACML of the request and then use them in the PDP functions</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_policy_retrieval">2.6.3. Policy Retrieval</h4>
+<div class="paragraph">
+<p>(Represented in the above graph by the request to Mongo called "Get the policies related to the resources ids")</p>
 </div>
 <div class="paragraph">
 <p>The PDP access through the resource id that was extracted from the XACML in the request and using the Policy_Storage class, allows to access MongoDB and extracts all the policies information stored for that resource id</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_access_check">2.5.3. Access Check</h4>
+<h4 id="_access_check">2.6.4. Access Check</h4>
 <div class="paragraph">
-<p>(Represented in the above graph by the request to Login Service called "Validate policies with values extracted from XACML")</p>
+<p>(Represented in the above graph by the request to PDP called "Validate policies with user attributes obtained from ScimHandler")</p>
 </div>
 <div class="paragraph">
-<p>When the PDP has obtained the policies, we proceed to compare the content of these policies with the values obtained from the request, mainly they are the resource id and the user_name, in case that some of these do not coincide, it will be response with "Deny" in the json or with a "Permit" if everything is correct</p>
+<p>When the PDP has obtained the policies, we proceed to compare the content of these policies with the values obtained from the request using the ScimHandler, mainly they are the resource id and the user_name, in case that some of these do not coincide, it will be response with "Deny" in the json or with a "Permit" if everything is correct.<br>
+Now validates that the policy follows the expected structure (<a href="https://app.swaggerhub.com/apis/hector-rodriguez/PolicyAPI/1-oas3" class="bare">https://app.swaggerhub.com/apis/hector-rodriguez/PolicyAPI/1-oas3</a>)</p>
 </div>
 <div style="page-break-after: always;"></div>
 </div>
@@ -1329,7 +1448,7 @@ This is the only input interface to interact directly with the PDP from outside,
 </div>
 <div class="imageblock text-right">
 <div class="content">
-<img src="./images/PDPFlow.png" alt="PDPFlow">
+<img src="./images/UseCasePDP2.png" alt="UseCasePDP2">
 </div>
 </div>
 </div>
@@ -1341,12 +1460,6 @@ This is the only input interface to interact directly with the PDP from outside,
 </div>
 <div class="ulist">
 <ul>
-<li>
-<p>The parser script can be expanded to parse all the configuration for a XACML formatted.</p>
-</li>
-<li>
-<p>The registration of policies can be expanded to insert the policies without hardcoded values like resource id</p>
-</li>
 <li>
 <p>The proxy can be expanded to parse further parameters on top of the HTTP protocol, allowing for any kind of plugin or complex mechanism desired.</p>
 </li>
@@ -1372,43 +1485,39 @@ This is the only input interface to interact directly with the PDP from outside,
 <li>
 <p>Flask - <a href="https://github.com/pallets/flask" class="bare">https://github.com/pallets/flask</a></p>
 </li>
+<li>
+<p>Policy Language - <a href="https://app.swaggerhub.com/apis/hector-rodriguez/PolicyAPI/1-oas3" class="bare">https://app.swaggerhub.com/apis/hector-rodriguez/PolicyAPI/1-oas3</a></p>
+</li>
 </ul>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_policy_validation">3.2. POLICY VALIDATION</h3>
+<h3 id="_policy_validation">3.2. Policy Validation</h3>
 <div class="sect3">
 <h4 id="_overview_and_purpose_2">3.2.1. Overview and Purpose</h4>
 <div class="paragraph">
-<p>The functionality is to validate that the policy is fulfilled with the request received at the /validate endpoint, and return a response with the access or denied access.</p>
+<p>The functionality is to validate that the policy is fulfilled with the request received at the /validate endpoint, and return a response with the access or denied access.<br>
+The main functionality is to validates that the policy follows the expected structure (<a href="https://app.swaggerhub.com/apis/hector-rodriguez/PolicyAPI/1-oas3" class="bare">https://app.swaggerhub.com/apis/hector-rodriguez/PolicyAPI/1-oas3</a>).<br>
+For this purpose, the following points are considered:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p><strong>validate_policy_language</strong>: Function that validates that the policy follows the expected structure (<a href="https://app.swaggerhub.com/apis/hector-rodriguez/PolicyAPI/1-oas3" class="bare">https://app.swaggerhub.com/apis/hector-rodriguez/PolicyAPI/1-oas3</a>)</p>
+<p>Validates the policy conditions (AND, OR, XOR, NOT) and returns True or False</p>
 </li>
 <li>
-<p><strong>conditions_validator</strong>: Function that validates the policy conditions (AND, OR, XOR, NOT) and returns True or False</p>
+<p>Validate the value received in the request with the policy values together with the condition (LESS, LESSEQUAL, GREATER, GREATEREQUAL, EQUAL) and return True or False</p>
 </li>
 <li>
-<p><strong>validate_operations</strong>: Function that will validate the value received in the request with the policy values together with the condition (LESS, LESSEQUAL, GREATER, GREATEREQUAL, EQUAL) and return True or False</p>
-</li>
-<li>
-<p><strong>validate_multiples_conditions</strong>: New function that will split the policy rule in order to obtain the value for each condition. For this reason it calls the conditions_validator and validate_operations functions</p>
-</li>
-<li>
-<p><strong>validate_all_acces_policies</strong>: Function that goes through the list of policy conditions to obtain the result for each one. For that reason it makes calls to the function of validate_multiples_conditions</p>
-</li>
-<li>
-<p><strong>validate_complete_policies</strong>: This is the main function that makes calls to the previous ones, it makes the function that made validate_access_policies before</p>
+<p>Split the policy rule in order to obtain the value for each condition</p>
 </li>
 </ul>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_policy_respository">3.3. POLICY RESPOSITORY</h3>
+<h3 id="_policy_repository">3.3. Policy Repository</h3>
 <div class="sect3">
 <h4 id="_overview_and_purpose_3">3.3.1. Overview and Purpose</h4>
 <div class="paragraph">
@@ -1417,24 +1526,24 @@ This is the only input interface to interact directly with the PDP from outside,
 <div class="paragraph">
 <p>Included with the PDP there is a script at the source path that performs queries against a Mongo Database. The main purpose of this script is to reduce the usage of RAM when registering a policy locally and when querying for its content.<br>
 It is developed to generate a database called 'policy_db' in case it does not exist. The collection used for the storage of the documents is called 'policies'.<br>
-The script defines the following methods:</p>
+The main functionalities are:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p><strong>insert_policy</strong>: Will generate a document with the policy data recived as input if it alredy exists it will update it. The main parameters of the policy would be an auto-generated id provided by mongo which identify each document in the database, the resource_id provided by the login-service, the name for the policy, and the configuratino which will be the policy with its resource_id. This would be mandatory parameters in order to perform other kind of queries.</p>
+<p><strong>Insert policy</strong>: Will generate a document with the policy data recived as input if it alredy exists it will update it. The main parameters of the policy would be an auto-generated id provided by mongo which identify each document in the database, the resource_id provided by the login-service, the name for the policy, and the configuratino which will be the policy with its resource_id. This would be mandatory parameters in order to perform other kind of queries.</p>
 </li>
 <li>
-<p><strong>update_policy</strong>: Updates the content of a policy stored matched by its ID</p>
+<p><strong>Update policy</strong>: Updates the content of a policy stored matched by its ID</p>
 </li>
 <li>
-<p><strong>get_policy_from_resource_id</strong>: Finds the policy, attached to a resource by a resource_id given. Returns a list of policies in json format to the resource_id asociated.</p>
+<p><strong>Get policy from resource id</strong>: Finds the policy, attached to a resource by a resource_id given. Returns a list of policies in json format to the resource_id asociated.</p>
 </li>
 <li>
-<p><strong>get_policy_from_id</strong>: Matches the policy by its unique ID</p>
+<p><strong>Get policy from id</strong>: Matches the policy by its unique ID</p>
 </li>
 <li>
-<p><strong>delete_policy</strong>: This function will recive a policy id and will find and delete the matched document</p>
+<p><strong>Delete policy</strong>: Will recive a policy id and will find and delete the matched document</p>
 </li>
 </ul>
 </div>
@@ -1480,8 +1589,8 @@ The main methods for the interaction with the database are displayed in this dat
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 0.1<br>
-Last updated 2020-09-08 10:34:37 UTC
+Version 0.2<br>
+Last updated 2020-09-08 10:43:30 UTC
 </div>
 </div>
 </body>
