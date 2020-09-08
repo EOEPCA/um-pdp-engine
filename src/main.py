@@ -88,75 +88,14 @@ else:
     os.environ["PEP_CLIENT_ID"] = new_client["client_id"]
     os.environ["PEP_CLIENT_SECRET"] = new_client["client_secret"]
 
-#example rule policy a:
-a= {
-    "resource_id": "20248583",
-    "rules": [{
-        "OR": [
-                {"EQUAL": {"user_name" : "mami"} },
-                {"EQUAL": {"user_name" : "admin"} }
-        ]
-    }]
-}
-#example rule policy b:
-b= {
-    "resource_id": "202485830",
-    "rules": [{
-        "AND": [
-                {"EQUAL": {"user_name" : "admin"} }
-        ]
-    }]
-}
-
-c= {
-    "resource_id": "123456",
-    "rules" : [
-        {
-          "AND": [{
-            "EQUAL" : {"user_name" : "admin" }
-          }]
-        },
-        {
-          "AND": [{
-          "NOT" : {
-            "OR" : [
-                    {"GREATER": {"num_acces" : 10} },
-                    {"GREATEREQUAL" : {"attemps" : 18 }}
-            ]
-          },
-            "EQUAL" : {"company" : "Deimos" }
-          }]
-        },
-        { 
-          "LESSEQUAL" : {"system_load" : 90 }
-        }
-      ]
-}
-
-d= {
-        "resource_id": "1234567",
-        "rules" : [
-            {
-                "AND": [{
-                "EQUAL" : {"userName" : "admin" }
-                }]
-            },
-            {
-                "AND": [{
-                    "NOT" : {
-                        "OR" : [
-                                {"EQUAL": {"emails" : [{'value': 'mamuniz@test.com', 'primary': False}]} },
-                                {"EQUAL" : {"nickName" : "Mami" }}
-                            ]
-                    },
-                    "EQUAL" : {"displayName" : "Default Admin User" }
-                }]
-            },
-            {
-                "EQUAL" : {"groups" : [{'value': '60B7', 'display': 'Gluu Manager Group', 'type': 'direct', 'ref': 'https://test.10.0.2.15.nip.io/identity/restv1/scim/v2/Groups/60B7'}] }
-            }
-        ]
-    }
+with open('standards/policy_rule_a.json') as json_file1:
+    a = json.load(json_file1)
+with open('standards/policy_rule_b.json') as json_file2:
+    b = json.load(json_file2)
+with open('standards/policy_rule_c.json') as json_file3:
+    c = json.load(json_file3)
+with open('standards/policy_rule_d.json') as json_file4:
+    d = json.load(json_file4)
 
 #instance
 mongo = Policy_Storage('mongodb')

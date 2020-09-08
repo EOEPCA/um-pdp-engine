@@ -1,0 +1,24 @@
+{
+    "resource_id": "1234567",
+    "rules" : [
+        {
+            "AND": [{
+            "EQUAL" : {"userName" : "admin" }
+            }]
+        },
+        {
+            "AND": [{
+                "NOT" : {
+                    "OR" : [
+                            {"EQUAL": {"emails" : [{"value": "mamuniz@test.com", "primary": false}]} },
+                            {"EQUAL" : {"nickName" : "Mami" }}
+                        ]
+                },
+                "EQUAL" : {"displayName" : "Default Admin User" }
+            }]
+        },
+        {
+            "EQUAL" : {"groups" : [{"value": "60B7", "display": "Gluu Manager Group", "type": "direct", "ref": "https://test.10.0.2.15.nip.io/identity/restv1/scim/v2/Groups/60B7"}] }
+        }
+    ]
+}

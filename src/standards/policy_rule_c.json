@@ -1,0 +1,24 @@
+{
+    "resource_id": "123456",
+    "rules" : [
+        {
+          "AND": [{
+            "EQUAL" : {"user_name" : "admin" }
+          }]
+        },
+        {
+          "AND": [{
+          "NOT" : {
+            "OR" : [
+                    {"GREATER": {"num_acces" : 10} },
+                    {"GREATEREQUAL" : {"attemps" : 18 }}
+            ]
+          },
+            "EQUAL" : {"company" : "Deimos" }
+          }]
+        },
+        { 
+          "LESSEQUAL" : {"system_load" : 90 }
+        }
+      ]
+}

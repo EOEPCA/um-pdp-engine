@@ -36,7 +36,16 @@ def validate_resource():
     #handler_user_attributes uses this schema: https://gluu.org/docs/gluu-server/4.1/api-guide/scim-api/#/definitions/User
 
     # Call to be used later in development
-    handler_status, handler_user_attributes = ScimHandler.get_instance().getUserAttributes(user_name)
+    try:
+        handler_status, handler_user_attributes = ScimHandler.get_instance().getUserAttributes(user_name)
+    except Exception as e:
+        print("Error While retrieving the user attributes")
+
+    if not isinstance(handler_user_attributes, dict):
+        handler_user_attributes = {}
+
+        for i in range(0, len(subject.attributes)):
+            handler_user_attributes[subject.attributes[i]['AttributeId']] = subject.attributes[i]['Value']
 
     # Pending: Complete when xacml receives several resources
     if isinstance(resource_id, list):
