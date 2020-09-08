@@ -14,7 +14,7 @@ jobs:
 
     - stage: Testing PDP
       install: pip install -r src/requirements.txt
-      before_script: cd src
+      before_script: cd tests
       script: python3 -m unittest um_pdp_test.py
 
     - stage: container creation and publishing
