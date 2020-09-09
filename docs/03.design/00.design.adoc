@@ -31,7 +31,7 @@ The most important are:
 
 * **EOEPCA-SCIM**: Used as a complementary measure to the XACML passing of client assertions.
 * **EOEPCA-OIDC**: Used to auto-register itself as a client to the Auth. Server upon start-up.
-* **WellKnownHandler**: Used to dynamically check the configuration of the Authorization Server on each execution. For example, it can get the needed endpoints for any API the PEP needs, such as the token request for OIDC.
+* **WellKnownHandler**: Used to dynamically check the configuration of the Authorization Server on each execution. For example, it can get the needed endpoints for any API the PDP needs, such as the token request for OIDC.
 * **Flask**: External to EOEPCA's project, this library allows the PDP to expose its endpoints.
 * **MongoDB**: Used to storage the policies for every resource, with the possibility of performing actions such as insert policies, modify, delete, etc
 
