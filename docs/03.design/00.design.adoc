@@ -1,4 +1,4 @@
-[[mainComponents]]
+[[mainDesign]]
 = Building Block Design
 
 [NOTE]
@@ -59,11 +59,11 @@ The parameters that are accepted, and their meaning, are as follows:
 
 ==== Data flow
 
-The only information the PDP handles are XACML json format from the request, and policies provided by MongoDB.
+The only information the PDP handles are XACML json format from the request, and policies provided by a Back-End database.
 
 What follows is an example of the nominal flow for the PDP:
 
-image::../images/UseCasePDP2.png[top=5%, align=right, pdfwidth=6.5in]
+image::../images/Use_Case_PDP_final.png[top=5%, align=right, pdfwidth=6.5in]
 
 === Extensibility
 
@@ -80,10 +80,9 @@ The design of the PDP allows for further improvements if need be. For example:
 * Flask - https://github.com/pallets/flask
 * Policy Language - https://app.swaggerhub.com/apis/hector-rodriguez/PolicyAPI/1-oas3
 
-== Policy Validation
+== Policy Validation Service
 === Overview and Purpose
 The functionality is to validate that the policy is fulfilled with the request received at the /validate endpoint, and return a response with the access or denied access.
-The main functionality is to validates that the policy follows the expected structure (https://app.swaggerhub.com/apis/hector-rodriguez/PolicyAPI/1-oas3).
 For this purpose, the following points are considered:
 
 * Validates the policy conditions (AND, OR, XOR, NOT) and returns True or False
@@ -106,15 +105,12 @@ The main functionalities are:
 * **Get policy from id**: Matches the policy by its unique ID
 * **Delete policy**: Will recive a policy id and will find and delete the matched document
 
-This script is manipulated by the API which would intercept the request in order to perform PUT,POST and DELETE methods.
+This script is manipulated by the API which would intercept the request in order to perform PUT, POST and DELETE methods.
 In the future this will be complient with other databases in order to unify the methods mentioned above.
 
 === Software Reuse and Dependencies
 
-The script needs the library 'pymongo', to query the database. It will expect a MongoDB service running on the default's Mongo port 27017
-In order to simulate database responses for unit tests, is needed to use the python mock library.
-
-This class would be called from APIs within the PDP repository. At the moment the usage is mainly for the policy interaction purposes, but this can easily be reused by other agents.
+At the moment the usage is mainly for the policy interaction purposes, but this can easily be reused by other agents.
 
 === Data flow
 
