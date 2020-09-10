@@ -154,26 +154,26 @@ This section contains:
 
 ================================
 
-image::../images/Use_Case_PDP_final.png[top=5%, align=right, pdfwidth=6.5in]
+=== Policy Access Check Use Case
 
-=== Registration of policies
+image::../images/use_case.png[top=5%, align=center]
 
-The process of registering the policies is performed in the main, for this purpose the Policy_Storage class is used which will allow actions such as inserting policies in the pod where the Back-end database is located
+This diagram covers the following use cases:
 
-=== Get User Attributes
-
-(Represented in the above graph by the request to Login Service called "Get Attributes for User")
-
-SCIM will be used in order to obtain the attributes for the user that have been extracted from the XACML of the request and then use them in the PDP functions
-
-=== Policy Retrieval
-
-(Represented in the above graph by the request to Back-end database called "Get the policies related to the resources ids")
-
-The PDP access through the resource id that was extracted from the XACML in the request and using the Policy_Storage class, allows to access the Back-end databse and extracts all the policies information stored for that resource id
-
-=== Access Check
-
-(Represented in the above graph by the request to PDP called "Validate policies with user attributes obtained from ScimHandler")
+==== Policy Access Check
 
 When the PDP has obtained the policies, we proceed to compare the content of these policies with the values obtained from the request using the ScimHandler, mainly they are the resource id and the user_name, in case that some of these do not coincide, it will be response with "Deny" in the json or with a "Permit" if everything is correct.
+
+==== Policy Retrieval
+
+The PDP access through the resource id that was extracted from the XACML in the request and using the Policy_Storage class, allows to access the Back-end databse and extracts all the policies information stored for that resource id.
+
+==== Get User Attributes
+
+SCIM will be used in order to obtain the attributes for the user that have been extracted from the XACML of the request and then use them in the PDP functions.
+
+=== Policy Repository Management
+
+==== Registration of policies
+
+The process of registering the policies is performed in the main, for this purpose the Policy_Storage class is used which will allow actions such as inserting policies in the pod where the Back-end database is located.
