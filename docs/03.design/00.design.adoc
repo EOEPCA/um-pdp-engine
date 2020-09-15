@@ -1,4 +1,4 @@
-[[mainComponents]]
+[[mainDesign]]
 = Building Block Design
 
 [NOTE]
@@ -31,7 +31,7 @@ The most important are:
 
 * **EOEPCA-SCIM**: Used as a complementary measure to the XACML passing of client assertions.
 * **EOEPCA-OIDC**: Used to auto-register itself as a client to the Auth. Server upon start-up.
-* **WellKnownHandler**: Used to dynamically check the configuration of the Authorization Server on each execution. For example, it can get the needed endpoints for any API the PEP needs, such as the token request for OIDC.
+* **WellKnownHandler**: Used to dynamically check the configuration of the Authorization Server on each execution. For example, it can get the needed endpoints for any API the PDP needs, such as the token request for OIDC.
 * **Flask**: External to EOEPCA's project, this library allows the PDP to expose its endpoints.
 * **MongoDB**: Used to storage the policies for every resource, with the possibility of performing actions such as insert policies, modify, delete, etc
 
@@ -59,18 +59,16 @@ The parameters that are accepted, and their meaning, are as follows:
 
 ==== Data flow
 
-The only information the PDP handles are XACML json format from the request, and policies provided by MongoDB.
+The only information the PDP handles are XACML json format from the request, and policies provided by a Back-End database.
 
 What follows is an example of the nominal flow for the PDP:
 
-image::../images/PDPFlow.png[top=5%, align=right, pdfwidth=6.5in]
+image::../images/Use_Case_PDP_final.png[top=5%, align=right, pdfwidth=6.5in]
 
 === Extensibility
 
 The design of the PDP allows for further improvements if need be. For example:
 
-- The parser script can be expanded to parse all the configuration for a XACML formatted.
-- The registration of policies can be expanded to insert the policies without hardcoded values like resource id
 - The proxy can be expanded to parse further parameters on top of the HTTP protocol, allowing for any kind of plugin or complex mechanism desired.
 
 === Applicable Resources
@@ -80,46 +78,39 @@ The design of the PDP allows for further improvements if need be. For example:
 * EOEPCA's OIDC Client - https://github.com/EOEPCA/um-common-uma-client
 * EOEPCA's Well Known Handler - https://github.com/EOEPCA/well-known-handler
 * Flask - https://github.com/pallets/flask
+* Policy Language - https://app.swaggerhub.com/apis/hector-rodriguez/PolicyAPI/1-oas3
 
-== POLICY VALIDATION
+== Policy Validation Service
 === Overview and Purpose
 The functionality is to validate that the policy is fulfilled with the request received at the /validate endpoint, and return a response with the access or denied access.
+For this purpose, the following points are considered:
 
-* **validate_policy_language**: Function that validates that the policy follows the expected structure (https://app.swaggerhub.com/apis/hector-rodriguez/PolicyAPI/1-oas3)
+* Validates the policy conditions (AND, OR, XOR, NOT) and returns True or False
 
-* **conditions_validator**: Function that validates the policy conditions (AND, OR, XOR, NOT) and returns True or False
+* Validate the value received in the request with the policy values together with the condition (LESS, LESSEQUAL, GREATER, GREATEREQUAL, EQUAL) and return True or False
 
-* **validate_operations**: Function that will validate the value received in the request with the policy values together with the condition (LESS, LESSEQUAL, GREATER, GREATEREQUAL, EQUAL) and return True or False
+* Split the policy rule in order to obtain the value for each condition
 
-* **validate_multiples_conditions**: New function that will split the policy rule in order to obtain the value for each condition. For this reason it calls the conditions_validator and validate_operations functions
-
-* **validate_all_acces_policies**: Function that goes through the list of policy conditions to obtain the result for each one. For that reason it makes calls to the function of validate_multiples_conditions
-
-* **validate_complete_policies**: This is the main function that makes calls to the previous ones, it makes the function that made validate_access_policies before
-
-== POLICY RESPOSITORY
+== Policy Repository
 === Overview and Purpose
 It is the database based on MongoDB where the policies are stored and queried for the PDP pourposes
 
 Included with the PDP there is a script at the source path that performs queries against a Mongo Database. The main purpose of this script is to reduce the usage of RAM when registering a policy locally and when querying for its content.
 It is developed to generate a database called 'policy_db' in case it does not exist. The collection used for the storage of the documents is called 'policies'.
-The script defines the following methods:
+The main functionalities are:
 
-* **insert_policy**: Will generate a document with the policy data recived as input if it alredy exists it will update it. The main parameters of the policy would be an auto-generated id provided by mongo which identify each document in the database, the resource_id provided by the login-service, the name for the policy, and the configuratino which will be the policy with its resource_id. This would be mandatory parameters in order to perform other kind of queries.
-* **update_policy**: Updates the content of a policy stored matched by its ID
-* **get_policy_from_resource_id**: Finds the policy, attached to a resource by a resource_id given. Returns a list of policies in json format to the resource_id asociated.
-* **get_policy_from_id**: Matches the policy by its unique ID
-* **delete_policy**: This function will recive a policy id and will find and delete the matched document
+* **Insert policy**: Will generate a document with the policy data recived as input if it alredy exists it will update it. The main parameters of the policy would be an auto-generated id provided by mongo which identify each document in the database, the resource_id provided by the login-service, the name for the policy, and the configuratino which will be the policy with its resource_id. This would be mandatory parameters in order to perform other kind of queries.
+* **Update policy**: Updates the content of a policy stored matched by its ID
+* **Get policy from resource id**: Finds the policy, attached to a resource by a resource_id given. Returns a list of policies in json format to the resource_id asociated.
+* **Get policy from id**: Matches the policy by its unique ID
+* **Delete policy**: Will recive a policy id and will find and delete the matched document
 
-This script is manipulated by the API which would intercept the request in order to perform PUT,POST and DELETE methods.
+This script is manipulated by the API which would intercept the request in order to perform PUT, POST and DELETE methods.
 In the future this will be complient with other databases in order to unify the methods mentioned above.
 
 === Software Reuse and Dependencies
 
-The script needs the library 'pymongo', to query the database. It will expect a MongoDB service running on the default's Mongo port 27017
-In order to simulate database responses for unit tests, is needed to use the python mock library.
-
-This class would be called from APIs within the PDP repository. At the moment the usage is mainly for the policy interaction purposes, but this can easily be reused by other agents.
+At the moment the usage is mainly for the policy interaction purposes, but this can easily be reused by other agents.
 
 === Data flow
 
