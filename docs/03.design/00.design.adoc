@@ -1,4 +1,123 @@
 [[mainDesign]]
-= Design
+= Building Block Design
 
-TBD
+[NOTE]
+.Content Description
+================================
+This section contains:
+
+* A concise breakdown of the Building Block in several independent services (when applicable). For each component, the following subsections are added:
+** Overview and purpose: indicating the functionality covered by the component
+** SW Reuse and Dependencies: indicating reuse of third party open source solutions (if any) and any pre-required Dependencies
+** Interfaces: both internal to the building block and those exposed externally
+** Data: Data usage of the building block, data flow and any GDPR concerns should be addressed here
+** Applicable Resources: links and references to (Reference Docs), and repositories.
+
+When a breakdown is necessary, a general overview of the building block can be given. On the contrary, no breakdown indicates a single component development with the same expected sections.
+
+================================
+
+
+== Policy Decision Engine
+
+=== Overview and Purpose
+The Flask-based endpoint allows to query and retrieve XACML-compliant requests. 
+
+=== Software Reuse and Dependencies
+
+All requirements for the executing of the reverse proxy are found under src/requirements.txt, and expect Python 3.6.9 or greater to work.
+
+The most important are:
+
+* **EOEPCA-SCIM**: Used as a complementary measure to the XACML passing of client assertions.
+* **EOEPCA-OIDC**: Used to auto-register itself as a client to the Auth. Server upon start-up.
+* **WellKnownHandler**: Used to dynamically check the configuration of the Authorization Server on each execution. For example, it can get the needed endpoints for any API the PDP needs, such as the token request for OIDC.
+* **Flask**: External to EOEPCA's project, this library allows the PDP to expose its endpoints.
+* **MongoDB**: Used to storage the policies for every resource, with the possibility of performing actions such as insert policies, modify, delete, etc
+
+=== Interfaces
+
+This component doesn't have any internal interfaces. For a reference of external interfaces see <<External Interfaces>> on Section 2 <<Overview>>
+
+=== Data
+
+==== Configuration
+
+The PDP gets all its configuration from the file located under config/config.json.
+
+The parameters that are accepted, and their meaning, are as follows:
+
+- **prefix**: "/path"-formatted string to indicate where the reverse proxy should listen. Default is "/pdp"
+
+- **host**: Host for the proxy to listen on. For example, "0.0.0.0" will listen on all interfaces
+
+- **port**: Port for the proxy to listen on. By default, 5567. Keep in mind you will have to edit the docker file and/or kubernetes yaml file in order for all the prot forwarding to work.
+
+- **check_ssl_certs**: Toggle on/off (bool) to check certificates in all requests. This should be forced to True in a production environment
+
+- **debug_mode**: Toggle on/off (bool) a debug mode of Flask. In a production environment, this should be false.
+
+==== Data flow
+
+The only information the PDP handles are XACML json format from the request, and policies provided by a Back-End database.
+
+What follows is an example of the nominal flow for the PDP:
+
+image::../images/Use_Case_PDP_final.png[top=5%, align=right, pdfwidth=6.5in]
+
+=== Extensibility
+
+The design of the PDP allows for further improvements if need be. For example:
+
+- The proxy can be expanded to parse further parameters on top of the HTTP protocol, allowing for any kind of plugin or complex mechanism desired.
+
+=== Applicable Resources
+
+* XACML 3.0 JSON Profile Specification 1.1 - http://docs.oasis-open.org/xacml/xacml-json-http/v1.1/xacml-json-http-v1.1.html
+* EOEPCA's SCIM Client - https://github.com/EOEPCA/um-common-scim-client
+* EOEPCA's OIDC Client - https://github.com/EOEPCA/um-common-uma-client
+* EOEPCA's Well Known Handler - https://github.com/EOEPCA/well-known-handler
+* Flask - https://github.com/pallets/flask
+* Policy Language - https://app.swaggerhub.com/apis/hector-rodriguez/PolicyAPI/1-oas3
+
+== Policy Validation Service
+=== Overview and Purpose
+The functionality is to validate that the policy is fulfilled with the request received at the /validate endpoint, and return a response with the access or denied access.
+For this purpose, the following points are considered:
+
+* Validates the policy conditions (AND, OR, XOR, NOT) and returns True or False
+
+* Validate the value received in the request with the policy values together with the condition (LESS, LESSEQUAL, GREATER, GREATEREQUAL, EQUAL) and return True or False
+
+* Split the policy rule in order to obtain the value for each condition
+
+== Policy Repository
+=== Overview and Purpose
+It is the database based on MongoDB where the policies are stored and queried for the PDP pourposes
+
+Included with the PDP there is a script at the source path that performs queries against a Mongo Database. The main purpose of this script is to reduce the usage of RAM when registering a policy locally and when querying for its content.
+It is developed to generate a database called 'policy_db' in case it does not exist. The collection used for the storage of the documents is called 'policies'.
+The main functionalities are:
+
+* **Insert policy**: Will generate a document with the policy data recived as input if it alredy exists it will update it. The main parameters of the policy would be an auto-generated id provided by mongo which identify each document in the database, the resource_id provided by the login-service, the name for the policy, and the configuratino which will be the policy with its resource_id. This would be mandatory parameters in order to perform other kind of queries.
+* **Update policy**: Updates the content of a policy stored matched by its ID
+* **Get policy from resource id**: Finds the policy, attached to a resource by a resource_id given. Returns a list of policies in json format to the resource_id asociated.
+* **Get policy from id**: Matches the policy by its unique ID
+* **Delete policy**: Will recive a policy id and will find and delete the matched document
+
+This script is manipulated by the API which would intercept the request in order to perform PUT, POST and DELETE methods.
+In the future this will be complient with other databases in order to unify the methods mentioned above.
+
+=== Software Reuse and Dependencies
+
+At the moment the usage is mainly for the policy interaction purposes, but this can easily be reused by other agents.
+
+=== Data flow
+
+The database will only be accesible by the API or the Proxy.
+The main methods for the interaction with the database are displayed in this dataflow as a summary of its scope:
+
+
+=== Applicable Resources
+
+* MongoDB image from DockerHub - https://hub.docker.com/_/mongo

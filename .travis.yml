@@ -8,9 +8,14 @@ services:
 
 jobs:
   include:
-    - stage: Testing
+    - stage: Testing Mongo
       install: pip install -r src/requirements.txt
-      script: pytest src
+      script: python3 -m unittest tests/test_database.py
+
+    - stage: Testing PDP
+      install: pip install -r src/requirements.txt
+      before_script: cd tests
+      script: python3 -m unittest um_pdp_test.py
 
     - stage: container creation and publishing
       install: skip
