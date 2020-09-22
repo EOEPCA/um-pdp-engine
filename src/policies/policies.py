@@ -30,6 +30,7 @@ def validate_resource():
 
     resource_id = resource.attributes[0]['Value']
     user_name = subject.attributes[0]['Value']
+    action = action.attributes[0]['Value']
     
     #To be expanded when implementing more complex policies
     #For now it serves only as a check if the user attributes were reachable on the AS
@@ -50,11 +51,11 @@ def validate_resource():
     # Pending: Complete when xacml receives several resources
     if isinstance(resource_id, list):
         for resource_from_list in resource.attributes[0]['Value']:
-            result_validation = policies_operations.validate_complete_policies(resource_from_list, handler_user_attributes)
+            result_validation = policies_operations.validate_complete_policies(resource_from_list, action, handler_user_attributes)
             if result_validation:
                 break
     else:
-        result_validation = policies_operations.validate_complete_policies(resource_id, handler_user_attributes)
+        result_validation = policies_operations.validate_complete_policies(resource_id, action, handler_user_attributes)
 
     if result_validation:
         r = response.Response(decision.PERMIT)

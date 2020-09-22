@@ -51,13 +51,13 @@ def validate_policy_language(policy):
                 return False
     return True
 
-def validate_complete_policies(resource_id, dict_request_values):
+def validate_complete_policies(resource_id, action, dict_request_values):
     mongo = Policy_Storage('mongodb')
     data = mongo.get_policy_from_resource_id(str(resource_id))
 
     if isinstance(data, list):
         for i in range(0, len(data)):
-            if data[i]['config']['resource_id'] == resource_id:
+            if data[i]['config']['resource_id'] == resource_id and data[i]['config']['action'] == action:
                 result = validate_all_acces_policies(data[i]['config']['rules'], dict_request_values)
                 return result     
     return False
