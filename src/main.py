@@ -96,6 +96,8 @@ with open('standards/policy_rule_c.json') as json_file3:
     c = json.load(json_file3)
 with open('standards/policy_rule_d.json') as json_file4:
     d = json.load(json_file4)
+with open('standards/policy_rule_issuer.json') as json_file5:
+    e = json.load(json_file5)
 
 #instance
 mongo = Policy_Storage('mongodb')
@@ -106,6 +108,7 @@ mongo.insert_policy(name='Policy2', description= '',ownership_id= '55b8f51f-4634
 #register example policy:
 mongo.insert_policy(name='Policy30', description= '',ownership_id= '55b8f51f-4634-4bb0-a1dd-070ec5869d70', config= c, scopes=[''])
 mongo.insert_policy(name='Policy31', description= '',ownership_id= '55b8f51f-4634-4bb0-a1dd-070ec5869d70', config= d, scopes=[''])
+mongo.insert_policy(name='PolicyIssuer', description= '',ownership_id= '55b8f51f-4634-4bb0-a1dd-070ec5869d70', config= e, scopes=[''])
 
 
 app = Flask(__name__)

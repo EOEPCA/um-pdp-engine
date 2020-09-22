@@ -6,8 +6,28 @@ from policies import policies_operations
 from models import response
 from xacml import parser, decision
 from utils import ClassEncoder
+from config import config_parser
+import os
 
 policy_bp = Blueprint('policy_bp', __name__)
+
+def validate_auth_server_url():
+    env_vars = [
+    'PDP_AUTH_SERVER_URL',        
+    'PDP_PREFIX',
+    'PDP_HOST',           
+    'PDP_PORT',             
+    'PDP_CHECK_SSL_CERTS',         
+    'PDP_DEBUG_MODE'
+    ]
+
+    use_env_var = True
+
+    for env_var in env_vars:
+        if env_var not in os.environ:
+            use_env_var = False
+
+    return use_env_var
 
 def validate_json(json_data):
     try:
@@ -41,7 +61,6 @@ def validate_resource():
     if issuer is not None:
         handler_status_issuer, handler_issuer_message = ScimHandler.get_instance().modifyAuthServerUrl(issuer)
 
-    #To be expanded when implementing more complex policies
     #For now it serves only as a check if the user attributes were reachable on the AS
     #handler_user_attributes uses this schema: https://gluu.org/docs/gluu-server/4.1/api-guide/scim-api/#/definitions/User
 
@@ -52,9 +71,18 @@ def validate_resource():
 
             if not isinstance(handler_user_attributes, dict):
                 handler_user_attributes = {}
+                for i in range(0, len(subject.attributes)):
+                    handler_user_attributes[subject.attributes[i]['AttributeId']] = subject.attributes[i]['Value']
 
-            for i in range(0, len(subject.attributes)):
-                handler_user_attributes[subject.attributes[i]['AttributeId']] = subject.attributes[i]['Value']
+            if issuer is None:
+                use_env_var = validate_auth_server_url()
+                if use_env_var is True:
+                    handler_user_attributes['issuer'] = str(os.environ["PDP_AUTH_SERVER_URL"])
+                else:
+                    g_config = config_parser.load_config()
+                    handler_user_attributes['issuer'] = g_config["auth_server_url"]
+            else:
+                handler_user_attributes['issuer'] = issuer
         else:
             handler_user_attributes = {}
             raise Exception()

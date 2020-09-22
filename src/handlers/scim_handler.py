@@ -78,9 +78,7 @@ class ScimHandler:
                 ScimHandler.__eoepca_scim_instance.wkh = WellKnownHandler(issuer, secure=False)
             else:
                 ScimHandler.__eoepca_scim_instance.wkh = WellKnownHandler("https://"+issuer, secure=False)
-            print(ScimHandler.__eoepca_scim_instance._EOEPCA_Scim__SCIM_USERS_ENDPOINT)
             ScimHandler.__eoepca_scim_instance._EOEPCA_Scim__SCIM_USERS_ENDPOINT = ScimHandler.__eoepca_scim_instance.wkh.get(TYPE_SCIM, KEY_SCIM_USER_ENDPOINT)
-            print(ScimHandler.__eoepca_scim_instance._EOEPCA_Scim__SCIM_USERS_ENDPOINT)
             return 200, "SCIM Host Modified"
         except Exception as e:
             print("SCIM Handler: Modify host for the ScimHandler: Exception occured!")
