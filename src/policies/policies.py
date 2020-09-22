@@ -30,22 +30,36 @@ def validate_resource():
 
     resource_id = resource.attributes[0]['Value']
     user_name = subject.attributes[0]['Value']
-    
+
+    if "Issuer" in subject.attributes[0].keys():
+        issuer = subject.attributes[0]['Issuer']
+    else:
+        issuer = None
+
+    handler_status_issuer = None
+
+    if issuer is not None:
+        handler_status_issuer, handler_issuer_message = ScimHandler.get_instance().modifyAuthServerUrl(issuer)
+
     #To be expanded when implementing more complex policies
     #For now it serves only as a check if the user attributes were reachable on the AS
     #handler_user_attributes uses this schema: https://gluu.org/docs/gluu-server/4.1/api-guide/scim-api/#/definitions/User
 
     # Call to be used later in development
     try:
-        handler_status, handler_user_attributes = ScimHandler.get_instance().getUserAttributes(user_name)
+        if handler_status_issuer == 200 or (issuer is None):
+            handler_status, handler_user_attributes = ScimHandler.get_instance().getUserAttributes(user_name)
+
+            if not isinstance(handler_user_attributes, dict):
+                handler_user_attributes = {}
+
+            for i in range(0, len(subject.attributes)):
+                handler_user_attributes[subject.attributes[i]['AttributeId']] = subject.attributes[i]['Value']
+        else:
+            handler_user_attributes = {}
+            raise Exception()
     except Exception as e:
         print("Error While retrieving the user attributes")
-
-    if not isinstance(handler_user_attributes, dict):
-        handler_user_attributes = {}
-
-        for i in range(0, len(subject.attributes)):
-            handler_user_attributes[subject.attributes[i]['AttributeId']] = subject.attributes[i]['Value']
 
     # Pending: Complete when xacml receives several resources
     if isinstance(resource_id, list):

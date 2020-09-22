@@ -66,3 +66,24 @@ class ScimHandler:
             print(str(e))
             status = 500
             return status, {}
+
+    def modifyAuthServerUrl(self, issuer):
+        """ Method to modify the auth_server_url for Scim.
+        """
+        print("SCIM Handler: Modifying the host for the ScimHandler to " + str(issuer))
+        if not ScimHandler.__scim_client:
+            raise Exception("SCIM Handler: Client not initialized! Please register new client first.")
+        try:
+            if "https://" in issuer or "http://" in issuer:
+                ScimHandler.__eoepca_scim_instance.wkh = WellKnownHandler(issuer, secure=False)
+            else:
+                ScimHandler.__eoepca_scim_instance.wkh = WellKnownHandler("https://"+issuer, secure=False)
+            print(ScimHandler.__eoepca_scim_instance._EOEPCA_Scim__SCIM_USERS_ENDPOINT)
+            ScimHandler.__eoepca_scim_instance._EOEPCA_Scim__SCIM_USERS_ENDPOINT = ScimHandler.__eoepca_scim_instance.wkh.get(TYPE_SCIM, KEY_SCIM_USER_ENDPOINT)
+            print(ScimHandler.__eoepca_scim_instance._EOEPCA_Scim__SCIM_USERS_ENDPOINT)
+            return 200, "SCIM Host Modified"
+        except Exception as e:
+            print("SCIM Handler: Modify host for the ScimHandler: Exception occured!")
+            print(str(e))
+            status = 500
+            return status, {}
