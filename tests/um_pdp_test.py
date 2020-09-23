@@ -12,6 +12,7 @@ from bson.objectid import ObjectId
 from policy_storage import Policy_Storage
 from utils import ClassEncoder
 from models import response
+from handlers.scim_handler import ScimHandler
 import requests
 
 def mocked_validate_policies(*args, **kwargs):
@@ -46,6 +47,17 @@ def mocked_request_policy(*args, **kwargs):
                     r = response.Response(decision.DENY, "fail_to_permit", "obligation-id", "You cannot access this resource")
                     status = 401
                     self.response = json.dumps(r, cls=ClassEncoder), status
+        def response(self):
+                return self.response
+    return MockResponse().response
+
+def mocked_modify_auth_server(*args, **kwargs):
+    class MockResponse:
+        def __init__(self):
+                if str(args[0]) == "https://test.10.0.2.15.nip.io":
+                    self.response = True
+                elif str(args[0]) == "https://test.eoepca.io":
+                    self.response = False
         def response(self):
                 return self.response
     return MockResponse().response
@@ -228,6 +240,43 @@ class TestPDP(unittest.TestCase):
         j = policies_operations.validate_complete_policies(resource_id, dict_values)
 
         self.assertEqual(j, True, "Validate conditional policy rule should be true")
+
+    @mock.patch('handlers.scim_handler.ScimHandler.modifyAuthServerUrl', side_effect=mocked_modify_auth_server)
+    def test_pdp_validate_valid_issuer(self, mock_validate_valid_issuer, raise_for_status=None):
+        with open('../src/standards/request_template_issuer.json') as json_file:
+            data = json.load(json_file)
+
+        subject, action, resource = parser.load_request(data)
+
+        issuer = subject.attributes[0]['Issuer']
+
+        mock_resp = mock.Mock()
+        mock_resp.raise_for_status = mock.Mock()
+        if raise_for_status:
+            mock_resp.raise_for_status.side_effect = raise_for_status
+
+        handler_status_issuer = ScimHandler.get_instance().modifyAuthServerUrl(issuer)
+
+        self.assertEqual(handler_status_issuer, True, "Validate issuer should be true")
+
+    @mock.patch('handlers.scim_handler.ScimHandler.modifyAuthServerUrl', side_effect=mocked_modify_auth_server)
+    def test_pdp_validate_invalid_issuer(self, mock_validate_invalid_issuer, raise_for_status=None):
+        with open('../src/standards/request_template_issuer.json') as json_file:
+            data = json.load(json_file)
+
+        subject, action, resource = parser.load_request(data)
+
+        subject.attributes[0]['Issuer'] = "https://test.eoepca.io"
+
+        mock_resp = mock.Mock()
+        mock_resp.raise_for_status = mock.Mock()
+        if raise_for_status:
+            mock_resp.raise_for_status.side_effect = raise_for_status
+
+        handler_status_issuer = ScimHandler.get_instance().modifyAuthServerUrl(subject.attributes[0]['Issuer'])
+
+        self.assertEqual(handler_status_issuer, False, "Validate issuer should be false")
+
 
 if __name__ == '__main__':
     unittest.main()
