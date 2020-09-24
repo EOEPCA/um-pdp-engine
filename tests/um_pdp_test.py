@@ -5,7 +5,7 @@ import unittest
 import mock
 import json
 import jsonschema
-from policies.policies import validate_json
+from policies.validator import validate_json
 from policies import policies_operations
 from xacml import parser, decision
 from bson.objectid import ObjectId
