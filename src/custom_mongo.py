@@ -133,7 +133,6 @@ class Mongo_Handler:
             else:
                 x = col.insert_one(myres)
                 return 'New Policy with ID: ' + str(x.inserted_id)
-            return x
         else:
             col = self.db['policies']
             myres = self.create_policy_json(name,description, ownership_id, config, scopes)

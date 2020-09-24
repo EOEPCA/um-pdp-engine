@@ -12,6 +12,7 @@ from bson.objectid import ObjectId
 from policy_storage import Policy_Storage
 from utils import ClassEncoder
 from models import response
+from handlers.scim_handler import ScimHandler
 import requests
 
 def mocked_validate_policies(*args, **kwargs):
@@ -50,9 +51,20 @@ def mocked_request_policy(*args, **kwargs):
                 return self.response
     return MockResponse().response
 
+def mocked_modify_auth_server(*args, **kwargs):
+    class MockResponse:
+        def __init__(self):
+                if str(args[0]) == "https://test.10.0.2.15.nip.io":
+                    self.response = True
+                elif str(args[0]) == "https://test.eoepca.io":
+                    self.response = False
+        def response(self):
+                return self.response
+    return MockResponse().response
+
 class TestPDP(unittest.TestCase):
     def test_pdp_parse_request_xacml(self):
-        with open('../src/standards/request_template.json') as json_file:
+        with open('../tests/examples/request_template.json') as json_file:
             data = json.load(json_file)
 
         subject, action, resource = parser.load_request(data)
@@ -64,7 +76,7 @@ class TestPDP(unittest.TestCase):
         self.assertEqual(isinstance(user_name, str), True, "User name should be a string")
 
     def test_pdp_parse_request_xacml_multiple_resources(self):
-        with open('../src/standards/request_template.json') as json_file:
+        with open('../tests/examples/request_template.json') as json_file:
             data = json.load(json_file)
 
         data["Request"]["Resource"].append({"Attribute":[{"AttributeId":"resource-id","Value":"20248583","DataType":"string","IncludeInResult":"True"}]})
@@ -78,7 +90,7 @@ class TestPDP(unittest.TestCase):
 
     @mock.patch('policies.policies_operations.validate_complete_policies', side_effect=mocked_validate_policies)
     def test_pdp_validate_access_policies_true(self, mock_access_policies_true,raise_for_status=None):
-        with open('../src/standards/request_template.json') as json_file:
+        with open('../tests/examples/request_template.json') as json_file:
             data = json.load(json_file)
 
         subject, action, resource = parser.load_request(data)
@@ -100,7 +112,7 @@ class TestPDP(unittest.TestCase):
 
     @mock.patch('policies.policies_operations.validate_complete_policies', side_effect=mocked_validate_policies)
     def test_pdp_validate_access_policies_resourceid_false(self, mock_access_policies_resourceid_false,raise_for_status=None):
-        with open('../src/standards/request_template.json') as json_file:
+        with open('../tests/examples/request_template.json') as json_file:
             data = json.load(json_file)
 
         subject, action, resource = parser.load_request(data)
@@ -122,7 +134,7 @@ class TestPDP(unittest.TestCase):
 
     @mock.patch('policies.policies_operations.validate_complete_policies', side_effect=mocked_validate_policies)
     def test_pdp_validate_access_policies_resourceid_true_user_name_false(self, mock_access_policies_resourceid_true_user_name_false,raise_for_status=None):
-        with open('../src/standards/request_template.json') as json_file:
+        with open('../tests/examples/request_template.json') as json_file:
             data = json.load(json_file)
 
         subject, action, resource = parser.load_request(data)
@@ -146,7 +158,7 @@ class TestPDP(unittest.TestCase):
 
     @mock.patch('requests.get', side_effect=mocked_request_policy)
     def test_pdp_validate_schema_permit(self, mock_schema_permit, raise_for_status=None):
-        with open('../src/standards/request_template.json') as json_file:
+        with open('../tests/examples/request_template.json') as json_file:
             data = json.load(json_file)
         
         headers = {'Accept': 'application/json'}
@@ -167,7 +179,7 @@ class TestPDP(unittest.TestCase):
 
     @mock.patch('requests.get', side_effect=mocked_request_policy)
     def test_pdp_validate_schema_deny(self,  mock_schema_deny, raise_for_status=None):
-        with open('../src/standards/request_template.json') as json_file:
+        with open('../tests/examples/request_template.json') as json_file:
             data = json.load(json_file)
 
         headers = {'Accept': 'application/json'}
@@ -185,7 +197,7 @@ class TestPDP(unittest.TestCase):
 
     @mock.patch('policies.policies_operations.validate_complete_policies', side_effect=mocked_validate_policies)
     def test_pdp_validate_rule_with_conditions_false(self, mock_validate_rule_with_conditions_false, raise_for_status=None):
-        with open('../src/standards/request_template.json') as json_file:
+        with open('../tests/examples/request_template.json') as json_file:
             data = json.load(json_file)
 
         subject, action, resource = parser.load_request(data)
@@ -207,7 +219,7 @@ class TestPDP(unittest.TestCase):
 
     @mock.patch('policies.policies_operations.validate_complete_policies', side_effect=mocked_validate_policies)
     def test_pdp_validate_rule_with_conditions_true(self, mock_validate_rule_with_conditions_true, raise_for_status=None):
-        with open('../src/standards/request_template.json') as json_file:
+        with open('../tests/examples/request_template.json') as json_file:
             data = json.load(json_file)
 
         subject, action, resource = parser.load_request(data)
@@ -228,6 +240,43 @@ class TestPDP(unittest.TestCase):
         j = policies_operations.validate_complete_policies(resource_id, dict_values)
 
         self.assertEqual(j, True, "Validate conditional policy rule should be true")
+
+    @mock.patch('handlers.scim_handler.ScimHandler.modifyAuthServerUrl', side_effect=mocked_modify_auth_server)
+    def test_pdp_validate_valid_issuer(self, mock_validate_valid_issuer, raise_for_status=None):
+        with open('../tests/examples/request_template_issuer.json') as json_file:
+            data = json.load(json_file)
+
+        subject, action, resource = parser.load_request(data)
+
+        issuer = subject.attributes[0]['Issuer']
+
+        mock_resp = mock.Mock()
+        mock_resp.raise_for_status = mock.Mock()
+        if raise_for_status:
+            mock_resp.raise_for_status.side_effect = raise_for_status
+
+        handler_status_issuer = ScimHandler.get_instance().modifyAuthServerUrl(issuer)
+
+        self.assertEqual(handler_status_issuer, True, "Validate issuer should be true")
+
+    @mock.patch('handlers.scim_handler.ScimHandler.modifyAuthServerUrl', side_effect=mocked_modify_auth_server)
+    def test_pdp_validate_invalid_issuer(self, mock_validate_invalid_issuer, raise_for_status=None):
+        with open('../tests/examples/request_template_issuer.json') as json_file:
+            data = json.load(json_file)
+
+        subject, action, resource = parser.load_request(data)
+
+        subject.attributes[0]['Issuer'] = "https://test.eoepca.io"
+
+        mock_resp = mock.Mock()
+        mock_resp.raise_for_status = mock.Mock()
+        if raise_for_status:
+            mock_resp.raise_for_status.side_effect = raise_for_status
+
+        handler_status_issuer = ScimHandler.get_instance().modifyAuthServerUrl(subject.attributes[0]['Issuer'])
+
+        self.assertEqual(handler_status_issuer, False, "Validate issuer should be false")
+
 
 if __name__ == '__main__':
     unittest.main()

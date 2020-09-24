@@ -12,7 +12,10 @@ def load_request(xacml):
     user_attrs = xacml["Request"]["AccessSubject"][0]["Attribute"]
     subject = Subject()
     for attr in user_attrs:
-        subject.add_attribute(attr["AttributeId"], attr["Value"], attr["DataType"], attr["IncludeInResult"])
+        if "Issuer" in attr.keys():
+            subject.add_attribute(attr["AttributeId"], attr["Value"], attr["Issuer"], attr["DataType"], attr["IncludeInResult"])
+        else:
+            subject.add_attribute(attr["AttributeId"], attr["Value"], None, attr["DataType"], attr["IncludeInResult"])
     
     action_attrs = xacml["Request"]["Action"][0]["Attribute"]
     action = Action()
