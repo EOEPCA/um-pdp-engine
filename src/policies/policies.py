@@ -12,22 +12,15 @@ import os
 policy_bp = Blueprint('policy_bp', __name__)
 
 def validate_auth_server_url():
-    env_vars = [
-    'PDP_AUTH_SERVER_URL',        
-    'PDP_PREFIX',
-    'PDP_HOST',           
-    'PDP_PORT',             
-    'PDP_CHECK_SSL_CERTS',         
-    'PDP_DEBUG_MODE'
-    ]
+    env_var_auth_server_url = 'PDP_AUTH_SERVER_URL'      
+    g_config = config_parser.load_config()
 
-    use_env_var = True
-
-    for env_var in env_vars:
-        if env_var not in os.environ:
-            use_env_var = False
-
-    return use_env_var
+    if env_var_auth_server_url not in os.environ:
+        return g_config["auth_server_url"]
+    else:
+        g_config["auth_server_url"] = str(os.environ["PDP_AUTH_SERVER_URL"])
+        config_parser.save_config(g_config)
+        return g_config["auth_server_url"]
 
 def validate_json(json_data):
     try:
@@ -75,12 +68,7 @@ def validate_resource():
                     handler_user_attributes[subject.attributes[i]['AttributeId']] = subject.attributes[i]['Value']
 
             if issuer is None:
-                use_env_var = validate_auth_server_url()
-                if use_env_var is True:
-                    handler_user_attributes['issuer'] = str(os.environ["PDP_AUTH_SERVER_URL"])
-                else:
-                    g_config = config_parser.load_config()
-                    handler_user_attributes['issuer'] = g_config["auth_server_url"]
+                handler_user_attributes['issuer'] = validate_auth_server_url()
             else:
                 handler_user_attributes['issuer'] = issuer
         else:

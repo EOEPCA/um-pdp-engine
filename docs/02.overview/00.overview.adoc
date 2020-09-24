@@ -170,7 +170,7 @@ The PDP access through the resource id that was extracted from the XACML in the 
 
 ==== Get User Attributes
 
-SCIM will be used in order to obtain the attributes for the user that have been extracted from the XACML of the request and then use them in the PDP functions. The issuer variable of the xacml subject id will be used for this so if the request contains this value, the WellKnownHandler of the SCIM will be modified to access the attributes depending on the issuer. If it does not exist in the request, the value from configuration or environment variables will be used.
+SCIM will be used in order to obtain the attributes for the user that have been extracted from the XACML of the request and then use them in the PDP functions. The issuer variable of the XACML subject-id field can be optionally used to determine the SCIM Endpoint on which the PDP will attempt to perform attribute release. If this value is not available, it will be extracted from configuration or environment variables.
 
 === Policy Repository Management
 
