@@ -163,7 +163,7 @@ class TestPDP(unittest.TestCase):
 
     @mock.patch('policies.policies_operations.validate_complete_policies', side_effect=mocked_validate_policies)
     def test_pdp_validate_access_policies_action_false(self, mock_access_policies_resourceid_true_user_name_false,raise_for_status=None):
-        with open('../src/standards/request_template.json') as json_file:
+        with open('../tests/examples/request_template.json') as json_file:
             data = json.load(json_file)
 
         subject, action, resource = parser.load_request(data)
