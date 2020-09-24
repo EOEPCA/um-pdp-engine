@@ -80,26 +80,6 @@ else:
     os.environ["PEP_CLIENT_ID"] = new_client["client_id"]
     os.environ["PEP_CLIENT_SECRET"] = new_client["client_secret"]
 
-with open('standards/policy_rule_a.json') as json_file1:
-    a = json.load(json_file1)
-with open('standards/policy_rule_b.json') as json_file2:
-    b = json.load(json_file2)
-with open('standards/policy_rule_c.json') as json_file3:
-    c = json.load(json_file3)
-with open('standards/policy_rule_d.json') as json_file4:
-    d = json.load(json_file4)
-
-#instance
-mongo = Policy_Storage('mongodb')
-#register example policy:
-mongo.insert_policy(name='Policy1', description= '',ownership_id= '55b8f51f-4634-4bb0-a1dd-070ec5869d70', config= a, scopes=[''])
-#register example policy:
-mongo.insert_policy(name='Policy2', description= '',ownership_id= '55b8f51f-4634-4bb0-a1dd-070ec5869d70', config= b, scopes=[''])
-#register example policy:
-mongo.insert_policy(name='Policy30', description= '',ownership_id= '55b8f51f-4634-4bb0-a1dd-070ec5869d70', config= c, scopes=[''])
-mongo.insert_policy(name='Policy31', description= '',ownership_id= '55b8f51f-4634-4bb0-a1dd-070ec5869d70', config= d, scopes=[''])
-
-
 app = Flask(__name__)
 app.secret_key = ''.join(choice(ascii_lowercase) for i in range(30)) # Random key
 
