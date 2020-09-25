@@ -64,7 +64,6 @@ def validate_resource():
     try:
         if handler_status_issuer == 200 or (issuer is None):
             handler_status, handler_user_attributes = ScimHandler.get_instance().getUserAttributes(user_name)
-
             if not isinstance(handler_user_attributes, dict):
                 handler_user_attributes = {}
                 for i in range(0, len(subject.attributes)):
@@ -79,7 +78,6 @@ def validate_resource():
             raise Exception()
     except Exception as e:
         print("Error While retrieving the user attributes")
-
     # Pending: Complete when xacml receives several resources
     if isinstance(resource_id, list):
         for resource_from_list in resource.attributes[0]['Value']:

@@ -2,7 +2,7 @@
     "Request": {
         "AccessSubject": [{
             "Attribute": [{
-                    "AttributeId": "user_name",
+                    "AttributeId": "userName",
                     "Value": "admin",
                     "DataType": "string",
                     "IncludeInResult": true

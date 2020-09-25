@@ -18,11 +18,11 @@ import requests
 def mocked_validate_policies(*args, **kwargs):
     class MockResponse:
         def __init__(self):
-            if str(args[0]) == "20248583" and args[1] == "view" and args[2]['user_name'] != "test":
+            if str(args[0]) == "20248583" and args[1] == "view" and args[2]['userName'] != "test":
                 self.response = True
-            elif str(args[0]) == "20248583" and args[1] == "view" and args[2]['user_name'] == "test":
+            elif str(args[0]) == "20248583" and args[1] == "view" and args[2]['userName'] == "test":
                 self.response = False
-            elif str(args[0]) == "20248583" and args[1] == "edit" and args[2]['user_name'] == "test":
+            elif str(args[0]) == "20248583" and args[1] == "edit" and args[2]['userName'] == "test":
                 self.response = False
             elif str(args[0]) == "173":
                 self.response = False
@@ -150,7 +150,7 @@ class TestPDP(unittest.TestCase):
         for i in range(0, len(subject.attributes)):
             dict_values[subject.attributes[i]['AttributeId']] = subject.attributes[i]['Value']
         
-        dict_values['user_name'] = "test"
+        dict_values['userName'] = "test"
 
         mock_resp = mock.Mock()
         mock_resp.raise_for_status = mock.Mock()
@@ -175,7 +175,7 @@ class TestPDP(unittest.TestCase):
         for i in range(0, len(subject.attributes)):
             dict_values[subject.attributes[i]['AttributeId']] = subject.attributes[i]['Value']
         
-        dict_values['user_name'] = "test"
+        dict_values['userName'] = "test"
 
         mock_resp = mock.Mock()
         mock_resp.raise_for_status = mock.Mock()
