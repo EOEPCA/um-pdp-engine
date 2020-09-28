@@ -3,7 +3,7 @@
     "rules" : [
         {
           "AND": [{
-            "EQUAL" : {"user_name" : "admin" }
+            "EQUAL" : {"userName" : "admin" }
           }]
         },
         {

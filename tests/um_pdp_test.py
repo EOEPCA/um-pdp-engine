@@ -5,7 +5,7 @@ import unittest
 import mock
 import json
 import jsonschema
-from policies.policies import validate_json
+from policies.validator import validate_json
 from policies import policies_operations
 from xacml import parser, decision
 from bson.objectid import ObjectId
@@ -18,15 +18,17 @@ import requests
 def mocked_validate_policies(*args, **kwargs):
     class MockResponse:
         def __init__(self):
-            if str(args[0]) == "20248583" and args[1]['user_name'] != "test":
+            if str(args[0]) == "20248583" and args[1] == "view" and args[2]['userName'] != "test":
                 self.response = True
-            elif str(args[0]) == "20248583" and args[1]['user_name'] == "test":
+            elif str(args[0]) == "20248583" and args[1] == "view" and args[2]['userName'] == "test":
+                self.response = False
+            elif str(args[0]) == "20248583" and args[1] == "edit" and args[2]['userName'] == "test":
                 self.response = False
             elif str(args[0]) == "173":
                 self.response = False
-            elif str(args[0]) == "123456" and args[1]['attemps'] != 5:
+            elif str(args[0]) == "123456" and args[1] == "view" and args[2]['attemps'] != 5:
                 self.response = False
-            elif str(args[0]) == "123456" and args[1]['attemps'] == 5:
+            elif str(args[0]) == "123456" and args[1] == "view" and args[2]['attemps'] == 5:
                 self.response = True
         def response(self):
             return self.response
@@ -96,6 +98,7 @@ class TestPDP(unittest.TestCase):
         subject, action, resource = parser.load_request(data)
 
         resource_id = resource.attributes[0]['Value']
+        action = action.attributes[0]['Value']
         dict_values = {}
 
         for i in range(0, len(subject.attributes)):
@@ -106,7 +109,7 @@ class TestPDP(unittest.TestCase):
         if raise_for_status:
             mock_resp.raise_for_status.side_effect = raise_for_status
 
-        j = policies_operations.validate_complete_policies(resource_id, dict_values)
+        j = policies_operations.validate_complete_policies(resource_id, action, dict_values)
 
         self.assertEqual(j, True, "Validate access policies 1 should be true")
 
@@ -118,6 +121,7 @@ class TestPDP(unittest.TestCase):
         subject, action, resource = parser.load_request(data)
 
         resource_id = "173"
+        action = action.attributes[0]['Value']
         dict_values = {}
 
         for i in range(0, len(subject.attributes)):
@@ -128,7 +132,7 @@ class TestPDP(unittest.TestCase):
         if raise_for_status:
             mock_resp.raise_for_status.side_effect = raise_for_status
 
-        j = policies_operations.validate_complete_policies(resource_id, dict_values)
+        j = policies_operations.validate_complete_policies(resource_id, action, dict_values)
 
         self.assertEqual(j, False, "Validate access policies 2 should be false")
 
@@ -140,19 +144,45 @@ class TestPDP(unittest.TestCase):
         subject, action, resource = parser.load_request(data)
 
         resource_id = resource.attributes[0]['Value']
+        action = action.attributes[0]['Value']
         dict_values = {}
 
         for i in range(0, len(subject.attributes)):
             dict_values[subject.attributes[i]['AttributeId']] = subject.attributes[i]['Value']
         
-        dict_values['user_name'] = "test"
+        dict_values['userName'] = "test"
 
         mock_resp = mock.Mock()
         mock_resp.raise_for_status = mock.Mock()
         if raise_for_status:
             mock_resp.raise_for_status.side_effect = raise_for_status
 
-        j = policies_operations.validate_complete_policies(resource_id, dict_values)
+        j = policies_operations.validate_complete_policies(resource_id, action, dict_values)
+
+        self.assertEqual(j, False, "Validate access policies 3 should be false")
+
+    @mock.patch('policies.policies_operations.validate_complete_policies', side_effect=mocked_validate_policies)
+    def test_pdp_validate_access_policies_action_false(self, mock_access_policies_resourceid_true_user_name_false,raise_for_status=None):
+        with open('../tests/examples/request_template.json') as json_file:
+            data = json.load(json_file)
+
+        subject, action, resource = parser.load_request(data)
+
+        resource_id = resource.attributes[0]['Value']
+        action = "edit"
+        dict_values = {}
+
+        for i in range(0, len(subject.attributes)):
+            dict_values[subject.attributes[i]['AttributeId']] = subject.attributes[i]['Value']
+        
+        dict_values['userName'] = "test"
+
+        mock_resp = mock.Mock()
+        mock_resp.raise_for_status = mock.Mock()
+        if raise_for_status:
+            mock_resp.raise_for_status.side_effect = raise_for_status
+
+        j = policies_operations.validate_complete_policies(resource_id, action, dict_values)
 
         self.assertEqual(j, False, "Validate access policies 3 should be false")
 
@@ -203,6 +233,7 @@ class TestPDP(unittest.TestCase):
         subject, action, resource = parser.load_request(data)
 
         resource_id = "123456"
+        action = action.attributes[0]['Value']
         dict_values = {}
 
         for i in range(0, len(subject.attributes)):
@@ -213,7 +244,7 @@ class TestPDP(unittest.TestCase):
         if raise_for_status:
             mock_resp.raise_for_status.side_effect = raise_for_status
 
-        j = policies_operations.validate_complete_policies(resource_id, dict_values)
+        j = policies_operations.validate_complete_policies(resource_id, action, dict_values)
 
         self.assertEqual(j, False, "Validate conditional policy rule should be false")
 
@@ -225,6 +256,7 @@ class TestPDP(unittest.TestCase):
         subject, action, resource = parser.load_request(data)
 
         resource_id = "123456"
+        action = action.attributes[0]['Value']
         dict_values = {}
 
         for i in range(0, len(subject.attributes)):
@@ -237,7 +269,7 @@ class TestPDP(unittest.TestCase):
         if raise_for_status:
             mock_resp.raise_for_status.side_effect = raise_for_status
 
-        j = policies_operations.validate_complete_policies(resource_id, dict_values)
+        j = policies_operations.validate_complete_policies(resource_id, action, dict_values)
 
         self.assertEqual(j, True, "Validate conditional policy rule should be true")
 

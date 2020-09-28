@@ -149,7 +149,7 @@ For the endpoint:  <DOMAIN>/policy
 
   Register Policy (PUT/POST):
 
-    curl -k -v -XPOST 'http://<DOMAIN>/policy/' -H 'Content-Type: application/json, Authorization: Bearer <OAuth access_token or JWT id_token>' -d '{"name":"NewPolicy","description":"Description for this new policy","config":{"resource_id":"6666666","rules":[{"AND":[{"EQUAL":{"user_name":"admin"}}]}]},"scopes":["oidc"]}'
+    curl -k -v -XPOST 'http://<DOMAIN>/policy/' -H 'Content-Type: application/json, Authorization: Bearer <OAuth access_token or JWT id_token>' -d '{"name":"NewPolicy","description":"Description for this new policy","config":{"resource_id":"6666666","action":"view","rules":[{"AND":[{"EQUAL":{"userName":"admin"}}]}]},"scopes":["oidc"]}'
 
 This will return te policy_id for the policy just created (i.e: 5f32f236ea1bacfddd396e97)
 
@@ -157,8 +157,8 @@ For the endpoint: <DOMAIN>/policy/<policy_id or ObjectId(policy_id)>
 
   Update Policy (PUT/POST):
 
-    curl -k -v -XPOST 'http://<DOMAIN>/policy/5f32f236ea1bacfddd396e97' -H 'Content-Type: application/json, Authorization: Bearer <OAuth access_token or JWT id_token>' -d '{"name":"NewPolicyChanged","description":"Description for this new policy changed","config":{"resource_id":"6666666","rules":[{"AND":[{"EQUAL":{"user_name":"admin"}}]}]},"scopes":["Authorized"]}'
-    curl -k -v -XPUT 'http://<DOMAIN>/policy/ObjectId(5f32f236ea1bacfddd396e97)' -H 'Content-Type: application/json, Authorization: Bearer <OAuth access_token or JWT id_token>' -d '{"name":"NewPolicyChanged","description":"Description for this new policy changed","config":{"resource_id":"6666666","rules":[{"AND":[{"EQUAL":{"user_name":"admin"}}]}]},"scopes":["Authorized"]}'
+    curl -k -v -XPOST 'http://<DOMAIN>/policy/5f32f236ea1bacfddd396e97' -H 'Content-Type: application/json, Authorization: Bearer <OAuth access_token or JWT id_token>' -d '{"name":"NewPolicyChanged","description":"Description for this new policy changed","config":{"resource_id":"6666666","action":"view","rules":[{"AND":[{"EQUAL":{"userName":"admin"}}]}]},"scopes":["Authorized"]}'
+    curl -k -v -XPUT 'http://<DOMAIN>/policy/ObjectId(5f32f236ea1bacfddd396e97)' -H 'Content-Type: application/json, Authorization: Bearer <OAuth access_token or JWT id_token>' -d '{"name":"NewPolicyChanged","description":"Description for this new policy changed","config":{"resource_id":"6666666","action":"view","rules":[{"AND":[{"EQUAL":{"userName":"admin"}}]}]},"scopes":["Authorized"]}'
 
   Get Policy (GET):
 

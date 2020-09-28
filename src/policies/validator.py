@@ -9,7 +9,7 @@ from utils import ClassEncoder
 from config import config_parser
 import os
 
-policy_bp = Blueprint('policy_bp', __name__)
+policy_validator_bp = Blueprint('policy_validator_bp', __name__)
 
 def validate_auth_server_url():
     env_var_auth_server_url = 'PDP_AUTH_SERVER_URL'      
@@ -33,7 +33,7 @@ def validate_json(json_data):
         return False
     return True
 
-@policy_bp.route('/validate')
+@policy_validator_bp.route('/validate')
 def validate_resource():
     xacml = request.json
     if not validate_json(xacml):
@@ -43,6 +43,9 @@ def validate_resource():
 
     resource_id = resource.attributes[0]['Value']
     user_name = subject.attributes[0]['Value']
+    action = action.attributes[0]['Value']
+    
+    #To be expanded when implementing more complex policies
 
     if "Issuer" in subject.attributes[0].keys():
         issuer = subject.attributes[0]['Issuer']
@@ -61,7 +64,6 @@ def validate_resource():
     try:
         if handler_status_issuer == 200 or (issuer is None):
             handler_status, handler_user_attributes = ScimHandler.get_instance().getUserAttributes(user_name)
-
             if not isinstance(handler_user_attributes, dict):
                 handler_user_attributes = {}
                 for i in range(0, len(subject.attributes)):
@@ -76,15 +78,14 @@ def validate_resource():
             raise Exception()
     except Exception as e:
         print("Error While retrieving the user attributes")
-
     # Pending: Complete when xacml receives several resources
     if isinstance(resource_id, list):
         for resource_from_list in resource.attributes[0]['Value']:
-            result_validation = policies_operations.validate_complete_policies(resource_from_list, handler_user_attributes)
+            result_validation = policies_operations.validate_complete_policies(resource_from_list, action, handler_user_attributes)
             if result_validation:
                 break
     else:
-        result_validation = policies_operations.validate_complete_policies(resource_id, handler_user_attributes)
+        result_validation = policies_operations.validate_complete_policies(resource_id, action, handler_user_attributes)
 
     if result_validation:
         r = response.Response(decision.PERMIT)
