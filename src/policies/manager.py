@@ -5,6 +5,32 @@ from flask import Blueprint, request, Response
 from policies.policies_operations import validate_policy_language
 from policy_storage import Policy_Storage
 
+def _verify_token(request, response, oidc_client):
+    uid = None
+    try:
+        head = str(request.headers)
+        headers_alone = head.split()
+        #Retrieve the token from the headers
+        for i in headers_alone:
+            if 'Bearer' in str(i):
+                aux=headers_alone.index('Bearer')
+                inputToken = headers_alone[aux+1]           
+        token = inputToken
+        if token:
+            #Compares between JWT id_token and OAuth access token to retrieve the UUID
+            if len(str(token))>40:
+                uid=oidc_client.verify_JWT_token(token)
+            else:
+                uid=oidc_client.verify_OAuth_token(token)
+        else:
+            return 'NO TOKEN FOUND'
+    except Exception as e:
+        print("Error While passing the token: "+str(uid))
+        response.status_code = 500
+        response.headers["Error"] = str(e)
+        return response
+    return uid
+
 def policy_manager_bp(oidc_client):
     policy_manager_bp = Blueprint('policy_manager_bp', __name__)
 
@@ -22,29 +48,7 @@ def policy_manager_bp(oidc_client):
         print("Processing " + request.method + " policy request...")
         response = Response()
         mongo = Policy_Storage('mongodb') 
-        uid= None
-        try:
-            head = str(request.headers)
-            headers_alone = head.split()
-            #Retrieve the token from the headers
-            for i in headers_alone:
-                if 'Bearer' in str(i):
-                    aux=headers_alone.index('Bearer')
-                    inputToken = headers_alone[aux+1]           
-            token = inputToken
-            if token:
-                #Compares between JWT id_token and OAuth access token to retrieve the UUID
-                if len(str(token))>40:
-                    uid=oidc_client.verify_JWT_token(token)
-                else:
-                    uid=oidc_client.verify_OAuth_token(token)
-            else:
-                return 'NO TOKEN FOUND'
-        except Exception as e:
-            print("Error While passing the token: "+str(uid))
-            response.status_code = 500
-            response.headers["Error"] = str(e)
-            return response 
+        uid = _verify_token(request, response, oidc_client)
         #Insert once is authorized
         try:
             #If the user is authorized it must find his UUID
@@ -103,29 +107,7 @@ def policy_manager_bp(oidc_client):
         print("Processing " + request.method + " policy request...")
         response = Response()
         mongo = Policy_Storage('mongodb')
-        uid= None
-        try:
-            a = str(request.headers)
-            headers_alone = a.split()
-            for i in headers_alone:
-                #Retrieve the token from the headers
-                if 'Bearer' in str(i):
-                    aux=headers_alone.index('Bearer')
-                    inputToken = headers_alone[aux+1]           
-            token = inputToken
-            if token: 
-                #Compares between JWT id_token and OAuth access token to retrieve the UUID
-                if len(str(token))>40:
-                    uid=oidc_client.verify_JWT_token(token)
-                else:
-                    uid=oidc_client.verify_OAuth_token(token)
-            else:
-                return 'NO TOKEN FOUND'
-        except Exception as e:
-            print("Error While passing the token: "+str(uid))
-            response.status_code = 500
-            response.headers["Error"] = str(e)
-            return response
+        uid = _verify_token(request, response, oidc_client)
         #once Authorized performs operations against the policy
         try:
             #If UUID exists and policy requested has same UUID
