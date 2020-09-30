@@ -23,13 +23,13 @@ def _verify_token(request, response, oidc_client):
             else:
                 uid=oidc_client.verify_OAuth_token(token)
         else:
-            return 'NO TOKEN FOUND'
+            print("NO TOKEN FOUND")
     except Exception as e:
         print("Error While passing the token: "+str(uid))
         response.status_code = 500
         response.headers["Error"] = str(e)
         return response
-    return uid
+    return uid, response
 
 def policy_manager_bp(oidc_client):
     policy_manager_bp = Blueprint('policy_manager_bp', __name__)
@@ -48,7 +48,9 @@ def policy_manager_bp(oidc_client):
         print("Processing " + request.method + " policy request...")
         response = Response()
         mongo = Policy_Storage('mongodb') 
-        uid = _verify_token(request, response, oidc_client)
+        uid, resp = _verify_token(request, response, oidc_client)
+        if resp.status_code == 500:
+            return resp
         #Insert once is authorized
         try:
             #If the user is authorized it must find his UUID
@@ -107,7 +109,10 @@ def policy_manager_bp(oidc_client):
         print("Processing " + request.method + " policy request...")
         response = Response()
         mongo = Policy_Storage('mongodb')
-        uid = _verify_token(request, response, oidc_client)
+        uid, resp = _verify_token(request, response, oidc_client)
+        print(uid)
+        if resp.status_code == 500:
+            return resp
         #once Authorized performs operations against the policy
         try:
             #If UUID exists and policy requested has same UUID

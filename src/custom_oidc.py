@@ -48,7 +48,7 @@ class OIDCHandler:
             return userInum
         except:
             print("Authenticated RPT Policy. No Valid JWT id token passed!")
-            return False
+            return None
 
     def verify_OAuth_token(self, token):
         headers = { 'content-type': "application/json", 'Authorization' : 'Bearer '+token}
@@ -63,7 +63,7 @@ class OIDCHandler:
             return user['sub']
         except:
             print("OIDC Handler: Get User Unique Identifier: Exception occured!")
-            status = 500
-            return status, {}
+            print("Invalid OAuth token!")
+            return None
 
 
