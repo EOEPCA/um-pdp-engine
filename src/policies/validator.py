@@ -55,7 +55,7 @@ def validate_resource():
     handler_status_issuer = None
 
     if issuer is not None:
-        handler_status_issuer, handler_issuer_message = ScimHandler.get_instance().modifyAuthServerUrl(issuer)
+        handler_status_issuer, handler_issuer_message = ScimHandler.get_instance().modify_auth_server_url(issuer)
 
     #For now it serves only as a check if the user attributes were reachable on the AS
     #handler_user_attributes uses this schema: https://gluu.org/docs/gluu-server/4.1/api-guide/scim-api/#/definitions/User
@@ -63,7 +63,7 @@ def validate_resource():
     # Call to be used later in development
     try:
         if handler_status_issuer == 200 or (issuer is None):
-            handler_status, handler_user_attributes = ScimHandler.get_instance().getUserAttributes(user_name)
+            handler_status, handler_user_attributes = ScimHandler.get_instance().get_user_attributes(user_name)
             if not isinstance(handler_user_attributes, dict):
                 handler_user_attributes = {}
                 for i in range(0, len(subject.attributes)):

@@ -3,7 +3,7 @@ import json
 from flask import Blueprint, request, Response
 
 from policies.policies_operations import validate_policy_language
-from policy_storage import Policy_Storage
+from policy_storage import PolicyStorage
 
 def _verify_token(request, response, oidc_client):
     uid = None
@@ -14,14 +14,14 @@ def _verify_token(request, response, oidc_client):
         for i in headers_alone:
             if 'Bearer' in str(i):
                 aux=headers_alone.index('Bearer')
-                inputToken = headers_alone[aux+1]           
-        token = inputToken
+                input_token = headers_alone[aux+1]           
+        token = input_token
         if token:
             #Compares between JWT id_token and OAuth access token to retrieve the UUID
             if len(str(token))>40:
-                uid=oidc_client.verify_JWT_token(token)
+                uid=oidc_client.verify_jwt_token(token)
             else:
-                uid=oidc_client.verify_OAuth_token(token)
+                uid=oidc_client.verify_oauth_token(token)
         else:
             print("NO TOKEN FOUND")
     except Exception as e:
@@ -47,7 +47,7 @@ def policy_manager_bp(oidc_client):
         '''
         print("Processing " + request.method + " policy request...")
         response = Response()
-        mongo = Policy_Storage('mongodb') 
+        mongo = PolicyStorage('mongodb') 
         uid, resp = _verify_token(request, response, oidc_client)
         if resp.status_code == 500:
             return resp
@@ -70,6 +70,7 @@ def policy_manager_bp(oidc_client):
                     if request.is_json:
                         data = request.get_json()
                         if data.get("name") and data.get("config"):
+                            print(data)
                             policy_structure = data.get("config")
                             result_format = validate_policy_language(policy_structure['rules'])
                             if result_format is True:
@@ -108,9 +109,8 @@ def policy_manager_bp(oidc_client):
         '''
         print("Processing " + request.method + " policy request...")
         response = Response()
-        mongo = Policy_Storage('mongodb')
+        mongo = PolicyStorage('mongodb')
         uid, resp = _verify_token(request, response, oidc_client)
-        print(uid)
         if resp.status_code == 500:
             return resp
         #once Authorized performs operations against the policy

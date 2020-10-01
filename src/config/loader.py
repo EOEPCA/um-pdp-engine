@@ -1,7 +1,7 @@
 import os
 
 from handlers.scim_handler import ScimHandler
-from policy_storage import Policy_Storage
+from policy_storage import PolicyStorage
 from custom_oidc import OIDCHandler
 from config import config_parser
 
@@ -59,12 +59,12 @@ def initial_setup():
                             verify_ssl = g_config['check_ssl_certs'])
 
     if os_var_client:
-        ScimHandler.registerScimClient(auth_server_url = os.environ["PDP_AUTH_SERVER_URL"], client_id = os.environ["PDP_CLIENT_ID"], client_secret = os.environ["PDP_CLIENT_SECRET"], verify_ssl = os.environ["PDP_CHECK_SSL_CERTS"])    
+        ScimHandler.register_scim_client(auth_server_url = os.environ["PDP_AUTH_SERVER_URL"], client_id = os.environ["PDP_CLIENT_ID"], client_secret = os.environ["PDP_CLIENT_SECRET"], verify_ssl = os.environ["PDP_CHECK_SSL_CERTS"])    
     elif cfg_client:
-        ScimHandler.registerScimClient(auth_server_url = g_config["auth_server_url"], client_id = g_config["client_id"], client_secret = g_config["client_secret"], verify_ssl = g_config["check_ssl_certs"])
+        ScimHandler.register_scim_client(auth_server_url = g_config["auth_server_url"], client_id = g_config["client_id"], client_secret = g_config["client_secret"], verify_ssl = g_config["check_ssl_certs"])
     else:
         print ("NOTICE: Client not found, generating one... ")
-        new_client = ScimHandler.registerScimClient(auth_server_url = g_config["auth_server_url"], verify_ssl=g_config["check_ssl_certs"])
+        new_client = ScimHandler.register_scim_client(auth_server_url = g_config["auth_server_url"], verify_ssl=g_config["check_ssl_certs"])
         g_config["client_id"] = new_client["client_id"]
         g_config["client_secret"] = new_client["client_secret"]
         config_parser.save_config(g_config)

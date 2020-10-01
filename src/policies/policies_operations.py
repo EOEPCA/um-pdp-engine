@@ -1,8 +1,8 @@
 import json
-from policy_storage import Policy_Storage
+from policy_storage import PolicyStorage
 
 def validate_access_policies(resource_id, user_name):
-    mongo = Policy_Storage('mongodb')
+    mongo = PolicyStorage('mongodb')
     data = mongo.get_policy_from_resource_id(str(resource_id))
     
     operations = ['AND', 'OR']
@@ -52,7 +52,7 @@ def validate_policy_language(policy):
     return True
 
 def validate_complete_policies(resource_id, action, dict_request_values):
-    mongo = Policy_Storage('mongodb')
+    mongo = PolicyStorage('mongodb')
     data = mongo.get_policy_from_resource_id(str(resource_id))
 
     if isinstance(data, list):

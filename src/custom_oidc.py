@@ -39,18 +39,18 @@ class OIDCHandler:
             return self.client_id, self.client_secret
 
 
-    def verify_JWT_token(self, token):
+    def verify_jwt_token(self, token):
         try:
             payload = str(token).split(".")[1]
-            paddedPayload = payload + '=' * (4 - len(payload) % 4)
-            decoded = base64.b64decode(paddedPayload)
-            userInum = json.loads(decoded)["sub"]
-            return userInum
+            padded_payload = payload + '=' * (4 - len(payload) % 4)
+            decoded = base64.b64decode(padded_payload)
+            user_inum = json.loads(decoded)["sub"]
+            return user_inum
         except:
             print("Authenticated RPT Policy. No Valid JWT id token passed!")
             return None
 
-    def verify_OAuth_token(self, token):
+    def verify_oauth_token(self, token):
         headers = { 'content-type': "application/json", 'Authorization' : 'Bearer '+token}
         msg = "Host unreachable"
         status = 401

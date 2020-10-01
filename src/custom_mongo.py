@@ -3,7 +3,7 @@ import pymongo
 import json
 from bson.objectid import ObjectId
 
-class Mongo_Handler:
+class MongoHandler:
 
     def __init__(self, **kwargs):
         self.modified = []
@@ -12,7 +12,8 @@ class Mongo_Handler:
         self.myclient = pymongo.MongoClient('localhost', 27017)
         self.db = self.myclient["policy_db"]
 
-    def create_policy_json(self, name: str, description:str, ownership_id: str, policyCFG: list, scopes: list):
+    @classmethod
+    def create_policy_json(self, name: str, description:str, ownership_id: str, policy_cfg: list, scopes: list):
         '''
         Creates a template of policy to insert in the database
         '''
@@ -20,7 +21,7 @@ class Mongo_Handler:
             "name" : name,
             "description" : description,
             "ownership_id" : ownership_id,
-            "config" : policyCFG,
+            "config" : policy_cfg,
             "scopes" : scopes
         }
         y = json.dumps(plcy)
@@ -32,19 +33,21 @@ class Mongo_Handler:
         found=col.find_one(myquery)
         if found:
             return found['_id']
-        else: return None
+        else: 
+            return None
 
+    @classmethod
     def parse_id(self, _id):
-        myId=None
+        my_id=None
         if 'ObjectId' in str(_id):
             if type(_id) == str:
                 a=_id[_id.find("(")+1:_id.find(")")]
-                myId = ObjectId(str(a))
+                my_id = ObjectId(str(a))
             else:
-                myId = _id
+                my_id = _id
         else:
-            myId = ObjectId(_id)
-        return myId
+            my_id = ObjectId(_id)
+        return my_id
 
     def get_policy_from_resource_id(self,resource_id):
         '''
@@ -60,7 +63,8 @@ class Mongo_Handler:
             for i in found:
                 result.append(i)
             return result
-        else: return None
+        else: 
+            return None
 
     def get_policy_from_id(self, _id):
         '''
@@ -68,12 +72,13 @@ class Mongo_Handler:
             Returns the policy in json format
         '''
         col= self.db['policies']
-        myId=self.parse_id(_id)
-        myquery= {'_id': myId}
+        my_id=self.parse_id(_id)
+        myquery= {'_id': my_id}
         found=col.find_one(myquery)
         if found:
             return found
-        else: return None
+        else: 
+            return None
 
 
     def policy_exists(self, _id=None, name=None):
@@ -86,12 +91,16 @@ class Mongo_Handler:
         '''
         col = self.db['policies']  
         if _id is not None:
-            if self.get_policy_from_id(_id) is not None: return True
-            else: return False
+            if self.get_policy_from_id(_id) is not None: 
+                return True
+            else: 
+                return False
         elif name is not None:
             myquery = { "name": name }
-            if col.find_one(myquery): return True
-            else: return False
+            if col.find_one(myquery): 
+                return True
+            else: 
+                return False
         else:
             return False
             
@@ -102,7 +111,8 @@ class Mongo_Handler:
             a= col.find_one(myquery)
             if a:                
                 return True
-            else: return False
+            else: 
+                return False
         except:
             print('no policy with that UID associated')
             return False
@@ -126,8 +136,8 @@ class Mongo_Handler:
             myres = self.create_policy_json(name,description, ownership_id, config, scopes)
             x=None
             if self.policy_exists(name=name):
-                myId= self.get_id_from_name(name)
-                x= self.update_policy(myId, myres)
+                my_id = self.get_id_from_name(name)
+                x= self.update_policy(my_id, myres)
                 return x
             # Add the resource since it doesn't exist on the database
             else:
@@ -146,8 +156,8 @@ class Mongo_Handler:
         '''
         if self.policy_exists(_id=_id):
             col = self.db['policies']
-            myId=self.parse_id(_id)
-            myquery = { "_id": myId }
+            my_id=self.parse_id(_id)
+            myquery = { "_id": my_id }
             a= col.delete_one(myquery)
     
     def update_policy(self, _id, dict_data):
@@ -155,9 +165,9 @@ class Mongo_Handler:
         Find the resource in the database by id, add or modify the changed values for the resource.
         '''
         col = self.db['policies']
-        myid = self.parse_id(_id)
+        my_id = self.parse_id(_id)
         if self.policy_exists(_id=_id):
-            myquery= {'_id': myid}
+            myquery= {'_id': my_id}
             new_val= {"$set": dict_data}
             x = col.update_many(myquery, new_val)
             if x.modified_count == 1:

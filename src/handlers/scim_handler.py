@@ -28,7 +28,7 @@ class ScimHandler:
        return ScimHandler.__instance__
 
     @staticmethod
-    def registerScimClient(auth_server_url: str, client_id: str = None, client_secret: str = None, verify_ssl: bool = False):
+    def register_scim_client(auth_server_url: str, client_id: str = None, client_secret: str = None, verify_ssl: bool = False):
         """ Static method to dynamically register a PDP client, using the EOEPCA_Scim library.
         """
         if not ScimHandler.__eoepca_scim_instance:
@@ -48,17 +48,17 @@ class ScimHandler:
             ScimHandler.__verify_ssl = verify_ssl
         return ScimHandler.__scim_client
     
-    def getUserAttributes(self, userId: str):
+    def get_user_attributes(self, userId: str):
         """ Method to retrieve a user's attributes. It uses the EOEPCA_Scim library to handle UMA authorization flow.
         """
         print("SCIM Handler: Get User attributes for user " + str(userId))
         if not ScimHandler.__scim_client:
             raise Exception("SCIM Handler: Client not initialized! Please register new client first.")
         try:
-            userAttributes = ScimHandler.__eoepca_scim_instance.getUserAttributes(userId)
-            if not userAttributes:
+            user_attributes = ScimHandler.__eoepca_scim_instance.getUserAttributes(userId)
+            if not user_attributes:
                 return 500, "SCIM Handler: PDP Client not found on Authorization Server"
-            if userAttributes == "0":
+            if user_attributes == "0":
                 return 500, "SCIM Handler: Authorization error when retrieving user attributes"
             return 200, ScimHandler.__eoepca_scim_instance.getUserAttributes(userId)
         except Exception as e:
@@ -67,7 +67,7 @@ class ScimHandler:
             status = 500
             return status, {}
 
-    def modifyAuthServerUrl(self, issuer):
+    def modify_auth_server_url(self, issuer):
         """ Method to modify the auth_server_url for Scim.
         """
         print("SCIM Handler: Modifying the host for the ScimHandler to " + str(issuer))

@@ -2,15 +2,14 @@
 import pymongo
 import json
 from bson.objectid import ObjectId
-from custom_mongo import Mongo_Handler
-class Policy_Storage:
+from custom_mongo import MongoHandler
+class PolicyStorage:
 
     def __init__(self, database:str):
         self.current_db=None
         self.available_db = ['mongodb']
-        if database in self.available_db:
-            if 'mongo' in database:
-                self.current_db = Mongo_Handler()
+        if database in self.available_db and 'mongo' in database:
+            self.current_db = MongoHandler()
         
     def verify_uid(self, policy_id, uid):
 
