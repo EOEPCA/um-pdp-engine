@@ -1,0 +1,30 @@
+{
+    "Request": {
+        "AccessSubject": [{
+            "Attribute": [{
+                    "AttributeId": "userName",
+                    "Value": "admin",
+                    "DataType": "string",
+                    "IncludeInResult": true
+                }
+            ]
+        }],
+        "IntermediarySubject": [{
+            "Content": "http://original_pdp_that_received_this/policy/validate"
+        }],
+        "Action": [{
+            "Attribute": [{
+                "AttributeId": "action-id",
+                "Value": "view"
+            }]
+        }],
+        "Resource": [{
+            "Attribute": [{
+                "AttributeId": "resource-id",
+                "Value": "20248583",
+                "DataType": "string",
+                "IncludeInResult": true
+            }]
+        }]
+    }
+}
