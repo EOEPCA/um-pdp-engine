@@ -2,13 +2,15 @@
     "Request": {
         "AccessSubject": [{
             "Attribute": [{
-                    "AttributeId": "user_name",
-                    "Issuer": "https://test.10.0.2.15.nip.io",
+                    "AttributeId": "userName",
                     "Value": "admin",
                     "DataType": "string",
                     "IncludeInResult": true
                 }
             ]
+        }],
+        "IntermediarySubject": [{
+            "Content": "http://original_pdp_that_received_this/policy/validate"
         }],
         "Action": [{
             "Attribute": [{
