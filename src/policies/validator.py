@@ -1,13 +1,14 @@
 from flask import Blueprint, request, Response, jsonify
 import json
+import os
 
+import models.request as xacml_request
 from handlers.scim_handler import ScimHandler
 from policies import policies_operations
 from models import response
 from xacml import parser, decision
 from utils import ClassEncoder
 from config import config_parser
-import os
 
 policy_validator_bp = Blueprint('policy_validator_bp', __name__)
 
@@ -39,11 +40,13 @@ def validate_resource():
     if not validate_json(xacml):
         return "Valid JSON data is required"
     
-    subject, action, resource = parser.load_request(xacml)
+    subject, action_rsrc, resource = parser.load_request(xacml)
 
     resource_id = resource.attributes[0]['Value']
     user_name = subject.attributes[0]['Value']
-    action = action.attributes[0]['Value']
+    action = action_rsrc.attributes[0]['Value']
+
+    print(json.dumps(xacml_request.Request(subject.attributes, action_rsrc.attributes, resource.attributes, "http://another.pdp.deimos.pt/"), cls=ClassEncoder))
     
     #To be expanded when implementing more complex policies
 

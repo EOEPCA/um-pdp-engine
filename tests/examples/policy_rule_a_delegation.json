@@ -1,0 +1,8 @@
+{
+    "resource_id": "20248583",
+    "action": "view",
+    "delegate": "http://other-pdp/policy/validate",
+    "rules": [{
+        "EQUAL" : {"company" : "Deimos" }
+    }]
+}
