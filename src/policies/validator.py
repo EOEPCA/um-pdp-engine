@@ -6,11 +6,20 @@ import models.request as xacml_request
 from handlers.scim_handler import ScimHandler
 from policies import policies_operations
 from models import response
-from xacml import parser, decision
+from xacml import parser, decision, forwarder
 from utils import ClassEncoder
 from config import config_parser
 
 policy_validator_bp = Blueprint('policy_validator_bp', __name__)
+
+def _generate_response(validation_result):
+    response = {
+        True: [response.Response(decision.PERMIT), 200],
+        False: [response.Response(decision.DENY, "fail_to_permit", "obligation-id", "You cannot access this resource"), 401]
+        # None: [response.Response(decision.PERMIT), 200]
+    }
+    return response[validation_result][0], response[validation_result][-1]
+
 
 def validate_auth_server_url():
     env_var_auth_server_url = 'PDP_AUTH_SERVER_URL'      
@@ -90,12 +99,7 @@ def validate_resource():
     else:
         result_validation = policies_operations.validate_complete_policies(resource_id, action, handler_user_attributes)
 
-    if result_validation:
-        r = response.Response(decision.PERMIT)
-        status = 200
-    else:
-        r = response.Response(decision.DENY, "fail_to_permit", "obligation-id", "You cannot access this resource")
-        status = 401
+    r, status = _generate_response(result_validation)
     
     return json.dumps(r, cls=ClassEncoder), status
 
