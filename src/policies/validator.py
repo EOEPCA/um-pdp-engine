@@ -2,7 +2,6 @@ from flask import Blueprint, request, Response, jsonify
 import json
 import os
 
-import models.request as xacml_request
 from handlers.scim_handler import ScimHandler
 from policies import policies_operations
 from models import response
@@ -16,7 +15,7 @@ def _generate_response(validation_result):
     response = {
         True: [response.Response(decision.PERMIT), 200],
         False: [response.Response(decision.DENY, "fail_to_permit", "obligation-id", "You cannot access this resource"), 401]
-        # None: [response.Response(decision.PERMIT), 200]
+        None: [response.Response(decision.PERMIT), decision.DELEGATE, 200]
     }
     return response[validation_result][0], response[validation_result][-1]
 
@@ -55,7 +54,7 @@ def validate_resource():
     user_name = subject.attributes[0]['Value']
     action = action_rsrc.attributes[0]['Value']
 
-    print(json.dumps(xacml_request.Request(subject.attributes, action_rsrc.attributes, resource.attributes, "http://another.pdp.deimos.pt/"), cls=ClassEncoder))
+    # print(json.dumps(xacml_request.Request(subject.attributes, action_rsrc.attributes, resource.attributes, "http://another.pdp.deimos.pt/"), cls=ClassEncoder))
     
     #To be expanded when implementing more complex policies
 
@@ -93,14 +92,17 @@ def validate_resource():
     # Pending: Complete when xacml receives several resources
     if isinstance(resource_id, list):
         for resource_from_list in resource.attributes[0]['Value']:
-            result_validation = policies_operations.validate_complete_policies(resource_from_list, action, handler_user_attributes)
+            result_validation, delegate_addr = policies_operations.validate_complete_policies(resource_from_list, action, handler_user_attributes)
             if result_validation:
                 break
     else:
-        result_validation = policies_operations.validate_complete_policies(resource_id, action, handler_user_attributes)
+        result_validation, delegate_addr = policies_operations.validate_complete_policies(resource_id, action, handler_user_attributes)
 
-    r, status = _generate_response(result_validation)
+    resp, r_aux, status = _generate_response(result_validation)
+
+    if r_aux == decision.DELEGATE:
+        forwarder.delegate(subject.attributes, action_rsrc.attributes, resource.attributes, delegate_addr)
     
-    return json.dumps(r, cls=ClassEncoder), status
+    return json.dumps(resp, cls=ClassEncoder), status
 
     

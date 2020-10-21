@@ -1,6 +1,6 @@
 import json
 from policy_storage import Policy_Storage
-from xacml import forwarder
+
 
 def validate_access_policies(resource_id, user_name):
     mongo = Policy_Storage('mongodb')
@@ -59,8 +59,8 @@ def validate_complete_policies(resource_id, action, dict_request_values):
     if isinstance(data, list):
         for i in range(0, len(data)):
             try:
-                if "delegate" in data[i]:
-                    forwarder.delegate(resource_id, action, dict_request_values)
+                if "delegate" in data[i]['config']:
+                    return None, data[i]['config']['delegate']
 
                 if data[i]['config']['resource_id'] == resource_id and data[i]['config']['action'] == action:
                     result = validate_all_acces_policies(data[i]['config']['rules'], dict_request_values)
