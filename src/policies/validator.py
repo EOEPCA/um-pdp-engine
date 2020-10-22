@@ -12,12 +12,12 @@ from config import config_parser
 policy_validator_bp = Blueprint('policy_validator_bp', __name__)
 
 def _generate_response(validation_result):
-    response = {
+    bulk_response = {
         True: [response.Response(decision.PERMIT), 200],
-        False: [response.Response(decision.DENY, "fail_to_permit", "obligation-id", "You cannot access this resource"), 401]
+        False: [response.Response(decision.DENY, "fail_to_permit", "obligation-id", "You cannot access this resource"), 401],
         None: [response.Response(decision.PERMIT), decision.DELEGATE, 200]
     }
-    return response[validation_result][0], response[validation_result][-1]
+    return bulk_response[validation_result][0], bulk_response[validation_result][1], bulk_response[validation_result][-1]
 
 
 def validate_auth_server_url():
@@ -54,8 +54,6 @@ def validate_resource():
     user_name = subject.attributes[0]['Value']
     action = action_rsrc.attributes[0]['Value']
 
-    # print(json.dumps(xacml_request.Request(subject.attributes, action_rsrc.attributes, resource.attributes, "http://another.pdp.deimos.pt/"), cls=ClassEncoder))
-    
     #To be expanded when implementing more complex policies
 
     if "Issuer" in subject.attributes[0].keys():

@@ -64,10 +64,10 @@ def validate_complete_policies(resource_id, action, dict_request_values):
 
                 if data[i]['config']['resource_id'] == resource_id and data[i]['config']['action'] == action:
                     result = validate_all_acces_policies(data[i]['config']['rules'], dict_request_values)
-                    return result
+                    return result, None
             except KeyError:
-                return False
-    return False
+                return False, None
+    return False, None
 
 def validate_all_acces_policies(data, dict_request_values):
     policy = data
