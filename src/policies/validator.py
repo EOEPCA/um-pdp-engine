@@ -5,19 +5,11 @@ import os
 from handlers.scim_handler import ScimHandler
 from policies import policies_operations
 from models import response
-from xacml import parser, decision, forwarder
+from xacml import parser, decision, forwarder, response_handler
 from utils import ClassEncoder
 from config import config_parser
 
 policy_validator_bp = Blueprint('policy_validator_bp', __name__)
-
-def _generate_response(validation_result):
-    bulk_response = {
-        True: [response.Response(decision.PERMIT), 200],
-        False: [response.Response(decision.DENY, "fail_to_permit", "obligation-id", "You cannot access this resource"), 401],
-        None: [response.Response(decision.PERMIT), decision.DELEGATE, 200]
-    }
-    return bulk_response[validation_result][0], bulk_response[validation_result][1], bulk_response[validation_result][-1]
 
 
 def validate_auth_server_url():
@@ -94,12 +86,9 @@ def validate_resource():
             if result_validation:
                 break
     else:
-        result_validation, delegate_addr = policies_operations.validate_complete_policies(resource_id, action, handler_user_attributes)
+        decisions = policies_operations.validate_complete_policies(resource_id, action, handler_user_attributes)
 
-    resp, r_aux, status = _generate_response(result_validation)
-
-    if r_aux == decision.DELEGATE:
-        forwarder.delegate(subject.attributes, action_rsrc.attributes, resource.attributes, delegate_addr)
+    resp, status = response_handler.generate_response(decisions, subject.attributes, action_rsrc.attributes, resource.attributes, request.base_url)
     
     return json.dumps(resp, cls=ClassEncoder), status
 
