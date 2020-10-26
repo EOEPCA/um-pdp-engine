@@ -61,7 +61,6 @@ def validate_complete_policies(resource_id, action, dict_request_values):
             try:
                 if data[i]['config']['resource_id'] == resource_id and data[i]['config']['action'] == action and "delegate" not in data[i]['config']:
                     result = validate_all_acces_policies(data[i]['config']['rules'], dict_request_values)
-                    print(result, data[i]['config']['rules'])
                     decisions[i] = [result, None]
                 elif "delegate" in data[i]['config']:
                     decisions[i] = [None, data[i]['config']['delegate']]

@@ -38,10 +38,10 @@ def validate_json(json_data):
 def validate_resource():
     xacml = request.json
     if not validate_json(xacml):
-        return "Valid JSON data is required"
+        print ("Invalid xacml received")
+        return "Valid JSON data is required", 400
     
     subject, action_rsrc, resource = parser.load_request(xacml)
-
     resource_id = resource.attributes[0]['Value']
     user_name = subject.attributes[0]['Value']
     action = action_rsrc.attributes[0]['Value']
