@@ -39,7 +39,7 @@ class ScimHandler:
                 ScimHandler.__eoepca_scim_instance = EOEPCA_Scim(host=auth_server_url, clientID=client_id, clientSecret=client_secret)
             if not client_id or not client_secret:
                 grantTypes = ["client_credentials", "urn:ietf:params:oauth:grant-type:uma-ticket", "password", "implicit"]
-                scopes = ["public_access"]
+                scopes = ['openid', 'uma_protection', 'permission', 'profile']
                 ScimHandler.__scim_client = ScimHandler.__eoepca_scim_instance.registerClient("PDP Dynamic Client", grantTypes = grantTypes, redirectURIs = [""], logoutURI = "", responseTypes = ["code","token","id_token"], scopes = scopes, token_endpoint_auth_method = ENDPOINT_AUTH_CLIENT_PRIVATE_KEY_JWT, useJWT=1)
                 print("SCIM Handler: created new PDP client: " + ScimHandler.__scim_client["client_id"] )
             else:
