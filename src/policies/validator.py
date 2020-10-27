@@ -66,6 +66,7 @@ def validate_resource():
         if handler_status_issuer == 200 or (issuer is None):
             handler_status, handler_user_attributes = ScimHandler.get_instance().getUserAttributes(user_name)
             if not isinstance(handler_user_attributes, dict):
+                print(handler_user_attributes)
                 handler_user_attributes = {}
                 for i in range(0, len(subject.attributes)):
                     handler_user_attributes[subject.attributes[i]['AttributeId']] = subject.attributes[i]['Value']
