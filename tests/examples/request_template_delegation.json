@@ -2,12 +2,18 @@
     "Request": {
         "AccessSubject": [{
             "Attribute": [{
-                    "AttributeId": "userName",
-                    "Value": "admin",
-                    "DataType": "string",
-                    "IncludeInResult": true
-                }
-            ]
+                "AttributeId": "userName",
+                "Value": "admin",
+                "DataType": "string",
+                "IncludeInResult": true
+            },
+            {
+                "AttributeId": "timezone",
+                "Value": "Europe/Lisbon",
+                "DataType": "string",
+                "IncludeInResult": true
+            }
+        ]
         }],
         "IntermediarySubject": [{
             "Content": "http://original_pdp_that_received_this/policy/validate"
@@ -21,7 +27,7 @@
         "Resource": [{
             "Attribute": [{
                 "AttributeId": "resource-id",
-                "Value": "20248583",
+                "Value": "6666666",
                 "DataType": "string",
                 "IncludeInResult": true
             }]

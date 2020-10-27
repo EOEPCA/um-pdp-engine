@@ -177,3 +177,7 @@ SCIM will be used in order to obtain the attributes for the user that have been 
 ==== Registration of policies
 
 The process of registering the policies is performed in the main, for this purpose the Policy_Storage class is used which will allow actions such as inserting policies in the pod where the Back-end database is located.
+
+=== Policy Delegation (to external PDPs)
+
+Whenever a policy rule has a **delegate** parameter with a reference URI to an external PDP, the current PDP will forward the xacml request to the external PDP referencing itself in it. The external PDP will validate the remaining policies (that were referenced with the **delegate** parameter). If the external PDP has the policy, it will return a permission granted on its side. If all the policy checks are positively validated (current PDP and foreign PDP(s)), the permission is granted. If otherwise any policy check fails to validate, the permission is denied.

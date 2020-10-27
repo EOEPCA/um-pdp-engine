@@ -7,7 +7,7 @@ import json
 import jsonschema
 from policies.validator import validate_json
 from policies import policies_operations
-from xacml import parser, decision
+from xacml import parser, decision, forwarder, response_handler
 from bson.objectid import ObjectId
 from policy_storage import Policy_Storage
 from utils import ClassEncoder
@@ -24,12 +24,40 @@ def mocked_validate_policies(*args, **kwargs):
                 self.response = False
             elif str(args[0]) == "20248583" and args[1] == "edit" and args[2]['userName'] == "test":
                 self.response = False
+            elif str(args[0]) == "20248583" and args[1] == "edit" and args[2]['userName'] == "test":
+                self.response = False
             elif str(args[0]) == "173":
                 self.response = False
             elif str(args[0]) == "123456" and args[1] == "view" and args[2]['attemps'] != 5:
                 self.response = False
             elif str(args[0]) == "123456" and args[1] == "view" and args[2]['attemps'] == 5:
                 self.response = True
+        def response(self):
+            return self.response
+    return MockResponse().response
+
+def mocked_validate_policies_decisions(*args, **kwargs):
+    class MockResponse:
+        def __init__(self):
+            if str(args[0]) == "6666666" and args[1] == "view" and args[2] == "delegate" and args[3]['userName'] == "test" and args[3]['timezone'] == "Europe/Lisbon":
+                self.response = {0:[None, "http://localhost:5568/policy/validate"]}
+            else:
+                self.response = {1:[True, None]}
+        def response(self):
+            return self.response
+    return MockResponse().response
+
+def mocked_final_response(*args, **kwargs):
+    class MockResponse:
+        def __init__(self):
+            if args[0] == {0: [None, "http://localhost:5568/policy/validate"]} and type(args[1]) == list and type(args[2]) == list and type(args[3]) == list and type(args[4]) == str:
+                r = response.Response(decision.PERMIT)
+                status = 200
+                self.response = json.dumps(r, cls=ClassEncoder), status
+            else:
+                r = response.Response(decision.DENY, "fail_to_permit", "obligation-id", "You cannot access this resource")
+                status = 401
+                self.response = json.dumps(r, cls=ClassEncoder), status
         def response(self):
             return self.response
     return MockResponse().response
@@ -272,6 +300,56 @@ class TestPDP(unittest.TestCase):
         j = policies_operations.validate_complete_policies(resource_id, action, dict_values)
 
         self.assertEqual(j, True, "Validate conditional policy rule should be true")
+
+    @mock.patch('policies.policies_operations.validate_complete_policies', side_effect=mocked_validate_policies_decisions)
+    def test_pdp_validate_delegation_policies(self, mock_validate_rule_with_conditions_false, raise_for_status=None):
+        with open('../tests/examples/request_template_delegation.json') as json_file:
+            data = json.load(json_file)
+
+        subject, action_rsrc, resource = parser.load_request(data)
+
+        resource_id = resource.attributes[0]['Value']
+        action = action_rsrc.attributes[0]['Value']
+        dict_values = {}
+
+        for i in range(0, len(subject.attributes)):
+            dict_values[subject.attributes[i]['AttributeId']] = subject.attributes[i]['Value']
+
+        mock_resp = mock.Mock()
+        mock_resp.raise_for_status = mock.Mock()
+        if raise_for_status:
+            mock_resp.raise_for_status.side_effect = raise_for_status
+
+        decisions = policies_operations.validate_complete_policies(resource_id, action, dict_values)
+
+        self.assertEqual(type(decisions), dict, "Should return a dictionary with the result decisions")
+
+    @mock.patch('xacml.response_handler.generate_response', side_effect=mocked_final_response)
+    def test_pdp_delegation_forwarder_final_response(self, mock_validate_rule_with_conditions_false, raise_for_status=None):
+        with open('../tests/examples/request_template_delegation.json') as json_file:
+            data = json.load(json_file)
+
+        subject, action_rsrc, resource = parser.load_request(data)
+
+        resource_id = resource.attributes[0]['Value']
+        action = action_rsrc.attributes[0]['Value']
+        dict_values = {}
+
+        decision = {
+            0: [None, "http://localhost:5568/policy/validate"]
+        }
+
+        for i in range(0, len(subject.attributes)):
+            dict_values[subject.attributes[i]['AttributeId']] = subject.attributes[i]['Value']
+
+        mock_resp = mock.Mock()
+        mock_resp.raise_for_status = mock.Mock()
+        if raise_for_status:
+            mock_resp.raise_for_status.side_effect = raise_for_status
+
+        resp, status = response_handler.generate_response(decision, subject.attributes, action_rsrc.attributes, resource.attributes, "http://localhost:5567/policy/validate")
+
+        self.assertEqual(status, 200, "Request was successfully forwarded to external pdp")
 
     @mock.patch('handlers.scim_handler.ScimHandler.modifyAuthServerUrl', side_effect=mocked_modify_auth_server)
     def test_pdp_validate_valid_issuer(self, mock_validate_valid_issuer, raise_for_status=None):
