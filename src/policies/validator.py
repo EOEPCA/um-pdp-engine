@@ -1,15 +1,16 @@
 from flask import Blueprint, request, Response, jsonify
 import json
+import os
 
 from handlers.scim_handler import ScimHandler
 from policies import policies_operations
 from models import response
-from xacml import parser, decision
+from xacml import parser, decision, forwarder, response_handler
 from utils import ClassEncoder
 from config import config_parser
-import os
 
 policy_validator_bp = Blueprint('policy_validator_bp', __name__)
+
 
 def validate_auth_server_url():
     env_var_auth_server_url = 'PDP_AUTH_SERVER_URL'      
@@ -37,14 +38,14 @@ def validate_json(json_data):
 def validate_resource():
     xacml = request.json
     if not validate_json(xacml):
-        return "Valid JSON data is required"
+        print ("Invalid xacml received")
+        return "Valid JSON data is required", 400
     
-    subject, action, resource = parser.load_request(xacml)
-
+    subject, action_rsrc, resource = parser.load_request(xacml)
     resource_id = resource.attributes[0]['Value']
     user_name = subject.attributes[0]['Value']
-    action = action.attributes[0]['Value']
-    
+    action = action_rsrc.attributes[0]['Value']
+
     #To be expanded when implementing more complex policies
 
     if "Issuer" in subject.attributes[0].keys():
@@ -81,19 +82,14 @@ def validate_resource():
     # Pending: Complete when xacml receives several resources
     if isinstance(resource_id, list):
         for resource_from_list in resource.attributes[0]['Value']:
-            result_validation = policies_operations.validate_complete_policies(resource_from_list, action, handler_user_attributes)
+            result_validation, delegate_addr = policies_operations.validate_complete_policies(resource_from_list, action, handler_user_attributes)
             if result_validation:
                 break
     else:
-        result_validation = policies_operations.validate_complete_policies(resource_id, action, handler_user_attributes)
+        decisions = policies_operations.validate_complete_policies(resource_id, action, handler_user_attributes)
 
-    if result_validation:
-        r = response.Response(decision.PERMIT)
-        status = 200
-    else:
-        r = response.Response(decision.DENY, "fail_to_permit", "obligation-id", "You cannot access this resource")
-        status = 401
+    resp, status = response_handler.generate_response(decisions, subject.attributes, action_rsrc.attributes, resource.attributes, request.base_url)
     
-    return json.dumps(r, cls=ClassEncoder), status
+    return json.dumps(resp, cls=ClassEncoder), status
 
     

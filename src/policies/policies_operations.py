@@ -1,6 +1,7 @@
 import json
 from policy_storage import Policy_Storage
 
+
 def validate_access_policies(resource_id, user_name):
     mongo = Policy_Storage('mongodb')
     data = mongo.get_policy_from_resource_id(str(resource_id))
@@ -54,16 +55,18 @@ def validate_policy_language(policy):
 def validate_complete_policies(resource_id, action, dict_request_values):
     mongo = Policy_Storage('mongodb')
     data = mongo.get_policy_from_resource_id(str(resource_id))
-
+    decisions = {}
     if isinstance(data, list):
         for i in range(0, len(data)):
             try:
-                if data[i]['config']['resource_id'] == resource_id and data[i]['config']['action'] == action:
+                if data[i]['config']['resource_id'] == resource_id and data[i]['config']['action'] == action and "delegate" not in data[i]['config']:
                     result = validate_all_acces_policies(data[i]['config']['rules'], dict_request_values)
-                    return result
+                    decisions[i] = [result, None]
+                elif "delegate" in data[i]['config']:
+                    decisions[i] = [None, data[i]['config']['delegate']]
             except KeyError:
-                return False
-    return False
+                decisions[i] = [False, None]
+    return decisions
 
 def validate_all_acces_policies(data, dict_request_values):
     policy = data
