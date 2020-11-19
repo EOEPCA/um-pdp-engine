@@ -87,13 +87,23 @@ app.secret_key = ''.join(choice(ascii_lowercase) for i in range(30)) # Random ke
 # SWAGGER initiation
 SWAGGER_URL = '/swagger-ui'  # URL for exposing Swagger UI (without trailing '/')
 API_URL = "" # Our local swagger resource for PDP. Not used here as 'spec' parameter is used in config
+SWAGGER_SPEC = json.load(open("./static/swagger_pdp_ui.json"))
+SWAGGER_APP_NAME = "Policy Decision Point Interfaces"
+
+# Since hostname and port is determined dynamically on system installation, fill this correct information in .json file
+try:
+    SWAGGER_SPEC["servers"][0].update(url="http://"+g_config["host"]+":"+g_config["port"])
+    with open("./static/swagger_pdp_ui.json", 'w') as outfile:
+        json.dump(SWAGGER_SPEC, outfile)
+except:
+    raise Exception("Error when reading/writing SwaggerUI configuration file!")
 
 swaggerui_blueprint = get_swaggerui_blueprint(
     SWAGGER_URL,
     API_URL,
     config={  # Swagger UI config overrides
-        'app_name': "Policy Decision Point Interfaces",
-        'spec': json.load(open("./static/swagger_pdp_ui.json"))
+        'app_name': SWAGGER_APP_NAME,
+        'spec': SWAGGER_SPEC
     },
 )
 
