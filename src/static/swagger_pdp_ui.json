@@ -1,9 +1,5 @@
 {
   "openapi" : "3.0.0",
-  "servers" : [ {
-    "description" : "Policy Decision Point API Mocking",
-    "url" : "<placeholder>"
-  } ],
   "info" : {
     "version" : "1.0.0",
     "title" : "Policy Decision Point Interfaces",
@@ -29,7 +25,7 @@
         }
       }
     },
-    "/policy" : {
+    "/policy/" : {
       "parameters" : [ {
         "in" : "header",
         "name" : "Authorization",

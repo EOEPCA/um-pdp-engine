@@ -91,14 +91,6 @@ API_URL = "" # Our local swagger resource for PDP. Not used here as 'spec' param
 SWAGGER_SPEC = json.load(open("./static/swagger_pdp_ui.json"))
 SWAGGER_APP_NAME = "Policy Decision Point Interfaces"
 
-# Since hostname and port is determined dynamically on system installation, fill this correct information in .json file
-try:
-    SWAGGER_SPEC["servers"][0].update(url="http://"+g_config["host"]+":"+g_config["port"])
-    with open("./static/swagger_pdp_ui.json", 'w') as outfile:
-        json.dump(SWAGGER_SPEC, outfile)
-except:
-    raise Exception("Error when reading/writing SwaggerUI configuration file!")
-
 swaggerui_blueprint = get_swaggerui_blueprint(
     SWAGGER_URL,
     API_URL,
