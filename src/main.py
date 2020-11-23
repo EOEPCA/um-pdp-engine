@@ -92,9 +92,8 @@ SWAGGER_SPEC = json.load(open("./static/swagger_pdp_ui.json"))
 SWAGGER_APP_NAME = "Policy Decision Point Interfaces"
 
 # Since hostname and port is determined dynamically on system installation, fill this correct information in .json file
-# Socket call is used here to ensure the virtual server does not use the container's internal IP, and is exposed outside
 try:
-    SWAGGER_SPEC["servers"][0].update(url="http://"+str(socket.gethostbyname(socket.gethostname()))+":"+g_config["port"])
+    SWAGGER_SPEC["servers"][0].update(url="http://"+g_config["host"]+":"+g_config["port"])
     with open("./static/swagger_pdp_ui.json", 'w') as outfile:
         json.dump(SWAGGER_SPEC, outfile)
 except:
