@@ -74,7 +74,26 @@ class Mongo_Handler:
         if found:
             return found
         else: return None
+        
+    def get_all_policies(self):
+        '''
+            Returns all policies in json format
+        '''
+        col= self.db['policies']
+        found=col.find()
+        if found:
+            return found
+        else: return None
 
+        
+    def remove_policy_by_query(self, query):
+        '''
+            Check the existence of the resource inside the database
+            And deletes the document
+        '''
+        col = self.db['policies']
+        myId=self.parse_id(_id)
+        a= col.delete_many(query)
 
     def policy_exists(self, _id=None, name=None):
         '''
