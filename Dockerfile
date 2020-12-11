@@ -8,8 +8,9 @@ RUN pip install -r requirements.txt
 # Add requirements, code
 COPY src/ /
 
-RUN ln -sf /management_tools.py /bin/management_tools
+RUN ln -sf /management_tools_script.sh /bin/management_tools
 RUN chmod +x /management_tools.py
+RUN chmod +x /management_tools_script.sh
 
 # Declare and expose service listening port
 EXPOSE 5567/tcp
