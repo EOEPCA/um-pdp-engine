@@ -92,7 +92,6 @@ class Mongo_Handler:
             And deletes the document
         '''
         col = self.db['policies']
-        myId=self.parse_id(_id)
         a= col.delete_many(query)
 
     def policy_exists(self, _id=None, name=None):
