@@ -29,8 +29,19 @@ class Policy_Storage:
             Finds the policy by its id
             Returns the policy in json format
         '''
-        return self.current_db.get_policy_from_id(_id)
+        return self.current_db.get_policy_from_id(_id) 
 
+    def get_all_policies(self):
+        '''
+            Returns all the policies in json format
+        '''
+        return self.current_db.get_all_policies()
+        
+    def remove_policy_by_query(self, query):
+        '''
+            Deletes many policies based on a query
+        '''
+        return self.current_db.remove_policy_by_query(query)
 
     def policy_exists(self, _id=None, name=None):
         '''
