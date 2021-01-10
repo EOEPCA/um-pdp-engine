@@ -2,10 +2,12 @@
 import json
 import os
 import re
+import socket
 
 from random import choice
 from string import ascii_lowercase
 from flask import Flask
+from flask_swagger_ui import get_swaggerui_blueprint
 
 from policy_storage import Policy_Storage
 from config import config_parser
@@ -83,10 +85,25 @@ else:
 app = Flask(__name__)
 app.secret_key = ''.join(choice(ascii_lowercase) for i in range(30)) # Random key
 
+# SWAGGER initiation
+SWAGGER_URL = '/swagger-ui'  # URL for exposing Swagger UI (without trailing '/')
+API_URL = "" # Our local swagger resource for PDP. Not used here as 'spec' parameter is used in config
+SWAGGER_SPEC = json.load(open("./static/swagger_pdp_ui.json"))
+SWAGGER_APP_NAME = "Policy Decision Point Interfaces"
+
+swaggerui_blueprint = get_swaggerui_blueprint(
+    SWAGGER_URL,
+    API_URL,
+    config={  # Swagger UI config overrides
+        'app_name': SWAGGER_APP_NAME,
+        'spec': SWAGGER_SPEC
+    },
+)
+
 # Register api blueprints (module endpoints)
 app.register_blueprint(policy_validator_bp, url_prefix="/policy")
 app.register_blueprint(policy_manager_bp(oidc_client))
-
+app.register_blueprint(swaggerui_blueprint)
 
 app.run(
     debug=g_config["debug_mode"],

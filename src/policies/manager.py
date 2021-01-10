@@ -27,11 +27,11 @@ def policy_manager_bp(oidc_client):
             head = str(request.headers)
             headers_alone = head.split()
             #Retrieve the token from the headers
+            token = None
             for i in headers_alone:
                 if 'Bearer' in str(i):
                     aux=headers_alone.index('Bearer')
-                    inputToken = headers_alone[aux+1]           
-            token = inputToken
+                    token = headers_alone[aux+1]           
             if token:
                 #Compares between JWT id_token and OAuth access token to retrieve the UUID
                 if len(str(token))>40:
@@ -39,7 +39,9 @@ def policy_manager_bp(oidc_client):
                 else:
                     uid=oidc_client.verify_OAuth_token(token)
             else:
-                return 'NO TOKEN FOUND'
+                response.status_code = 401
+                response.headers["Error"] = "NO TOKEN FOUND"
+                return response
         except Exception as e:
             print("Error While passing the token: "+str(uid))
             response.status_code = 500
