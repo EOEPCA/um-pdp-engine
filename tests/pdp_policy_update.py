@@ -17,7 +17,7 @@ from Crypto.PublicKey import RSA
 from WellKnownHandler import WellKnownHandler, TYPE_SCIM, TYPE_OIDC, KEY_SCIM_USER_ENDPOINT, KEY_OIDC_TOKEN_ENDPOINT, KEY_OIDC_REGISTRATION_ENDPOINT, KEY_OIDC_SUPPORTED_AUTH_METHODS_TOKEN_ENDPOINT, TYPE_UMA_V2, KEY_UMA_V2_PERMISSION_ENDPOINT
 from eoepca_uma import rpt, resource
 
-class PEPResourceTest(unittest.TestCase):
+class PDPResourceTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.g_config = {}
@@ -27,7 +27,7 @@ class PEPResourceTest(unittest.TestCase):
         wkh = WellKnownHandler(cls.g_config["auth_server_url"], secure=False)
         cls.__TOKEN_ENDPOINT = wkh.get(TYPE_OIDC, KEY_OIDC_TOKEN_ENDPOINT)
 
-        _rsajwk = RSAKey(kid="RSA1", key=import_rsa_key_from_file("../src/config/private.pem"))
+        _rsajwk = RSAKey(kid="RSA1", key=import_rsa_key_from_file("../src/private.pem"))
         _payload = { 
                     "iss": cls.g_config["client_id"],
                     "sub": cls.g_config["client_id"],
@@ -42,34 +42,23 @@ class PEPResourceTest(unittest.TestCase):
         cls.jwt = _jws.sign_compact(keys=[_rsajwk])
 
         cls.scopes = 'protected_access'
-        cls.PDP_HOST = cls.g_config["host"]
-        cls.PDP_PORT = int(cls.g_config["port"])
+        cls.PDP_HOST = "http://"+cls.g_config["host"]
+        cls.PDP_PORT = cls.g_config["port"]
         cls.UID = cls.g_config["client_id"]
        
     def getJWT(self):
         return self.jwt
 
-    def getPolicyList(self, id_token="filler"):
-        headers = { 'content-type': "application/x-www-form-urlencoded", "cache-control": "no-cache", "Authorization": "Bearer "+str(id_token)}
-        res = requests.get(self.PDP_HOST+":"+self.PDP_PORT+"/policy/", headers=headers, verify=False)
-        if res.status_code == 401:
-            return 401, res.headers["Error"]
-        if res.status_code == 404:
-            return 404, res.headers["Error"]
-        if res.status_code == 200:
-            return 200, res.json()
-        return 500, None
-
     def createTestPolicy(self, id_token="filler", resource_id="test_resource_0000"):
         name = "Default Ownership Policy of " + str(resource_id)
         description = "This is the default ownership policy for created resources through PEP"
-        policy_cfg = { "resource_id": str(resource_id), "action": "view", "rules": [{ "AND": [ {"EQUAL": {"id" : cls.UID } }] }] }
+        policy_cfg = { "resource_id": str(resource_id), "action": "view", "rules": [{ "AND": [ {"EQUAL": {"id" : self.UID } }] }] }
         scopes = ["protected_access"]
         payload = {"name": name, "description": description, "config": policy_cfg, "scopes": scopes}
         headers = { 'content-type': "application/json", "cache-control": "no-cache", "Authorization": "Bearer "+str(id_token) }
-        pol = requests.post(self.PDP_HOST+":"+self.PDP_PORT+"/policy/", headers=headers, json=payload)
+        pol = requests.post(self.PDP_HOST+":"+self.PDP_PORT+"/policy/", headers=headers, json=payload, verify=False)
         if pol.status_code == 200:
-            return 200, pol.text
+            return 200, pol.text.replace("New Policy with ID: ", "")
         return 500, None
 
     def getPolicy(self, id_token="filler"):
@@ -92,11 +81,11 @@ class PEPResourceTest(unittest.TestCase):
             return 204, None
         return 500, None
 
-    def updatePolicy(self, id_token="filler"):
+    def updatePolicy(self, id_token="filler", resource_id=""):
         headers = { 'content-type': "application/json", "cache-control": "no-cache", "Authorization": "Bearer "+id_token }
         name = "Default Ownership Policy of " + str(resource_id)
         description = "MODIFIED"
-        policy_cfg = { "resource_id": str(resource_id), "action": "view", "rules": [{ "OR": [ {"EQUAL": {"id" : cls.UID } }, {"EQUAL": {"user_name" : "admin"}] }] }
+        policy_cfg = { "resource_id": str(resource_id), "action": "view", "rules": [{ "AND": [ {"EQUAL": {"id" : self.UID } }, {"EQUAL": {"user_name" : "admin"} }] }] }
         scopes = ["protected_access"]
         payload = {"name": name, "description": description, "config": policy_cfg, "scopes": scopes}
         res = requests.put(self.PDP_HOST+":"+self.PDP_PORT+"/policy/"+self.policyID, headers=headers, json=payload, verify=False)
@@ -136,13 +125,13 @@ class PEPResourceTest(unittest.TestCase):
         
         #Modify created policy
         #Changes description to "MODIFIED" and adds user "admin" as ownership
-        status, _ = self.updatePolicy(id_token)
+        status, _ = self.updatePolicy(id_token, resource_id)
         self.assertEqual(status, 200)
         #Get policy to check if modification actually was successfull
         status, reply = self.getPolicy(id_token)
         self.assertEqual(reply["_id"], self.policyID)
         self.assertEqual(reply["description"], "MODIFIED")
-        print("Update policy: Policy properly modified.")
+        print("Update policy: Policy properly modified, ownership changed")
         print(reply)
         del status, reply
         print("=======================")
@@ -151,15 +140,12 @@ class PEPResourceTest(unittest.TestCase):
         # Delete created policy
         status, reply = self.deletePolicy(id_token)
         self.assertEqual(status, 204)
-        print("Delete policy: Policy deleted.")
         del status, reply
-        print("=======================")
-        print("")
 
         #Get policy to make sure it was deleted
         status, _ = self.getPolicy(id_token)
-        self.assertEqual(status, 404)
-        print("Get policy: Policy correctly not found.")
+        self.assertEqual(status, 401)
+        print("Delete policy: Policy deleted.")
         del status
         print("=======================")
         print("")
