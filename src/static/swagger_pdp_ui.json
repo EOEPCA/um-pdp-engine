@@ -1,0 +1,264 @@
+{
+  "openapi" : "3.0.0",
+  "info" : {
+    "version" : "1.0.0",
+    "title" : "Policy Decision Point Interfaces",
+    "description" : "This OpenAPI Document describes the endpoints exposed by Policy Decision Point Building Block deployments.  <br> <br> Using this API will allow to register policies that support the protection of policies using both the Login Service and the Policy Decision Point and to perform checks based on XACML requests and responses"
+  },
+  "tags" : [ {
+    "name" : "Policy Management",
+    "description" : "Operations to create, modify or delete policies"
+  }, {
+    "name" : "Policy Checks",
+    "description" : "XACML Compliant Operations to request Policy Checks"
+  } ],
+  "paths" : {
+    "/policy/validate" : {
+      "post" : {
+        "tags" : [ "Policy Checks" ],
+        "summary" : "XACML Policy Checks",
+        "description" : "This operation lists all policies filtered by ownership ID. Ownership ID is extracted from the OpenID Connect Token",
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/policy/" : {
+      "parameters" : [ {
+        "in" : "header",
+        "name" : "Authorization",
+        "description" : "JWT or Bearer Token",
+        "schema" : {
+          "type" : "string"
+        }
+      } ],
+      "get" : {
+        "tags" : [ "Policy Management" ],
+        "summary" : "List all owned policies",
+        "description" : "This operation lists all policies filtered by ownership ID. Ownership ID is extracted from the OpenID Connect Token",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/policy"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Policy Management" ],
+        "summary" : "Creates a new Policy reference in the Platform",
+        "description" : "This operation generates a new policy reference object that can be protected. Ownership ID is set to the unique ID of the End-User",
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/new_policy"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/policy"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "UNAUTHORIZED"
+          },
+          "404" : {
+            "description" : "NOT FOUND"
+          }
+        }
+      }
+    },
+    "/policy/{policy_id}" : {
+      "parameters" : [ {
+        "in" : "path",
+        "name" : "policy_id",
+        "description" : "Unique Policy ID",
+        "required" : true,
+        "schema" : {
+          "type" : "string"
+        }
+      }, {
+        "in" : "header",
+        "name" : "Authorization",
+        "description" : "JWT or Bearer Token",
+        "schema" : {
+          "type" : "string"
+        }
+      } ],
+      "get" : {
+        "tags" : [ "Policy Management" ],
+        "summary" : "Retrieve a specific owned policy",
+        "description" : "This operation retrieves information about an owned policy.",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/policy"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "NOT FOUND"
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "Policy Management" ],
+        "summary" : "Updates an existing Policy reference in the Platform",
+        "description" : "This operation updates an existing 'owned' policy reference. ",
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/policy"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "401" : {
+            "description" : "UNAUTHORIZED"
+          },
+          "404" : {
+            "description" : "NOT FOUND"
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "Policy Management" ],
+        "summary" : "Deletes an owned Policy Reference from the Platform",
+        "description" : "This operation removes an existing Policy reference owned by the user.",
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "401" : {
+            "description" : "UNAUTHORIZED"
+          },
+          "404" : {
+            "description" : "NOT FOUND"
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "new_policy" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "description" : "Human readable name for the policy",
+            "type" : "string",
+            "example" : "My Beautiful Policy"
+          },
+          "description" : {
+            "description" : "Custom description for the policy pourpose",
+            "type" : "string",
+            "example" : "This is an ownership enforcement policy"
+          },
+          "policy_cfg" : {
+            "$ref" : "#/components/schemas/policy_cfg"
+          },
+          "scopes" : {
+            "description" : "List of scopes associated with the policy",
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            },
+            "example" : [ "public", "myOtherAttr" ]
+          }
+        }
+      },
+      "policy" : {
+        "type" : "object",
+        "properties" : {
+          "ownership_id" : {
+            "description" : "UUID of the Owner End-User",
+            "type" : "string",
+            "format" : "uuid",
+            "example" : "d290f1ee-6c54-4b01-90e6-288571188183"
+          },
+          "id" : {
+            "description" : "UUID of the policy",
+            "type" : "string",
+            "format" : "uuid",
+            "example" : "d290f1ee-6c54-4b01-90e6-d701748f0851"
+          },
+          "name" : {
+            "description" : "Human readable name for the policy",
+            "type" : "string",
+            "example" : "My Beautiful Policy"
+          },
+          "description" : {
+            "description" : "Custom description for the policy pourpose",
+            "type" : "string",
+            "example" : "This is an ownership enforcement policy"
+          },
+          "policy_cfg" : {
+            "$ref" : "#/components/schemas/policy_cfg"
+          },
+          "scopes" : {
+            "description" : "List of scopes associated with the policy",
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            },
+            "example" : [ "public", "myOtherAttr" ]
+          }
+        }
+      },
+      "policy_cfg" : {
+        "description" : "Custom rules for the policy configuration\n",
+        "type" : "object",
+        "properties" : {
+          "resource_id" : {
+            "description" : "UUID of the applicable Resource",
+            "type" : "string",
+            "format" : "uuid",
+            "example" : "d290f1ee-6c54-4b01-90e6-288571188183"
+          },
+          "action" : {
+            "description" : "Applicable XACML Action",
+            "type" : "string",
+            "example" : "view"
+          },
+          "rules" : {
+            "type" : "array",
+            "description" : "List of checks to create a policy. Each one will be executed in sequence, and the policy will fail as soon as one fails",
+            "items" : {
+              "type" : "object"
+            }
+          }
+        }
+      }
+    }
+  }
+}
