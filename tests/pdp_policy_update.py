@@ -85,7 +85,7 @@ class PDPResourceTest(unittest.TestCase):
         headers = { 'content-type': "application/json", "cache-control": "no-cache", "Authorization": "Bearer "+id_token }
         name = "Default Ownership Policy of " + str(resource_id)
         description = "MODIFIED"
-        policy_cfg = { "resource_id": str(resource_id), "action": "view", "rules": [{ "AND": [ {"EQUAL": {"id" : self.UID } }, {"EQUAL": {"user_name" : "admin"} }] }] }
+        policy_cfg = { "resource_id": str(resource_id), "action": "view", "rules": [{ "OR": [ {"EQUAL": {"id" : self.UID } }, {"EQUAL": {"user_name" : "admin"} }] }] }
         scopes = ["protected_access"]
         payload = {"name": name, "description": description, "config": policy_cfg, "scopes": scopes}
         res = requests.put(self.PDP_HOST+":"+self.PDP_PORT+"/policy/"+self.policyID, headers=headers, json=payload, verify=False)

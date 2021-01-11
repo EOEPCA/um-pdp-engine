@@ -101,7 +101,6 @@ class PDPResourceTest(unittest.TestCase):
         #The reply message is in JSON format
         self.assertEqual(reply["_id"], self.policyID)
         print("Create policy: Policy created with id: "+self.policyID)
-        print(reply)
         del status, reply
         print("=======================")
         print("")
