@@ -1,26 +1,20 @@
 #!/usr/bin/env python3
-import time
 import json
 import os
-import sys
 import re
-import base64
-import logging
+import socket
 
 from random import choice
 from string import ascii_lowercase
-from flask import Flask, request, Response
-from requests import get, post, put, delete
+from flask import Flask
+from flask_swagger_ui import get_swaggerui_blueprint
 
 from policy_storage import Policy_Storage
 from config import config_parser
-from policies.policies import policy_bp
-from policies.policies_operations import validate_policy_language
+from policies.validator import policy_validator_bp
+from policies.manager import policy_manager_bp
 from handlers.scim_handler import ScimHandler
 from custom_oidc import OIDCHandler
-from WellKnownHandler import WellKnownHandler
-from WellKnownHandler import TYPE_UMA_V2, KEY_UMA_V2_RESOURCE_REGISTRATION_ENDPOINT, KEY_UMA_V2_PERMISSION_ENDPOINT, KEY_UMA_V2_INTROSPECTION_ENDPOINT
-from eoepca_uma import rpt as class_rpt
 
 
 #env vars definition
@@ -88,204 +82,28 @@ else:
     os.environ["PEP_CLIENT_ID"] = new_client["client_id"]
     os.environ["PEP_CLIENT_SECRET"] = new_client["client_secret"]
 
-with open('standards/policy_rule_a.json') as json_file1:
-    a = json.load(json_file1)
-with open('standards/policy_rule_b.json') as json_file2:
-    b = json.load(json_file2)
-with open('standards/policy_rule_c.json') as json_file3:
-    c = json.load(json_file3)
-with open('standards/policy_rule_d.json') as json_file4:
-    d = json.load(json_file4)
-
-#instance
-mongo = Policy_Storage('mongodb')
-#register example policy:
-mongo.insert_policy(name='Policy1', description= '',ownership_id= '55b8f51f-4634-4bb0-a1dd-070ec5869d70', config= a, scopes=[''])
-#register example policy:
-mongo.insert_policy(name='Policy2', description= '',ownership_id= '55b8f51f-4634-4bb0-a1dd-070ec5869d70', config= b, scopes=[''])
-#register example policy:
-mongo.insert_policy(name='Policy30', description= '',ownership_id= '55b8f51f-4634-4bb0-a1dd-070ec5869d70', config= c, scopes=[''])
-mongo.insert_policy(name='Policy31', description= '',ownership_id= '55b8f51f-4634-4bb0-a1dd-070ec5869d70', config= d, scopes=[''])
-
-
 app = Flask(__name__)
 app.secret_key = ''.join(choice(ascii_lowercase) for i in range(30)) # Random key
 
+# SWAGGER initiation
+SWAGGER_URL = '/swagger-ui'  # URL for exposing Swagger UI (without trailing '/')
+API_URL = "" # Our local swagger resource for PDP. Not used here as 'spec' parameter is used in config
+SWAGGER_SPEC = json.load(open("./static/swagger_pdp_ui.json"))
+SWAGGER_APP_NAME = "Policy Decision Point Interfaces"
+
+swaggerui_blueprint = get_swaggerui_blueprint(
+    SWAGGER_URL,
+    API_URL,
+    config={  # Swagger UI config overrides
+        'app_name': SWAGGER_APP_NAME,
+        'spec': SWAGGER_SPEC
+    },
+)
+
 # Register api blueprints (module endpoints)
-app.register_blueprint(policy_bp, url_prefix="/policy")
-
-
-@app.route("/policy/", methods=[ "PUT", "POST", "GET"])
-def policy_insert():
-    '''
-    PUT/POST will create or insert a policy in the repository
-    This endpoint will check the headers of the request to retrieve a token
-    Mandatory parameters:
-        - endpoint: <DOMAIN>/policy
-        - headers(JWT_id_token/OAuth_access_token): to verify the user credentials
-        - body(policy_data_model): As a dicionary/json it must have at least the name, description, config and scope keys to add it
-    '''
-    print("Processing " + request.method + " policy request...")
-    response = Response()
-    mongo = Policy_Storage('mongodb') 
-    uid= None
-    try:
-        head = str(request.headers)
-        headers_alone = head.split()
-        #Retrieve the token from the headers
-        for i in headers_alone:
-            if 'Bearer' in str(i):
-                aux=headers_alone.index('Bearer')
-                inputToken = headers_alone[aux+1]           
-        token = inputToken
-        if token:
-            #Compares between JWT id_token and OAuth access token to retrieve the UUID
-            if len(str(token))>40:
-                uid=oidc_client.verify_JWT_token(token)
-            else:
-                uid=oidc_client.verify_OAuth_token(token)
-        else:
-            return 'NO TOKEN FOUND'
-    except Exception as e:
-        print("Error While passing the token: "+str(uid))
-        response.status_code = 500
-        response.headers["Error"] = str(e)
-        return response 
-    #Insert once is authorized
-    try:
-        #If the user is authorized it must find his UUID
-        if uid:
-            if request.method == "GET":
-                if request.data:
-                    data = request.get_json()
-                    if data.get("resource_id"):
-                        list_of_policies={}
-                        a= mongo.get_policy_from_resource_id(data.get("resource_id"))
-                        list_of_policies['policies'] = a
-                        for n in list_of_policies['policies']:
-                            if '_id' in n:
-                                n['_id'] = str(n['_id'])
-                        return json.dumps(list_of_policies) 
-            else:
-                if request.is_json:
-                    data = request.get_json()
-                    if data.get("name") and data.get("config"):
-                        policy_structure = data.get("config")
-                        result_format = validate_policy_language(policy_structure['rules'])
-                        if result_format is True:
-                            #Insert in database the body parameters
-                            return mongo.insert_policy(data.get("name"), data.get("description"), uid ,data.get("config"), data.get("scopes"))
-                        else:
-                            response.status_code = 500
-                            response.headers["Error"] = "Invalid policy structure"
-                            return response
-                    else:
-                        response.status_code = 500
-                        response.headers["Error"] = "Invalid data or incorrect policy name passed on URL called for policy creation!"
-                        return response
-        else: 
-            response.status_code = 401
-            response.headers["Error"] = 'Could not get the UID for the user'
-            return response
-    except Exception as e:
-        print("Error while creating resource: "+str(e))
-        response.status_code = 500
-        response.headers["Error"] = str(e)
-        return response
-        
-@app.route("/policy/<policy_id>", methods=["GET", "PUT", "POST", "DELETE"])
-def policy_operation(policy_id):
-    '''
-    PUT/POST will update a policy in the repository by its _id
-    GET will return the policy by its _id or by specifying the resource_id on the body
-    DELETE will delete the policy by its _id
-    This endpoint will check the headers of the request to retrieve a token
-    To operate against any policy the UUID of the user must match with the one associated to the policy
-    Mandatory parameters:
-        - endpoint: <DOMAIN>/policy/<policy_id>    <-   The policy_id can be specify with both formats: [policy_id/ObjectId(policy_id)]
-        - headers(JWT_id_token/OAuth_access_token): to verify the user credentials
-        - body(policy_data_model): Only for the GET/PUT/POST, As a dicionary/json.
-    '''
-    print("Processing " + request.method + " policy request...")
-    response = Response()
-    mongo = Policy_Storage('mongodb')
-    uid= None
-    try:
-        a = str(request.headers)
-        headers_alone = a.split()
-        for i in headers_alone:
-            #Retrieve the token from the headers
-            if 'Bearer' in str(i):
-                aux=headers_alone.index('Bearer')
-                inputToken = headers_alone[aux+1]           
-        token = inputToken
-        if token: 
-            #Compares between JWT id_token and OAuth access token to retrieve the UUID
-            if len(str(token))>40:
-                uid=oidc_client.verify_JWT_token(token)
-            else:
-                uid=oidc_client.verify_OAuth_token(token)
-        else:
-            return 'NO TOKEN FOUND'
-    except Exception as e:
-        print("Error While passing the token: "+str(uid))
-        response.status_code = 500
-        response.headers["Error"] = str(e)
-        return response
-    #once Authorized performs operations against the policy
-    try:
-        #If UUID exists and policy requested has same UUID
-        if uid and mongo.verify_uid(policy_id, uid):
-            #Updates policy
-            if request.method == "POST" or request.method == 'PUT':
-                if request.is_json:
-                    data = request.get_json()
-                    if data.get("name") and data.get("config"):
-                        policy_structure = data.get("config")
-                        result_format = validate_policy_language(policy_structure['rules'])
-                        if result_format is True:
-                            return mongo.update_policy(policy_id, data)
-                        else:
-                            response.status_code = 500
-                            response.headers["Error"] = "Invalid policy structure"
-                            return response
-                    else:
-                        response.status_code = 500
-                        response.headers["Error"] = "Invalid data or incorrect policy name passed on URL called for policy creation!"
-                        return response
-            #return policy or list of policies if the resource_id is in the body
-            elif request.method == "GET":
-                if request.data:
-                    data = request.get_json()
-                    if data.get("resource_id"):
-                        list_of_policies={}
-                        a= mongo.get_policy_from_resource_id(data.get("resource_id"))
-                        list_of_policies['policies'] = a
-                        for n in list_of_policies['policies']:
-                            if '_id' in n:
-                                n['_id'] = str(n['_id'])
-                        return json.dumps(list_of_policies)  
-                else:
-                    a= mongo.get_policy_from_id(policy_id)
-                    a['_id'] = str(a['_id'])
-                    return json.dumps(a)
-            #Deletes a policy by its _id
-            elif request.method == "DELETE":
-                mongo.delete_policy(policy_id)
-                response.status_code = 204
-                response.text = 'DELETED'
-                return response
-            else:
-                return ''
-        else:
-            response.status_code = 401
-            response.headers["Error"] = "Can not operate. No UID valid for that Policy: { policy_id: "+policy_id+", UUID: "+uid+"}"
-            return response
-    except Exception as e:
-        print("Error while creating resource: "+str(e))
-        response.status_code = 500
-        response.headers["Error"] = str(e)
-        return response
+app.register_blueprint(policy_validator_bp, url_prefix="/policy")
+app.register_blueprint(policy_manager_bp(oidc_client))
+app.register_blueprint(swaggerui_blueprint)
 
 app.run(
     debug=g_config["debug_mode"],

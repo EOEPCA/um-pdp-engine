@@ -1,0 +1,56 @@
+[[traceabilityMatrix]]
+= User Story Traceability
+
+.User Stories
+|===
+|Code |Description 
+
+|EOEPCA-131	
+|Allow for XACML-compliant responses
+
+|EOEPCA-130	
+|Authorization Server Connector
+
+|EOEPCA-129	
+|Usage of XACML-compatible policy language
+
+|EOEPCA-128	
+|Local End-User Attribute Resolution
+
+|EOEPCA-127	
+|Baseline XACML-based Requests
+
+|EOEPCA-125	
+|Policy Management API
+
+|EOEPCA-143	
+|Policy Ownership Enforcement
+
+|EOEPCA-206	
+|Create Swagger Endpoint for Policy Decision Endpoints
+
+|EOEPCA-29	
+|Resorce Access without constraints
+
+|EOEPCA-28	
+|Modify previously assigned access constraints
+
+|EOEPCA-27	
+|Assign action-dependant access constraints
+
+|EOEPCA-26	
+|Assign attribute-based access constraints with variable issuers
+
+|EOEPCA-177	
+|Delegated user authorization at 'other' PDP
+
+|EOEPCA-14	
+|Definition and deployment of sample baseline policies
+
+|EOEPCA-209	
+|Implementation of Helm Charts
+
+|EOEPCA-222	
+|Administrative tooling for integration and operation
+
+|===

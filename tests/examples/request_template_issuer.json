@@ -1,0 +1,28 @@
+{
+    "Request": {
+        "AccessSubject": [{
+            "Attribute": [{
+                    "AttributeId": "user_name",
+                    "Issuer": "https://test.10.0.2.15.nip.io",
+                    "Value": "admin",
+                    "DataType": "string",
+                    "IncludeInResult": true
+                }
+            ]
+        }],
+        "Action": [{
+            "Attribute": [{
+                "AttributeId": "action-id",
+                "Value": "view"
+            }]
+        }],
+        "Resource": [{
+            "Attribute": [{
+                "AttributeId": "resource-id",
+                "Value": "20248583",
+                "DataType": "string",
+                "IncludeInResult": true
+            }]
+        }]
+    }
+}

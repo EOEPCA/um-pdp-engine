@@ -1,0 +1,10 @@
+{
+    "resource_id": "20248583",
+    "action": "view",
+    "rules": [{
+        "OR": [
+                {"EQUAL": {"userName" : "mami"} },
+                {"EQUAL": {"userName" : "admin"} }
+        ]
+    }]
+}

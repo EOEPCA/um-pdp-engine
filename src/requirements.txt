@@ -22,3 +22,4 @@ eoepca-oidc==0.0.2
 urllib3==1.25.9
 pyjwkest==1.4.2
 pycrypto==2.6.1
+flask-swagger-ui==3.36.0

@@ -39,7 +39,7 @@ class ScimHandler:
                 ScimHandler.__eoepca_scim_instance = EOEPCA_Scim(host=auth_server_url, clientID=client_id, clientSecret=client_secret)
             if not client_id or not client_secret:
                 grantTypes = ["client_credentials", "urn:ietf:params:oauth:grant-type:uma-ticket", "password", "implicit"]
-                scopes = ["public_access"]
+                scopes = ['openid', 'uma_protection', 'permission', 'profile']
                 ScimHandler.__scim_client = ScimHandler.__eoepca_scim_instance.registerClient("PDP Dynamic Client", grantTypes = grantTypes, redirectURIs = [""], logoutURI = "", responseTypes = ["code","token","id_token"], scopes = scopes, token_endpoint_auth_method = ENDPOINT_AUTH_CLIENT_PRIVATE_KEY_JWT, useJWT=1)
                 print("SCIM Handler: created new PDP client: " + ScimHandler.__scim_client["client_id"] )
             else:
@@ -63,6 +63,25 @@ class ScimHandler:
             return 200, ScimHandler.__eoepca_scim_instance.getUserAttributes(userId)
         except Exception as e:
             print("SCIM Handler: Get User attributes: Exception occured!")
+            print(str(e))
+            status = 500
+            return status, {}
+
+    def modifyAuthServerUrl(self, issuer):
+        """ Method to modify the auth_server_url for Scim.
+        """
+        print("SCIM Handler: Modifying the host for the ScimHandler to " + str(issuer))
+        if not ScimHandler.__scim_client:
+            raise Exception("SCIM Handler: Client not initialized! Please register new client first.")
+        try:
+            if "https://" in issuer or "http://" in issuer:
+                ScimHandler.__eoepca_scim_instance.wkh = WellKnownHandler(issuer, secure=False)
+            else:
+                ScimHandler.__eoepca_scim_instance.wkh = WellKnownHandler("https://"+issuer, secure=False)
+            ScimHandler.__eoepca_scim_instance._EOEPCA_Scim__SCIM_USERS_ENDPOINT = ScimHandler.__eoepca_scim_instance.wkh.get(TYPE_SCIM, KEY_SCIM_USER_ENDPOINT)
+            return 200, "SCIM Host Modified"
+        except Exception as e:
+            print("SCIM Handler: Modify host for the ScimHandler: Exception occured!")
             print(str(e))
             status = 500
             return status, {}

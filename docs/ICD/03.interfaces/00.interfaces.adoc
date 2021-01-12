@@ -1,0 +1,800 @@
+= Policy Decision Point Interfaces
+
+[abstract]
+.Abstract
+This OpenAPI Document describes the endpoints exposed by Policy Decision Point Building Block deployments.  <br> <br> Using this API will allow to register policies that support the protection of policies using both the Login Service and the Policy Decision Point and to perform checks based on XACML requests and responses
+
+
+// markup not found, no include::{specDir}intro.adoc[opts=optional]
+
+
+
+== Endpoints
+
+
+[.PolicyChecks]
+=== Policy Checks
+
+
+[.policyValidatePost]
+==== Policy Validation
+    
+`POST /policy/validate`
+
+XACML Policy Checks
+
+===== Description 
+
+This operation lists all policies filtered by ownership ID. Ownership ID is extracted from the OpenID Connect Token
+
+
+// markup not found, no include::{specDir}policy/validate/POST/spec.adoc[opts=optional]
+
+
+
+===== Parameters
+
+
+
+
+
+
+
+===== Return Type
+
+
+
+-
+
+
+===== Responses
+
+.http response codes
+[cols="2,3,1"]
+|===         
+| Code | Message | Datatype 
+
+
+| 200
+| OK
+|  <<>>
+
+|===         
+
+===== Samples
+
+
+// markup not found, no include::{snippetDir}policy/validate/POST/http-request.adoc[opts=optional]
+
+
+// markup not found, no include::{snippetDir}policy/validate/POST/http-response.adoc[opts=optional]
+
+
+
+// file not found, no * wiremock data link :policy/validate/POST/POST.json[]
+
+
+ifdef::internal-generation[]
+===== Implementation
+
+// markup not found, no include::{specDir}policy/validate/POST/implementation.adoc[opts=optional]
+
+
+endif::internal-generation[]
+
+
+[.PolicyManagement]
+=== Policy Management
+
+
+[.policyGet]
+==== Policy GET
+    
+`GET /policy`
+
+List all owned policies
+
+===== Description 
+
+This operation lists all policies filtered by ownership ID. Ownership ID is extracted from the OpenID Connect Token
+
+
+// markup not found, no include::{specDir}policy/GET/spec.adoc[opts=optional]
+
+
+
+===== Parameters
+
+
+
+
+====== Header Parameters
+
+[cols="2,3,1"]
+|===         
+|Name| Description| Required
+
+| Authorization 
+| JWT or Bearer Token  
+| - 
+ 
+
+|===         
+
+
+
+===== Return Type
+
+array[<<policy>>]
+
+
+===== Content Type
+
+* application/json
+
+===== Responses
+
+.http response codes
+[cols="2,3,1"]
+|===         
+| Code | Message | Datatype 
+
+
+| 200
+| OK
+| List[<<policy>>] 
+
+|===         
+
+===== Samples
+
+
+// markup not found, no include::{snippetDir}policy/GET/http-request.adoc[opts=optional]
+
+
+// markup not found, no include::{snippetDir}policy/GET/http-response.adoc[opts=optional]
+
+
+
+// file not found, no * wiremock data link :policy/GET/GET.json[]
+
+
+ifdef::internal-generation[]
+===== Implementation
+
+// markup not found, no include::{specDir}policy/GET/implementation.adoc[opts=optional]
+
+
+endif::internal-generation[]
+
+
+[.policyPolicyIdDelete]
+==== Policy DELETE (ID)
+    
+`DELETE /policy/{policy_id}`
+
+Deletes an owned Policy Reference from the Platform
+
+===== Description 
+
+This operation removes an existing Policy reference owned by the user.
+
+
+// markup not found, no include::{specDir}policy/\{policy_id\}/DELETE/spec.adoc[opts=optional]
+
+
+
+===== Parameters
+
+====== Path Parameters
+
+[cols="2,3,1"]
+|===         
+|Name| Description| Required
+
+| policy_id 
+| Unique Policy ID  
+| X 
+ 
+
+|===         
+
+
+
+====== Header Parameters
+
+[cols="2,3,1"]
+|===         
+|Name| Description| Required
+
+| Authorization 
+| JWT or Bearer Token  
+| - 
+ 
+
+|===         
+
+
+
+===== Return Type
+
+
+
+-
+
+
+===== Responses
+
+.http response codes
+[cols="2,3,1"]
+|===         
+| Code | Message | Datatype 
+
+
+| 200
+| OK
+|  <<>>
+
+
+| 401
+| UNAUTHORIZED
+|  <<>>
+
+
+| 404
+| NOT FOUND
+|  <<>>
+
+|===         
+
+===== Samples
+
+
+// markup not found, no include::{snippetDir}policy/\{policy_id\}/DELETE/http-request.adoc[opts=optional]
+
+
+// markup not found, no include::{snippetDir}policy/\{policy_id\}/DELETE/http-response.adoc[opts=optional]
+
+
+
+// file not found, no * wiremock data link :policy/{policy_id}/DELETE/DELETE.json[]
+
+
+ifdef::internal-generation[]
+===== Implementation
+
+// markup not found, no include::{specDir}policy/\{policy_id\}/DELETE/implementation.adoc[opts=optional]
+
+
+endif::internal-generation[]
+
+
+[.policyPolicyIdGet]
+==== Policy GET (ID)
+    
+`GET /policy/{policy_id}`
+
+Retrieve a specific owned policy
+
+===== Description 
+
+This operation retrieves information about an owned policy.
+
+
+// markup not found, no include::{specDir}policy/\{policy_id\}/GET/spec.adoc[opts=optional]
+
+
+
+===== Parameters
+
+====== Path Parameters
+
+[cols="2,3,1"]
+|===         
+|Name| Description| Required
+
+| policy_id 
+| Unique Policy ID  
+| X 
+ 
+
+|===         
+
+
+
+====== Header Parameters
+
+[cols="2,3,1"]
+|===         
+|Name| Description| Required
+
+| Authorization 
+| JWT or Bearer Token  
+| - 
+ 
+
+|===         
+
+
+
+===== Return Type
+
+<<policy>>
+
+
+===== Content Type
+
+* application/json
+
+===== Responses
+
+.http response codes
+[cols="2,3,1"]
+|===         
+| Code | Message | Datatype 
+
+
+| 200
+| OK
+|  <<policy>>
+
+
+| 404
+| NOT FOUND
+|  <<>>
+
+|===         
+
+===== Samples
+
+
+// markup not found, no include::{snippetDir}policy/\{policy_id\}/GET/http-request.adoc[opts=optional]
+
+
+// markup not found, no include::{snippetDir}policy/\{policy_id\}/GET/http-response.adoc[opts=optional]
+
+
+
+// file not found, no * wiremock data link :policy/{policy_id}/GET/GET.json[]
+
+
+ifdef::internal-generation[]
+===== Implementation
+
+// markup not found, no include::{specDir}policy/\{policy_id\}/GET/implementation.adoc[opts=optional]
+
+
+endif::internal-generation[]
+
+
+[.policyPolicyIdPut]
+==== Policy PUT (ID)
+    
+`PUT /policy/{policy_id}`
+
+Updates an existing Policy reference in the Platform
+
+===== Description 
+
+This operation updates an existing 'owned' policy reference. 
+
+
+// markup not found, no include::{specDir}policy/\{policy_id\}/PUT/spec.adoc[opts=optional]
+
+
+
+===== Parameters
+
+====== Path Parameters
+
+[cols="2,3,1"]
+|===         
+|Name| Description| Required
+
+| policy_id 
+| Unique Policy ID  
+| X 
+ 
+
+|===         
+
+===== Body Parameter
+
+[cols="2,3,1"]
+|===         
+|Name| Description| Required
+
+| Policy 
+|  <<Policy>> 
+| X 
+|  
+|  
+
+|===         
+
+
+====== Header Parameters
+
+[cols="2,3,1"]
+|===         
+|Name| Description| Required
+
+| Authorization 
+| JWT or Bearer Token  
+| - 
+ 
+
+|===         
+
+
+
+===== Return Type
+
+
+
+-
+
+
+===== Responses
+
+.http response codes
+[cols="2,3,1"]
+|===         
+| Code | Message | Datatype 
+
+
+| 200
+| OK
+|  <<>>
+
+
+| 401
+| UNAUTHORIZED
+|  <<>>
+
+
+| 404
+| NOT FOUND
+|  <<>>
+
+|===         
+
+===== Samples
+
+
+// markup not found, no include::{snippetDir}policy/\{policy_id\}/PUT/http-request.adoc[opts=optional]
+
+
+// markup not found, no include::{snippetDir}policy/\{policy_id\}/PUT/http-response.adoc[opts=optional]
+
+
+
+// file not found, no * wiremock data link :policy/{policy_id}/PUT/PUT.json[]
+
+
+ifdef::internal-generation[]
+===== Implementation
+
+// markup not found, no include::{specDir}policy/\{policy_id\}/PUT/implementation.adoc[opts=optional]
+
+
+endif::internal-generation[]
+
+
+[.policyPost]
+==== Policy POST
+    
+`POST /policy`
+
+Creates a new Policy reference in the Platform
+
+===== Description 
+
+This operation generates a new policy reference object that can be protected. Ownership ID is set to the unique ID of the End-User
+
+
+// markup not found, no include::{specDir}policy/POST/spec.adoc[opts=optional]
+
+
+
+===== Parameters
+
+
+===== Body Parameter
+
+[cols="2,3,1"]
+|===         
+|Name| Description| Required
+
+| NewPolicy 
+|  <<NewPolicy>> 
+| X 
+|  
+|  
+
+|===         
+
+
+====== Header Parameters
+
+[cols="2,3,1"]
+|===         
+|Name| Description| Required
+
+| Authorization 
+| JWT or Bearer Token  
+| - 
+ 
+
+|===         
+
+
+
+===== Return Type
+
+<<policy>>
+
+
+===== Content Type
+
+* application/json
+
+===== Responses
+
+.http response codes
+[cols="2,3,1"]
+|===         
+| Code | Message | Datatype 
+
+
+| 200
+| OK
+|  <<policy>>
+
+
+| 401
+| UNAUTHORIZED
+|  <<>>
+
+
+| 404
+| NOT FOUND
+|  <<>>
+
+|===         
+
+===== Samples
+
+
+// markup not found, no include::{snippetDir}policy/POST/http-request.adoc[opts=optional]
+
+
+// markup not found, no include::{snippetDir}policy/POST/http-response.adoc[opts=optional]
+
+
+
+// file not found, no * wiremock data link :policy/POST/POST.json[]
+
+
+ifdef::internal-generation[]
+===== Implementation
+
+// markup not found, no include::{specDir}policy/POST/implementation.adoc[opts=optional]
+
+
+endif::internal-generation[]
+
+[.API]
+=== API
+
+[.SwaggerUI]
+==== Swagger UI
+    
+`/swagger-ui`
+
+===== Description 
+
+This operation accesses the API for the Policy Decision Point
+
+
+// markup not found, no include::{specDir}swagger-ui/spec.adoc[opts=optional]
+
+
+
+===== Parameters
+
+====== Path Parameters
+
+[cols="2,3,1"]
+|===         
+|Name| Description| Required
+
+| - 
+| -  
+| - 
+ 
+
+|===         
+
+
+
+====== Header Parameters
+
+[cols="2,3,1"]
+|===         
+|Name| Description| Required
+
+| - 
+| -  
+| - 
+ 
+
+|===         
+
+
+
+===== Return Type
+
+
+
+-
+
+
+===== Responses
+
+.http response codes
+[cols="2,3,1"]
+|===         
+| Code | Message | Datatype 
+
+
+| 200
+| OK
+|  <<>>
+
+|===         
+
+===== Samples
+
+
+// markup not found, no include::{snippetDir}swagger-ui/http-request.adoc[opts=optional]
+
+
+// markup not found, no include::{snippetDir}swagger-ui/http-response.adoc[opts=optional]
+
+
+
+// file not found, no * wiremock data link :swagger-ui/swagger-ui.json[]
+
+
+ifdef::internal-generation[]
+===== Implementation
+
+// markup not found, no include::{specDir}swagger-ui/implementation.adoc[opts=optional]
+
+
+endif::internal-generation[]
+
+
+[#models]
+== Models
+
+
+[#NewPolicy]
+=== _NewPolicy_ 
+
+
+
+[.fields-NewPolicy]
+[cols="2,1,2,4,1"]
+|===         
+| Field Name| Required| Type| Description| Format
+
+| name 
+|  
+| String  
+| Human readable name for the policy
+|  
+
+| description 
+|  
+| String  
+| Custom description for the policy pourpose
+|  
+
+| policy_cfg 
+|  
+| policy_cfg  
+| 
+|  
+
+| scopes 
+|  
+| List  of <<string>> 
+| List of scopes associated with the policy
+|  
+
+|===
+
+
+[#Policy]
+=== _Policy_ 
+
+
+
+[.fields-Policy]
+[cols="2,1,2,4,1"]
+|===         
+| Field Name| Required| Type| Description| Format
+
+| ownership_id 
+|  
+| UUID  
+| UUID of the Owner End-User
+| uuid 
+
+| id 
+|  
+| UUID  
+| UUID of the policy
+| uuid 
+
+| name 
+|  
+| String  
+| Human readable name for the policy
+|  
+
+| description 
+|  
+| String  
+| Custom description for the policy pourpose
+|  
+
+| policy_cfg 
+|  
+| policy_cfg  
+| 
+|  
+
+| scopes 
+|  
+| List  of <<string>> 
+| List of scopes associated with the policy
+|  
+
+|===
+
+
+[#PolicyCfg]
+=== _PolicyCfg_ 
+
+Custom rules for the policy configuration
+
+
+[.fields-PolicyCfg]
+[cols="2,1,2,4,1"]
+|===         
+| Field Name| Required| Type| Description| Format
+
+| resource_id 
+|  
+| UUID  
+| UUID of the applicable Resource
+| uuid 
+
+| action 
+|  
+| String  
+| Applicable XACML Action
+|  
+
+| rules 
+|  
+| List  of <<object>> 
+| List of checks to create a policy. Each one will be executed in sequence, and the policy will fail as soon as one fails
+|  
+
+|===
+
+
