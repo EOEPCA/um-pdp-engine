@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-
+#!/usr/bin/env pythonfrom jwkest.jws import JWS
 from base64 import b64encode
 from WellKnownHandler import TYPE_OIDC, KEY_OIDC_TOKEN_ENDPOINT, KEY_OIDC_USERINFO_ENDPOINT, TYPE_SCIM, KEY_SCIM_USER_ENDPOINT
 from eoepca_scim import EOEPCA_Scim, ENDPOINT_AUTH_CLIENT_POST
@@ -8,6 +7,13 @@ from requests import post, get
 import logging
 import base64
 import json
+from jwt_verification.signature_verification import JWT_Verification
+from jwkest.jws import JWS
+from jwkest.jwk import SYMKey, KEYS
+from jwkest.jwk import RSAKey, import_rsa_key_from_file, load_jwks_from_url, import_rsa_key
+from jwkest.jwk import load_jwks
+from jwkest.jwk import rsa_load
+
 
 class OIDCHandler:
 
@@ -39,16 +45,45 @@ class OIDCHandler:
             return self.client_id, self.client_secret
 
 
-    def verify_JWT_token(self, token):
+    def verify_JWT_token(self, token, key):
         try:
+            header = str(token).split(".")[0]
+            paddedHeader = header + '=' * (4 - len(header) % 4)
+            decodedHeader = base64.b64decode(paddedHeader)
+            #to remove byte-code
+            decodedHeader_format = decodedHeader.decode('utf-8')
+            decoded_str_header = json.loads(decodedHeader_format)
+
             payload = str(token).split(".")[1]
             paddedPayload = payload + '=' * (4 - len(payload) % 4)
             decoded = base64.b64decode(paddedPayload)
-            userInum = json.loads(decoded)["sub"]
-            return userInum
-        except:
-            print("Authenticated RPT Policy. No Valid JWT id token passed!")
-            return False
+            #to remove byte-code
+            decoded = decoded.decode('utf-8')
+            decoded_str = json.loads(decoded)
+
+            if decoded_str_header['kid'] != "RSA1":
+                if key in decoded_str.keys():
+                    if decoded_str[key] != None:
+                        user_value = decoded_str[key]
+                    else:
+                        raise Exception
+                else:
+                    user_value = decoded_str['pct_claims'][key]
+            else:
+                if key not in decoded_str.keys():
+                    if key not in decoded_str['pct_claims'].keys() == None:
+                        raise Exception
+                    else:
+                        user_value = decoded_str['pct_claims'][key]
+                else:
+                    user_value = decoded_str[key]
+
+            return user_value
+        except Exception as e:
+            print("Authenticated RPT Resource. No Valid JWT id token passed! " +str(e))
+            return None
+
+
 
     def verify_OAuth_token(self, token):
         headers = { 'content-type': "application/json", 'Authorization' : 'Bearer '+token}
