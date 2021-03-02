@@ -35,7 +35,7 @@ def policy_manager_bp(oidc_client):
             if token:
                 #Compares between JWT id_token and OAuth access token to retrieve the UUID
                 if len(str(token))>40:
-                    uid=oidc_client.verify_JWT_token(token)
+                    uid=oidc_client.verify_JWT_token(token,"sub")
                 else:
                     uid=oidc_client.verify_OAuth_token(token)
             else:
@@ -118,7 +118,7 @@ def policy_manager_bp(oidc_client):
             if token: 
                 #Compares between JWT id_token and OAuth access token to retrieve the UUID
                 if len(str(token))>40:
-                    uid=oidc_client.verify_JWT_token(token)
+                    uid=oidc_client.verify_JWT_token(token,"sub")
                 else:
                     uid=oidc_client.verify_OAuth_token(token)
             else:
