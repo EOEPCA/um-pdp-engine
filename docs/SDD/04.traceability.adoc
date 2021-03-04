@@ -3,54 +3,86 @@
 
 .User Stories
 |===
-|Code |Description 
+|Code |Description |Use Case |VVP Coverage
 
 |EOEPCA-131	
 |Allow for XACML-compliant responses
+| -
+| -
 
 |EOEPCA-130	
 |Authorization Server Connector
+| -
+| -
 
 |EOEPCA-129	
 |Usage of XACML-compatible policy language
+| PDP_UC_001
+| -
 
 |EOEPCA-128	
 |Local End-User Attribute Resolution
+| PDP_UC_003
+| -
 
 |EOEPCA-127	
 |Baseline XACML-based Requests
+| PDP_UC_001/PDP_UC_002
+| -
 
 |EOEPCA-125	
 |Policy Management API
+| PDP_UC_006
+| -
 
 |EOEPCA-143	
 |Policy Ownership Enforcement
+| PDP_UC_001
+| -
 
 |EOEPCA-206	
 |Create Swagger Endpoint for Policy Decision Endpoints
+| PDP_UC_006
+| -
 
 |EOEPCA-29	
 |Resorce Access without constraints
+| -
+| -
 
 |EOEPCA-28	
 |Modify previously assigned access constraints
+| PDP_UC_006
+| -
 
 |EOEPCA-27	
 |Assign action-dependant access constraints
+| -
+| -
 
 |EOEPCA-26	
 |Assign attribute-based access constraints with variable issuers
+| -
+| -
 
 |EOEPCA-177	
 |Delegated user authorization at 'other' PDP
+| PDP_UC_005
+| -
 
 |EOEPCA-14	
 |Definition and deployment of sample baseline policies
+| -
+| -
 
 |EOEPCA-209	
 |Implementation of Helm Charts
+| -
+| -
 
 |EOEPCA-222	
 |Administrative tooling for integration and operation
+| -
+| -
 
 |===
