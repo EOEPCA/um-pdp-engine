@@ -3,86 +3,86 @@
 
 .User Stories
 |===
-|Code |Description |Use Case |VVP Coverage
+|User Story Code |Description |Building Block Use Case |Master Use Case
 
 |EOEPCA-131	
 |Allow for XACML-compliant responses
 | -
-| -
+| CI/CD Task
 
 |EOEPCA-130	
 |Authorization Server Connector
 | -
-| -
+| CI/CD Task
 
 |EOEPCA-129	
 |Usage of XACML-compatible policy language
-| PDP_UC_001
+| PDP-UC-001
 | -
 
 |EOEPCA-128	
 |Local End-User Attribute Resolution
-| PDP_UC_003
-| -
+| PDP-UC-003
+| EOEPCA-UC-0108
 
 |EOEPCA-127	
 |Baseline XACML-based Requests
-| PDP_UC_001/PDP_UC_002
+| PDP-UC-001/PDP-UC-002
 | -
 
 |EOEPCA-125	
 |Policy Management API
-| PDP_UC_006
-| -
+| PDP-UC-006
+| CI/CD Task
 
 |EOEPCA-143	
 |Policy Ownership Enforcement
-| PDP_UC_001
+| PDP-UC-001
 | -
 
 |EOEPCA-206	
 |Create Swagger Endpoint for Policy Decision Endpoints
-| PDP_UC_006
-| -
+| PDP-UC-006
+| CI/CD Task
 
 |EOEPCA-29	
 |Resorce Access without constraints
 | -
-| -
+| EOEPCA-UC-0206/EOEPCA-UC-0207
 
 |EOEPCA-28	
 |Modify previously assigned access constraints
-| PDP_UC_006
+| PDP-UC-006
 | -
 
 |EOEPCA-27	
 |Assign action-dependant access constraints
 | -
-| -
+| EOEPCA-UC-0206/EOEPCA-UC-0207
 
 |EOEPCA-26	
 |Assign attribute-based access constraints with variable issuers
 | -
-| -
+| EOEPCA-UC-0206/EOEPCA-UC-0207
 
 |EOEPCA-177	
 |Delegated user authorization at 'other' PDP
-| PDP_UC_005
-| -
+| PDP-UC-005
+| EOEPCA-UC-0106/EOEPCA-UC-0107
 
 |EOEPCA-14	
 |Definition and deployment of sample baseline policies
 | -
-| -
+| CI/CD Task
 
 |EOEPCA-209	
 |Implementation of Helm Charts
 | -
-| -
+| CI/CD Task
 
 |EOEPCA-222	
 |Administrative tooling for integration and operation
-| -
-| -
+| PDP-UC-007
+| CI/CD Task
 
 |===
