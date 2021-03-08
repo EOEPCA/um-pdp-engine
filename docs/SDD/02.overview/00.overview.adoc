@@ -191,7 +191,3 @@ This diagram covers the following use cases:
 === PDP-UC-006: Policy Decision Point API
 
 The current implemented functionalities can be consulted through a specific OpenAPI webpage, available at the PDP level.
-
-=== PEP-UC-007: Administrative Tooling
-
-An administration tool is accessible at the container level. A validated administrator is capable of using this tool for quick management of the local PDP database.
