@@ -3,7 +3,7 @@ import os
 
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
-CONFIG_FILE = dir_path+"/config/config.json"
+CONFIG_FILE = dir_path+"/config.json"
 
 def load_config() -> dict:
     """
