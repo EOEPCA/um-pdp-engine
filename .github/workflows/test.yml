@@ -35,9 +35,9 @@ jobs:
         run: source env/bin/activate
       - name: Install requirements
         run: pip3 install -r src/requirements.txt
-      - name: Run main
-        run: python3 src/main.py
-      - name: Run tests Database
-        run: python3 tests/test_database.py
-      - name: Run tests PDP
-        run: python3 tests/um_pdp_test.py
+      # - name: Run main
+      #   run: python3 src/main.py
+      # - name: Run tests Database
+      #   run: python3 tests/test_database.py
+      # - name: Run tests PDP
+      #   run: python3 tests/um_pdp_test.py
