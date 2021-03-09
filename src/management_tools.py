@@ -16,7 +16,7 @@ def list_policies(user,resource,policy):
         if user is not None:
             result = list(filter(lambda x: x["ownership_id"] == user,result))
         if resource is not None:
-            result = list(filter(lambda x: x["resource_id"] == resource,result))
+            result = list(filter(lambda x: x["config"]["resource_id"] == resource,result))
         if not user and not resource:
             result = list(result)
     return result
@@ -31,7 +31,7 @@ def remove_policies(user,resource,policy,all):
         if user is not None:
             query.update({"ownership_id": user})
         if resource is not None:
-            query.update({"resource_id": resource})
+            query.update({"config.resource_id": resource})
         return custom_mongo.remove_policy_by_query(query)
     else:
         return "No action taken (missing --all flag?)"
