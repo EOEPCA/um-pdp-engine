@@ -72,17 +72,14 @@
 <ul class="sectlevel3">
 <li><a href="#_policy_access_check_use_case">2.6.1. Policy Access Check Use Case</a>
 <ul class="sectlevel4">
-<li><a href="#_policy_access_check">2.6.1.1. Policy Access Check</a></li>
-<li><a href="#_policy_retrieval">2.6.1.2. Policy Retrieval</a></li>
-<li><a href="#_get_user_attributes">2.6.1.3. Get User Attributes</a></li>
+<li><a href="#_pdp_uc_001_policy_access_check">2.6.1.1. PDP-UC-001: Policy Access Check</a></li>
+<li><a href="#_pdp_uc_002_policy_retrieval">2.6.1.2. PDP-UC-002: Policy Retrieval</a></li>
+<li><a href="#_pdp_uc_003_get_user_attributes">2.6.1.3. PDP-UC-003: Get User Attributes</a></li>
 </ul>
 </li>
-<li><a href="#_policy_repository_management">2.6.2. Policy Repository Management</a>
-<ul class="sectlevel4">
-<li><a href="#_registration_of_policies">2.6.2.1. Registration of policies</a></li>
-</ul>
-</li>
-<li><a href="#_policy_delegation_to_external_pdps">2.6.3. Policy Delegation (to external PDPs)</a></li>
+<li><a href="#_pdp_uc_004_policy_repository_management">2.6.2. PDP-UC-004: Policy Repository Management</a></li>
+<li><a href="#_pdp_uc_005_policy_delegation_to_external_pdps">2.6.3. PDP-UC-005: Policy Delegation (to external PDPs)</a></li>
+<li><a href="#_pdp_uc_006_policy_decision_point_api">2.6.4. PDP-UC-006: Policy Decision Point API</a></li>
 </ul>
 </li>
 </ul>
@@ -1315,37 +1312,53 @@ For this case we can use the <code>/policy/&lt;policy_id or ObjectId(policy_id)&
 <p>This diagram covers the following use cases:</p>
 </div>
 <div class="sect4">
-<h5 id="_policy_access_check">2.6.1.1. Policy Access Check</h5>
+<h5 id="_pdp_uc_001_policy_access_check">2.6.1.1. PDP-UC-001: Policy Access Check</h5>
 <div class="paragraph">
 <p>When the PDP has obtained the policies, we proceed to compare the content of these policies with the values obtained from the request using the ScimHandler, mainly they are the resource id, action type, and the user_name, in case that some of these do not coincide, it will be response with "Deny" in the json or with a "Permit" if everything is correct.</p>
 </div>
 </div>
 <div class="sect4">
-<h5 id="_policy_retrieval">2.6.1.2. Policy Retrieval</h5>
+<h5 id="_pdp_uc_002_policy_retrieval">2.6.1.2. PDP-UC-002: Policy Retrieval</h5>
 <div class="paragraph">
 <p>The PDP access through the resource id that was extracted from the XACML in the request and using the Policy_Storage class, allows to access the Back-end databse and extracts all the policies information stored for that resource id.</p>
 </div>
 </div>
 <div class="sect4">
-<h5 id="_get_user_attributes">2.6.1.3. Get User Attributes</h5>
+<h5 id="_pdp_uc_003_get_user_attributes">2.6.1.3. PDP-UC-003: Get User Attributes</h5>
 <div class="paragraph">
 <p>SCIM will be used in order to obtain the attributes for the user that have been extracted from the XACML of the request and then use them in the PDP functions. The issuer variable of the XACML subject-id field can be optionally used to determine the SCIM Endpoint on which the PDP will attempt to perform attribute release. If this value is not available, it will be extracted from configuration or environment variables.</p>
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_policy_repository_management">2.6.2. Policy Repository Management</h4>
-<div class="sect4">
-<h5 id="_registration_of_policies">2.6.2.1. Registration of policies</h5>
+<h4 id="_pdp_uc_004_policy_repository_management">2.6.2. PDP-UC-004: Policy Repository Management</h4>
 <div class="paragraph">
-<p>The process of registering the policies is performed in the main, for this purpose the Policy_Storage class is used which will allow actions such as inserting policies in the pod where the Back-end database is located.</p>
-</div>
+<p>The PDP allows for calls done on specific API endpoints for policy management. The currently available options are:<br>
+* Register policy<br>
+* Get policy (based on policy ID)<br>
+* Get all available policies (based on ownership id)<br>
+* Modify policy<br>
+* Delete policy</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_policy_delegation_to_external_pdps">2.6.3. Policy Delegation (to external PDPs)</h4>
+<h4 id="_pdp_uc_005_policy_delegation_to_external_pdps">2.6.3. PDP-UC-005: Policy Delegation (to external PDPs)</h4>
 <div class="paragraph">
 <p>Whenever a policy rule has a <strong>delegate</strong> parameter with a reference URI to an external PDP, the current PDP will forward the xacml request to the external PDP referencing itself in it. The external PDP will validate the remaining policies (that were referenced with the <strong>delegate</strong> parameter). If the external PDP has the policy, it will return a permission granted on its side. If all the policy checks are positively validated (current PDP and foreign PDP(s)), the permission is granted. If otherwise any policy check fails to validate, the permission is denied.</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="./images/PDPEndpoints.png" alt="PDPEndpoints">
+</div>
+</div>
+<div class="paragraph">
+<p>This diagram covers the following use cases:</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_pdp_uc_006_policy_decision_point_api">2.6.4. PDP-UC-006: Policy Decision Point API</h4>
+<div class="paragraph">
+<p>The current implemented functionalities can be consulted through a specific OpenAPI webpage, available at the PDP level.</p>
 </div>
 <div style="page-break-after: always;"></div>
 </div>
@@ -1617,79 +1630,115 @@ The main methods for the interaction with the database are displayed in this dat
 <table class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 2. User Stories</caption>
 <colgroup>
-<col style="width: 50%;">
-<col style="width: 50%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
 </colgroup>
 <thead>
 <tr>
-<th class="tableblock halign-left valign-top">Code</th>
+<th class="tableblock halign-left valign-top">User Story Code</th>
 <th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">Building Block Use Case</th>
+<th class="tableblock halign-left valign-top">Master Use Case</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">EOEPCA-131</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Allow for XACML-compliant responses</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CI/CD Task</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">EOEPCA-130</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Authorization Server Connector</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CI/CD Task</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">EOEPCA-129</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Usage of XACML-compatible policy language</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">PDP-UC-001</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">EOEPCA-128</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Local End-User Attribute Resolution</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">PDP-UC-003</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">EOEPCA-UC-0108</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">EOEPCA-127</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Baseline XACML-based Requests</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">PDP-UC-001/PDP-UC-002</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">EOEPCA-125</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Policy Management API</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">PDP-UC-006</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CI/CD Task</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">EOEPCA-143</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Policy Ownership Enforcement</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">PDP-UC-001</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">EOEPCA-206</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Create Swagger Endpoint for Policy Decision Endpoints</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">PDP-UC-006</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CI/CD Task</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">EOEPCA-29</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Resorce Access without constraints</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">EOEPCA-UC-0206/EOEPCA-UC-0207</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">EOEPCA-28</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Modify previously assigned access constraints</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">PDP-UC-006</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">EOEPCA-27</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Assign action-dependant access constraints</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">EOEPCA-UC-0206/EOEPCA-UC-0207</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">EOEPCA-26</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Assign attribute-based access constraints with variable issuers</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">EOEPCA-UC-0206/EOEPCA-UC-0207</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">EOEPCA-177</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Delegated user authorization at 'other' PDP</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">PDP-UC-005</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">EOEPCA-UC-0106/EOEPCA-UC-0107</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">EOEPCA-14</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Definition and deployment of sample baseline policies</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CI/CD Task</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">EOEPCA-209</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Implementation of Helm Charts</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CI/CD Task</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">EOEPCA-222</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Administrative tooling for integration and operation</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CI/CD Task</p></td>
 </tr>
 </tbody>
 </table>
@@ -1703,7 +1752,7 @@ The main methods for the interaction with the database are displayed in this dat
 <div id="footer">
 <div id="footer-text">
 Version 0.2<br>
-Last updated 2021-01-29 13:13:17 UTC
+Last updated 2021-03-09 11:21:46 UTC
 </div>
 </div>
 </body>
