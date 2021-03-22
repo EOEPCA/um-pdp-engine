@@ -155,39 +155,39 @@ INFO level log messages follow the following format:
 |{"Description":"Error reading token","Token":token}
 
 |3003
-|{"User":user,"Client":client,"Description":"Operation successful","Policy":policy_id}
+|{"User":user,"Description":"Operation successful","Policy":policy_id}
 
 |3004
-|{"User":user,"Client":client,"Description":"Invalid policy structure","Policy":policy}
+|{"User":user,"Description":"Invalid policy structure","Policy":policy}
 
 |3005
-|{"User":user,"Client":client,"Description":"Invalid data structure","Policy":policy}
+|{"User":user,"Description":"Invalid data structure","Policy":policy}
 
 |3006
-|{"User":user,"Client":client,"Description":"User not found"}
+|{"User":user,"Description":"User not found"}
 
 |3007
-|{"User":user,"Client":client,"Description":"500 Internal error"}
+|{"User":user,"Description":"500 Internal error"}
 
 |3008
-|{"User":user,"Client":client,"Description":"Policy List returned","Resource":resource_id,"PolicyList":policy_list}
+|{"User":user,"Description":"Policy List returned","Resource":resource_id,"PolicyList":policy_list}
 
 |3009
-|{"User":user,"Client":client,"Description":"Policy returned","Policy":policy}
+|{"User":user,"Description":"Policy returned","Policy":policy}
 
 |3010
-|{"User":user,"Client":client,"Description":"204 Policy deleted"}
+|{"User":user,"Description":"204 Policy deleted"}
 
 |3011
-|{"User":user,"Client":client,"Description":"Invalid XACML format","Value":value}
+|{"User":user,"Description":"Invalid XACML format","Value":value}
 
 |3012
-|{"User":user,"Client":client,"Description":"Attributes for user weren't retrievable"}
+|{"User":user,"Description":"Attributes for user weren't retrievable"}
 
 |3013
-|{"User":user,"Client":client,"Description":"No issuer emitted"}
+|{"User":user,"Description":"No issuer emitted"}
 
 |3014
-|{"User":user,"Client":client,"Description":"Validation completed","Decisions":decisions}
+|{"User":user,"Description":"Validation completed","Decisions":decisions}
 
 |===
