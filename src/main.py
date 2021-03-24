@@ -16,6 +16,13 @@ from policies.manager import policy_manager_bp
 from handlers.scim_handler import ScimHandler
 from custom_oidc import OIDCHandler
 
+import logging
+from handlers.log_handler import LogHandler
+
+log_handler = LogHandler
+log_handler.load_config("PDP", "./config/log_config.yaml")
+logger = logging.getLogger("PDP_ENGINE")
+
 
 #env vars definition
 env_vars = [
@@ -41,10 +48,10 @@ os_var_client = False
 cfg_client = False
 g_config = config_parser.load_config()
 if "PDP_CLIENT_ID" in os.environ and "PDP_CLIENT_SECRET" in os.environ and use_env_var:
-    print("Client found in environment, using: "+os.environ["client_id"])
+    logger.info("Client found in environment, using: "+os.environ["client_id"])
     os_var_client = True
 elif "client_id" in g_config and "client_secret" in g_config:
-    print("Client found in config, using: "+g_config["client_id"])
+    logger.info("Client found in config, using: "+g_config["client_id"])
     #use_env_var = False
     cfg_client = True
 elif use_env_var:
@@ -74,7 +81,7 @@ if os_var_client:
 elif cfg_client:
     ScimHandler.registerScimClient(auth_server_url = g_config["auth_server_url"], client_id = g_config["client_id"], client_secret = g_config["client_secret"], verify_ssl = g_config["check_ssl_certs"])
 else:
-    print ("NOTICE: Client not found, generating one... ")
+    logger.info("NOTICE: Client not found, generating one... ")
     new_client = ScimHandler.registerScimClient(auth_server_url = g_config["auth_server_url"], verify_ssl=g_config["check_ssl_certs"])
     g_config["client_id"] = new_client["client_id"]
     g_config["client_secret"] = new_client["client_secret"]

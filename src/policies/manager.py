@@ -84,7 +84,7 @@ def policy_manager_bp(oidc_client):
                 response.headers["Error"] = 'Could not get the UID for the user'
                 return response
         except Exception as e:
-            print("Error while creating resource: "+str(e))
+            print("Error while creating policy: "+str(e))
             response.status_code = 500
             response.headers["Error"] = str(e)
             return response

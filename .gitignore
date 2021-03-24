@@ -1,5 +1,6 @@
 # Log file
 *.log
+!pdp_engine.log
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
