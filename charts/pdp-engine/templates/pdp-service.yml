@@ -9,7 +9,7 @@ spec:
     {{- range $key, $value := .Values.ports }}
     - port: {{ $value.port }}
       targetPort: {{ $value.targetPort }}
-      protocol: TCP
+      protocol: {{ $value.type }}
       name: {{ $key }}
     {{- end }}
   selector:

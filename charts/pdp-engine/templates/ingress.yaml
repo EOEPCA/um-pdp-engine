@@ -14,5 +14,5 @@ spec:
       paths:
       - path: /pdp(/|$)(.*)
         backend:
-          serviceName: pdp-engine
-          servicePort: 5567
+          serviceName: {{ .Values.global.pdp }}
+          servicePort: {{ .Values.global.port }}

@@ -8,15 +8,17 @@ global:
   prefix: /
   host: 0.0.0.0
   port: 5567
-  check_ssl_certs: "'false'"
-  debug_mode: "'true'"
   nginxIp: 10.0.2.15
 
+configMap:
+  check_ssl_certs: "'false'"
+  debug_mode: "'true'"
+
 readinessProbe:
-  initialDelaySeconds: 150
+  initialDelaySeconds: 1
   periodSeconds: 90
 livenessProbe:
-  initialDelaySeconds: 150
+  initialDelaySeconds: 1
   periodSeconds: 90
 
 requests:
@@ -26,8 +28,8 @@ requests:
   dbMemory: 70Mi
 
 image: 
-  imagePullPolicy: Never
-  image: alvlpdp:latest
+  imagePullPolicy: Always
+  image: eoepca/um-pdp-engine:v0.3.1
 persistence: 
   accessModes: ReadWriteMany
   dbStorageSize: 5Gi
