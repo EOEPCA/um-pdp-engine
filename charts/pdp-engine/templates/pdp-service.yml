@@ -5,16 +5,12 @@ metadata:
   labels:
     app: {{ .Values.global.pdp }}
 spec:
-  type: NodePort
   ports:
-  - port: 5567
-    name: http-pdp
-    targetPort: 5567
-    protocol: TCP
-    nodePort: 31708
-  - port: 1025
-    name: https-pdp
-    targetPort: 443
-    protocol: TCP
+    {{- range $key, $value := .Values.ports }}
+    - port: {{ $value.port }}
+      targetPort: {{ $value.targetPort }}
+      protocol: {{ $value.type }}
+      name: {{ $key }}
+    {{- end }}
   selector:
     app: {{ .Values.global.pdp }}
