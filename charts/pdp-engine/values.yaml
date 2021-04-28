@@ -2,13 +2,23 @@
 
 global:
   namespace: default
-  ep: demoexample.gluu.org
-  domain:  http://demoexample.gluu.org
+  domain:  demoexample.gluu.org
   pdp: pdp-engine
   prefix: /
   host: 0.0.0.0
   port: 5567
   nginxIp: 10.0.2.15
+  ingressPath: /pdp
+
+ports:
+  http-pdp:
+    port: 5567
+    targetPort: 5567
+    type: TCP
+  https-pdp:
+    port: 1025
+    targetPort: 443
+    type: TCP
 
 configMap:
   check_ssl_certs: "'false'"
@@ -39,12 +49,4 @@ persistence:
 volumeClaim:
   name: um-pdp-engine-pvc
 
-ports:
-  http-pdp:
-    port: 5567
-    targetPort: 5567
-    type: TCP
-  https-pdp:
-    port: 1025
-    targetPort: 443
-    type: TCP
+context: generic

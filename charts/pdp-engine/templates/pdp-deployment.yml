@@ -62,7 +62,7 @@ spec:
       hostAliases:
       - ip: {{ .Values.global.nginxIp }}
         hostnames:
-        - {{ .Values.global.ep }}
+        - {{ .Values.global.domain }}
       volumes:
         - name: {{ .Values.volumeClaim.name }}
           persistentVolumeClaim:
