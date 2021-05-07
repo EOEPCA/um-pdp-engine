@@ -9,3 +9,33 @@ data:
   PDP_PORT: {{ .Values.global.port | quote }}
   PDP_CHECK_SSL_CERTS: {{ .Values.configMap.check_ssl_certs | quote }}
   PDP_DEBUG_MODE: {{ .Values.configMap.debug_mode | quote }}
+
+---
+
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: opa-default-system-main
+data:
+  main: |
+    package system
+
+    import data.kubernetes.admission
+
+    main = {
+      "apiVersion": "admission.k8s.io/v1beta1",
+      "kind": "AdmissionReview",
+      "response": response,
+    }
+
+    default response = {"allowed": true}
+
+    response = {
+        "allowed": false,
+        "status": {
+            "reason": reason,
+        },
+    } {
+        reason = concat(", ", admission.deny)
+        reason != ""
+    }

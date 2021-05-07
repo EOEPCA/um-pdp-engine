@@ -13,3 +13,20 @@ spec:
     path: "/data/"
     type: {{ .Values.persistence.type }}
 
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Values.volumeClaim.name }}-opa
+  labels:
+    eoepca_type: userman
+spec:
+  capacity:
+    storage: {{ .Values.persistence.dbStorageSize }}
+  accessModes:
+    - {{ .Values.persistence.accessModes }}
+  hostPath:
+    path: "/data/"
+    type: {{ .Values.persistence.type }}
+
