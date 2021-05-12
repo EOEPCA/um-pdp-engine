@@ -38,7 +38,7 @@ jobs:
       - name: Run mongo container
         run: sudo docker run -p 27017:27017 -d mongo
       - name: Run main
-        run: nohup python3 src/main.py
+        run: nohup python3 src/main.py && sleep 1
       # - name: Run tests Database
       #   run: python3 tests/test_database.py
       # - name: Run tests PDP
