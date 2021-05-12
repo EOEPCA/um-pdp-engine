@@ -35,6 +35,8 @@ jobs:
         run: source env/bin/activate
       - name: Install requirements
         run: pip3 install -r src/requirements.txt
+      - name: Run mongo container
+        run: sudo docker run -p 27017:27017 -d mongo
       - name: Run main
         run: python3 src/main.py
       # - name: Run tests Database
