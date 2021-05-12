@@ -1,6 +1,8 @@
 import pymongo
 from pymongo import MongoClient
-from .src.custom_mongo import Mongo_Handler
+import sys
+sys.path.append('../src/')
+from src.custom_mongo import Mongo_Handler
 import unittest
 import mock
 
