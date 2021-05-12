@@ -27,14 +27,14 @@ jobs:
         with:
           python-version: 3.6.9
       # Runs a set of commands using the runners shell
-      - name: Testing
-        run: |
-          sudo apt-get install jq python3-venv
-          pip install -r ./src/requirements.txt
+      # - name: Testing
+      #   run: |
+      #     sudo apt-get install jq python3-venv
+      #     pip install -r ./src/requirements.txt
       #   pytest ./tests
       # Uncomment below if wanted Dockerhub Publication
-      # - name: Container Creation and Publishing
-      #   run: ./gh_actions/containerCreation.sh um-pdp-engine
+      - name: Container Creation and Publishing
+        run: ./gh_actions/containerCreation.sh um-pdp-engine
       # - name: Smoke and Acceptance Test
       #   run: ./gh_actions/acceptanceTest.sh um-pdp-engine 8080 7000
       # - name: Release Container
