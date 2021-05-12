@@ -5,10 +5,9 @@ import os
 for x in os.listdir('./src'):
     print(x)
 
-sys.path.append('../src/')
+sys.path.append('./src/')
 print(sys.path)
-import src.custom_mongo
-from custom_mongo import Mongo_Handler
+from src.custom_mongo import Mongo_Handler
 import unittest
 import mock
 
