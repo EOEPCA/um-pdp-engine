@@ -1,9 +1,14 @@
 import pymongo
 from pymongo import MongoClient
 import sys
+import os
+for x in os.listdir('.'):
+    print(x)
+
 sys.path.append('../src/')
 print(sys.path)
-from um-pdp-engine.src.custom_mongo import Mongo_Handler
+from . import custom_mongo
+from custom_mongo import Mongo_Handler
 import unittest
 import mock
 
