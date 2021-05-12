@@ -7,9 +7,9 @@ for x in os.listdir(dir_path+'/../src/'):
     print(x)
 
 print(dir_path)
-sys.path.append(dir_path+'/../src/')
+sys.path.append(dir_path+'/../src/custom_mongo.py')
 print(sys.path)
-from src.custom_mongo import Mongo_Handler
+from custom_mongo import Mongo_Handler
 import unittest
 import mock
 
