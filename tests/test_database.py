@@ -3,7 +3,7 @@ from pymongo import MongoClient
 import sys
 sys.path.append('../src/')
 print(sys.path)
-from custom_mongo import Mongo_Handler
+from ..src.custom_mongo import Mongo_Handler
 import unittest
 import mock
 
