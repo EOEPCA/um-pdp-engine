@@ -2,12 +2,12 @@ import pymongo
 from pymongo import MongoClient
 import sys
 import os
-for x in os.listdir('./src'):
+for x in os.listdir(dir_path+'../src/'):
     print(x)
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 print(dir_path)
-sys.path.append(dir_path+'/src/')
+sys.path.append(dir_path+'../src/')
 print(sys.path)
 from src.custom_mongo import Mongo_Handler
 import unittest
