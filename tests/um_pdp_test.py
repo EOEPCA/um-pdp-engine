@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 import sys
-sys.path.append('../src/')
+import os
+sys.path.insert(0, '../src')
+dir_path = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(dir_path+'/../src/')
 import unittest
 import mock
 import json

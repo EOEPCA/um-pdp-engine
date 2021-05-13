@@ -3,6 +3,8 @@ from pymongo import MongoClient
 import sys
 import os
 sys.path.insert(0, '../src')
+dir_path = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(dir_path+'/../src/')
 from custom_mongo import Mongo_Handler
 import unittest
 import mock
