@@ -97,7 +97,7 @@ def mocked_modify_auth_server(*args, **kwargs):
 
 class TestPDP(unittest.TestCase):
     def test_pdp_parse_request_xacml(self):
-        with open('../tests/examples/request_template.json') as json_file:
+        with open(dir_path+'/../tests/examples/request_template.json') as json_file:
             data = json.load(json_file)
 
         subject, action, resource = parser.load_request(data)
@@ -109,7 +109,7 @@ class TestPDP(unittest.TestCase):
         self.assertEqual(isinstance(user_name, str), True, "User name should be a string")
 
     def test_pdp_parse_request_xacml_multiple_resources(self):
-        with open('../tests/examples/request_template.json') as json_file:
+        with open(dir_path+'/../tests/examples/request_template.json') as json_file:
             data = json.load(json_file)
 
         data["Request"]["Resource"].append({"Attribute":[{"AttributeId":"resource-id","Value":"20248583","DataType":"string","IncludeInResult":"True"}]})
@@ -123,7 +123,7 @@ class TestPDP(unittest.TestCase):
 
     @mock.patch('policies.policies_operations.validate_complete_policies', side_effect=mocked_validate_policies)
     def test_pdp_validate_access_policies_true(self, mock_access_policies_true,raise_for_status=None):
-        with open('../tests/examples/request_template.json') as json_file:
+        with open(dir_path+'/../tests/examples/request_template.json') as json_file:
             data = json.load(json_file)
 
         subject, action, resource = parser.load_request(data)
@@ -146,7 +146,7 @@ class TestPDP(unittest.TestCase):
 
     @mock.patch('policies.policies_operations.validate_complete_policies', side_effect=mocked_validate_policies)
     def test_pdp_validate_access_policies_resourceid_false(self, mock_access_policies_resourceid_false,raise_for_status=None):
-        with open('../tests/examples/request_template.json') as json_file:
+        with open(dir_path+'/../tests/examples/request_template.json') as json_file:
             data = json.load(json_file)
 
         subject, action, resource = parser.load_request(data)
@@ -169,7 +169,7 @@ class TestPDP(unittest.TestCase):
 
     @mock.patch('policies.policies_operations.validate_complete_policies', side_effect=mocked_validate_policies)
     def test_pdp_validate_access_policies_resourceid_true_user_name_false(self, mock_access_policies_resourceid_true_user_name_false,raise_for_status=None):
-        with open('../tests/examples/request_template.json') as json_file:
+        with open(dir_path+'/../tests/examples/request_template.json') as json_file:
             data = json.load(json_file)
 
         subject, action, resource = parser.load_request(data)
@@ -194,7 +194,7 @@ class TestPDP(unittest.TestCase):
 
     @mock.patch('policies.policies_operations.validate_complete_policies', side_effect=mocked_validate_policies)
     def test_pdp_validate_access_policies_action_false(self, mock_access_policies_resourceid_true_user_name_false,raise_for_status=None):
-        with open('../tests/examples/request_template.json') as json_file:
+        with open(dir_path+'/../tests/examples/request_template.json') as json_file:
             data = json.load(json_file)
 
         subject, action, resource = parser.load_request(data)
@@ -219,7 +219,7 @@ class TestPDP(unittest.TestCase):
 
     @mock.patch('requests.get', side_effect=mocked_request_policy)
     def test_pdp_validate_schema_permit(self, mock_schema_permit, raise_for_status=None):
-        with open('../tests/examples/request_template.json') as json_file:
+        with open(dir_path+'/../tests/examples/request_template.json') as json_file:
             data = json.load(json_file)
         
         headers = {'Accept': 'application/json'}
@@ -232,7 +232,7 @@ class TestPDP(unittest.TestCase):
             result = r.json()
 
         # Validate XACML JSON response against schema
-        with open("../src/standards/response.schema.json", "r") as f:
+        with open(dir_path+"/../src/standards/response.schema.json", "r") as f:
             schema = json.load(f)
         validation = jsonschema.validate(result, schema)
         
@@ -240,7 +240,7 @@ class TestPDP(unittest.TestCase):
 
     @mock.patch('requests.get', side_effect=mocked_request_policy)
     def test_pdp_validate_schema_deny(self,  mock_schema_deny, raise_for_status=None):
-        with open('../tests/examples/request_template.json') as json_file:
+        with open(dir_path+'/../tests/examples/request_template.json') as json_file:
             data = json.load(json_file)
 
         headers = {'Accept': 'application/json'}
@@ -281,7 +281,7 @@ class TestPDP(unittest.TestCase):
 
     @mock.patch('policies.policies_operations.validate_complete_policies', side_effect=mocked_validate_policies)
     def test_pdp_validate_rule_with_conditions_true(self, mock_validate_rule_with_conditions_true, raise_for_status=None):
-        with open('../tests/examples/request_template.json') as json_file:
+        with open(dir_path+'/../tests/examples/request_template.json') as json_file:
             data = json.load(json_file)
 
         subject, action, resource = parser.load_request(data)
@@ -306,7 +306,7 @@ class TestPDP(unittest.TestCase):
 
     @mock.patch('policies.policies_operations.validate_complete_policies', side_effect=mocked_validate_policies_decisions)
     def test_pdp_validate_delegation_policies(self, mock_validate_rule_with_conditions_false, raise_for_status=None):
-        with open('../tests/examples/request_template_delegation.json') as json_file:
+        with open(dir_path+'/../tests/examples/request_template_delegation.json') as json_file:
             data = json.load(json_file)
 
         subject, action_rsrc, resource = parser.load_request(data)
@@ -329,7 +329,7 @@ class TestPDP(unittest.TestCase):
 
     @mock.patch('xacml.response_handler.generate_response', side_effect=mocked_final_response)
     def test_pdp_delegation_forwarder_final_response(self, mock_validate_rule_with_conditions_false, raise_for_status=None):
-        with open('../tests/examples/request_template_delegation.json') as json_file:
+        with open(dir_path+'/../tests/examples/request_template_delegation.json') as json_file:
             data = json.load(json_file)
 
         subject, action_rsrc, resource = parser.load_request(data)
@@ -356,7 +356,7 @@ class TestPDP(unittest.TestCase):
 
     @mock.patch('handlers.scim_handler.ScimHandler.modifyAuthServerUrl', side_effect=mocked_modify_auth_server)
     def test_pdp_validate_valid_issuer(self, mock_validate_valid_issuer, raise_for_status=None):
-        with open('../tests/examples/request_template_issuer.json') as json_file:
+        with open(dir_path+'/../tests/examples/request_template_issuer.json') as json_file:
             data = json.load(json_file)
 
         subject, action, resource = parser.load_request(data)
