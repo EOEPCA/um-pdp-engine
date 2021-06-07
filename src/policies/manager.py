@@ -1,12 +1,43 @@
 import json
 
 from flask import Blueprint, request, Response
-
+from policies import validator
 from policies.policies_operations import validate_policy_language
 from policy_storage import Policy_Storage
 
 def policy_manager_bp(oidc_client):
-    policy_manager_bp = Blueprint('policy_manager_bp', __name__)
+    policy_manager_bp = Blueprint('policy_manager_bp', __name__)    
+
+    @policy_manager_bp.route('/acceptance_validation/', methods=["GET"])
+    def validate_TC():
+        print("Processing " + request.method + " policy request...")
+        response = Response()
+        uid= None
+        try:
+            a = str(request.headers)
+            headers_alone = a.split()
+            for i in headers_alone:
+                #Retrieve the token from the headers
+                if 'Bearer' in str(i):
+                    aux=headers_alone.index('Bearer')
+                    inputToken = headers_alone[aux+1]           
+            token = inputToken
+            if token:
+                decision = validator.return_terms_decision(oidc_client, token)
+                response.status_code = 200
+                response.text = str(decision)
+                return response
+                 
+            else:
+                response.status_code = 401
+                response.headers["Error"] = "NO TOKEN FOUND"
+                return response
+                
+        except Exception as e:
+            print("Error While passing the token: "+str(uid))
+            response.status_code = 500
+            response.headers["Error"] = str(e)
+            return response
 
 
     @policy_manager_bp.route("/policy/", methods=["PUT", "POST", "GET"])

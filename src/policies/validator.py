@@ -34,6 +34,18 @@ def validate_json(json_data):
         return False
     return True
 
+def validate_terms_conditions(TC_attribute):
+    return True
+
+def return_terms_decision(oidc_client, token):
+    uid=None
+    if len(str(token))>40:
+        uid=oidc_client.verify_JWT_token(token,"sub")
+    else:
+        uid=oidc_client.verify_OAuth_token(token)
+    status, attributes = ScimHandler.get_instance().getUserAttributes(uid)
+    return validate_terms_and_conditions(attributes["TermsAndConditions"])
+    
 @policy_validator_bp.route('/validate')
 def validate_resource():
     xacml = request.json
