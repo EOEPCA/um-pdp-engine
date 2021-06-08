@@ -22,12 +22,18 @@ def policy_manager_bp(oidc_client):
                     aux=headers_alone.index('Bearer')
                     inputToken = headers_alone[aux+1]           
             token = inputToken
+            #Authorized
             if token:
+                #Decision values: True, False
                 decision = validator.return_terms_decision(oidc_client, token)
-                response.status_code = 200
-                response.text = str(decision)
+                if decision:
+                    response.status_code = 200
+                    response.text = str(decision)
+                else: 
+                    response.status_code = 403
+                    response.headers["Error"] = "Forbidden"
                 return response
-                 
+            #No Authorized
             else:
                 response.status_code = 401
                 response.headers["Error"] = "NO TOKEN FOUND"

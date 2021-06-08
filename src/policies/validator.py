@@ -34,7 +34,10 @@ def validate_json(json_data):
         return False
     return True
 
-def validate_terms_conditions(TC_attribute):
+def validate_terms_and_conditions(TC_attribute):
+    #Retrieves the acceptance of the custom attribute of Terms and Conditions.
+    #Needed to define a T&C structure
+    #TC_attribute is a dictionary with a list of k,v as value
     return True
 
 def return_terms_decision(oidc_client, token):
@@ -43,8 +46,13 @@ def return_terms_decision(oidc_client, token):
         uid=oidc_client.verify_JWT_token(token,"sub")
     else:
         uid=oidc_client.verify_OAuth_token(token)
+    #Retrieve userinfo through the SCIM Instance
     status, attributes = ScimHandler.get_instance().getUserAttributes(uid)
-    return validate_terms_and_conditions(attributes["TermsAndConditions"])
+    for k in a:
+        if "Condition" in str(a[k]):
+            return validate_terms_and_conditions(a[k])
+        pass
+    return False
     
 @policy_validator_bp.route('/validate')
 def validate_resource():
