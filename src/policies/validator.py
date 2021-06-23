@@ -34,11 +34,22 @@ def validate_json(json_data):
         return False
     return True
 
-def validate_terms_and_conditions(TC_attribute):
+def validate_terms_and_conditions(resource_id, TC_attributes):
     #Retrieves the acceptance of the custom attribute of Terms and Conditions.
     #Needed to define a T&C structure
     #TC_attribute is a dictionary with a list of k,v as value
-    return True
+    mongo = Policy_Storage('mongodb')
+    data = mongo.get_policy_from_resource_id(str(resource_id))
+    decisions = {}
+    if isinstance(data, list):
+        for i in range(0, len(data)):
+            try:
+                if (data[i]['config']['T&C'] == TC_attributes):
+                    return True
+                else: return False                
+            except KeyError:
+                return False
+    return False
 
 def return_terms_decision(oidc_client, token):
     uid=None
@@ -48,9 +59,9 @@ def return_terms_decision(oidc_client, token):
         uid=oidc_client.verify_OAuth_token(token)
     #Retrieve userinfo through the SCIM Instance
     status, attributes = ScimHandler.get_instance().getUserAttributes(uid)
-    for k in a:
-        if "Condition" in str(a[k]):
-            return validate_terms_and_conditions(a[k])
+    for k in attributes:
+        if "Condition" in str(attributes[k]):
+            return validate_terms_and_conditions(attributes[k])
         pass
     return False
     
@@ -107,7 +118,12 @@ def validate_resource():
             if result_validation:
                 break
     else:
-        decisions = policies_operations.validate_complete_policies(resource_id, action, handler_user_attributes)
+        for k in handler_user_attributes:
+            if "Condition" in str(handler_user_attributes[k]):
+                if validate_terms_and_conditions(resource_id, handler_user_attributes[k]):
+                    decisions = policies_operations.validate_complete_policies(resource_id, action, handler_user_attributes)
+                break
+            decisions[0] = [False, None]
 
     resp, status = response_handler.generate_response(decisions, subject.attributes, action_rsrc.attributes, resource.attributes, request.base_url)
     
