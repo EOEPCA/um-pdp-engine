@@ -85,7 +85,6 @@ def validate_all_acces_policies(data, dict_request_values):
                     for k, v in policy[i][key][j].items():
                         aux_dict = {}
                         aux_dict[k] = v
-
                         aux = []
                         aux = validate_multiples_conditions(aux_dict, dict_request_values)
                         values_operations = values_operations + aux
@@ -94,14 +93,12 @@ def validate_all_acces_policies(data, dict_request_values):
             else:
                 operations.append(key)
                 values_operations.append(policy[i][key])
-                
                 list_values = validate_operations(operations, values_operations, dict_request_values)
                 aux_list_result = aux_list_result + list_values
     permit_acces = True
     for i in range(0, len(aux_list)):
         if aux_list_result[i] is False:
             permit_acces = False
-
     return permit_acces
 
 def validate_operations(operations, values_operations, dict_request_values):
@@ -148,7 +145,14 @@ def validate_operations(operations, values_operations, dict_request_values):
                         else:
                             list_values.append(False)
             else:
-                list_values.append(False)
+                a = False
+                for k in dict_request_values:
+                    if 'User' in str(k):
+                        try:
+                            a = dict_request_values[k][key]
+                        except KeyError:
+                            pass
+                list_values.append(a)
     return list_values
 
 def validate_multiples_conditions(policy_row, dict_request_values):
@@ -170,7 +174,6 @@ def validate_multiples_conditions(policy_row, dict_request_values):
                         operations.append(key2)
                         values_operations.append(policy_row[key3][i][key2])
                         aux_list_result = validate_operations(operations, values_operations, dict_request_values)
-        
                         list_values = conditions_validator(operations_conditions[0], aux_list_result)
                     else:
                         operations_conditions.append(key2)
