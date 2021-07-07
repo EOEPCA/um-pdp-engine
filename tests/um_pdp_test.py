@@ -232,7 +232,7 @@ class TestPDP(unittest.TestCase):
             result = r.json()
 
         # Validate XACML JSON response against schema
-        with open("../src/standards/response.schema.json", "r") as f:
+        with open(dir_path+"/../src/standards/response.schema.json", "r") as f:
             schema = json.load(f)
         validation = jsonschema.validate(result, schema)
         
