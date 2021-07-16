@@ -1,5 +1,5 @@
 {
-    "resource_id": "20248583",
+    "resource_id": "20248592",
     "action": "view",
     "delegate": "http://other-pdp/policy/validate",
     "rules": [{

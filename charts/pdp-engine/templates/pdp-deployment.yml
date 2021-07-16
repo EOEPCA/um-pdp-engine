@@ -18,35 +18,52 @@ spec:
       - name: {{ .Values.global.pdp }}
         imagePullPolicy: {{ .Values.image.imagePullPolicy }}
         image: {{ .Values.image.image }}
+        resources:
+          requests:
+            memory: {{ .Values.requests.serviceMemory }}
+            cpu: {{ .Values.requests.serviceCpu }}
+        livenessProbe:
+          tcpSocket:
+            port: {{ .Values.global.port }}
+          initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+        readinessProbe:
+          tcpSocket:
+            port: {{ .Values.global.port }}
+          initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
         ports:
-        - name: http-pdp
-          containerPort: 5567
-          protocol: TCP
-        - name: https-pdp
-          containerPort: 443
-          protocol: TCP
+        {{- range $key, $value := .Values.ports }}
+        - containerPort: {{ $value.targetPort }}
+          name: {{ $key }}
+          protocol: {{ $value.type }}
+        {{- end }}
         envFrom:
         - configMapRef:
-            name: um-pdp-engine-config
+            name: {{ .Values.global.pdp }}-cm
       - name: mongo
         imagePullPolicy: {{ .Values.image.imagePullPolicy }}
         image: mongo
+        resources:
+          requests:
+            memory: {{ .Values.requests.dbMemory }}
+            cpu: {{ .Values.requests.dbCpu }}
         ports:
         - name: http-rp
           containerPort: 27017
           protocol: TCP
         envFrom:
         - configMapRef:
-            name: um-pdp-engine-config
+            name: {{ .Values.global.pdp }}-cm
         volumeMounts:
         - mountPath: /data/db/
-          sub_path: pep-engine/db/policy
-          name: eoepca-pdp-pv-host
+          subPath: {{ .Values.global.pdp }}/data/db
+          name: {{ .Values.volumeClaim.name }}
       hostAliases:
       - ip: {{ .Values.global.nginxIp }}
         hostnames:
-        - {{ .Values.global.ep }}
+        - {{ .Values.global.domain }}
       volumes:
-        - name: eoepca-pdp-pv-host
+        - name: {{ .Values.volumeClaim.name }}
           persistentVolumeClaim:
-            claimName: eoepca-pdp-pvc
+            claimName: {{ .Values.volumeClaim.name }}
