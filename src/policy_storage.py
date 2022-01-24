@@ -80,3 +80,16 @@ class Policy_Storage:
         Find the resource in the database by id, add or modify the changed values for the resource.
         '''
         return self.current_db.update_policy(_id,dict_data)
+
+    def export_database(self):
+        '''
+        Exports the main colection to a json file located in the / of the container
+        '''
+        return self.current_db.export_database()
+
+                   
+    def import_database(self):
+        '''
+        Import the exported data of a previous database located in the / of the container
+        '''
+        return self.current_db.import_database()
