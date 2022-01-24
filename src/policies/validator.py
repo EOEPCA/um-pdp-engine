@@ -51,7 +51,8 @@ def validate_terms_and_conditions(resource_id, TC_attributes):
                 return False
     return False
 
-def return_terms_decision(oidc_client, token):
+def return_terms_decision(oidc_client, token, resource_id):
+    #Quick validation of a user able to access a resource with current accepted T&C
     uid=None
     if len(str(token))>40:
         uid=oidc_client.verify_JWT_token(token,"sub")
@@ -61,7 +62,7 @@ def return_terms_decision(oidc_client, token):
     status, attributes = ScimHandler.get_instance().getUserAttributes(uid)
     for k in attributes:
         if "Condition" in str(attributes[k]):
-            return validate_terms_and_conditions(attributes[k])
+            return validate_terms_and_conditions(resource_id, attributes[k])
         pass
     return False
     

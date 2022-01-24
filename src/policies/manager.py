@@ -23,9 +23,10 @@ def policy_manager_bp(oidc_client):
                     inputToken = headers_alone[aux+1]           
             token = inputToken
             #Authorized
-            if token:
+            if token and request.data:
+                data = request.get_json()
                 #Decision values: True, False
-                decision = validator.return_terms_decision(oidc_client, token)
+                decision = validator.return_terms_decision(oidc_client, token, data.get("resource_id"))
                 if decision:
                     response.status_code = 200
                     response.text = str(decision)
