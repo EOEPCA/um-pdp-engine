@@ -193,15 +193,16 @@ class Mongo_Handler:
         '''
         col = self.db['policies']
         cursor = col.find({})
+        count = col.count_documents({})
         with open('collection.json', 'w') as file:
             file.write('[')
-            print(len(cursor))
-            count = 0
+            aux = 0
             for document in cursor:
-                count += count
-                print(count)
+                aux += 1 
+                n = document
                 file.write(dumps(document))
-                file.write(',')
+                if aux != count:
+                    file.write(',')
             file.write(']')
         return "Exported to /collection.json"
 
@@ -212,8 +213,10 @@ class Mongo_Handler:
         '''
         col = self.db['policies']
         with open('collection.json') as f:
-            print(str(f))
-            file_data = json.load(f)
-            print(str(file_data))
-            col.insert_many(file_data)
-        return "Inserted"
+            n = f.readlines()
+            for i in n:
+                for u in json.loads(i):
+                    oid = u["_id"]["$oid"]
+                    u["_id"] = ObjectId(str(oid))
+                    col.insert_one(u)
+        return "Inserted collection.json"
