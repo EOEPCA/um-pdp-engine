@@ -229,4 +229,4 @@ class Mongo_Handler:
                     oid = u["_id"]["$oid"]
                     u["_id"] = ObjectId(str(oid))
                     col.insert_one(u)
-        return "Inserted collection.json"
+        return "Inserted "+ str(path) + ' file in database'
