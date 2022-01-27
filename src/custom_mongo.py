@@ -187,14 +187,19 @@ class Mongo_Handler:
         else:
             return print('Can not update the policy, it does not exist')
              
-    def export_database(self):
+    def export_database(self, directory):
         '''
-        Exports the main colection to a json file located in the / of the container
+        Exports the main colection to a json file located in the / of the container or the specified path
         '''
         col = self.db['policies']
         cursor = col.find({})
         count = col.count_documents({})
-        with open('collection.json', 'w') as file:
+        path = ''
+        if directory:
+            path = directory
+        else:
+            path = "/collection.json"
+        with open(str(path), 'w') as file:
             file.write('[')
             aux = 0
             for document in cursor:
@@ -204,15 +209,20 @@ class Mongo_Handler:
                 if aux != count:
                     file.write(',')
             file.write(']')
-        return "Exported to /collection.json"
+        return "Exported to "+ str(path)
 
                    
-    def import_database(self):
+    def import_database(self, directory):
         '''
-        Import the exported data of a previous database located in the / of the container
+        Imports the exported data of a previous database located in the / of the container or in the specified path
         '''
         col = self.db['policies']
-        with open('collection.json') as f:
+        path = ''
+        if directory:
+            path = directory
+        else:
+            path = "/collection.json"
+        with open(str(path)) as f:
             n = f.readlines()
             for i in n:
                 for u in json.loads(i):
