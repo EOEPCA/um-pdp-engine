@@ -96,3 +96,44 @@ class OIDCHandler:
             return status, {}
 
 
+    def get_terms_from_JWT(self, token):
+        try:
+            header = str(token).split(".")[0]
+            paddedHeader = header + '=' * (4 - len(header) % 4)
+            decodedHeader = base64.b64decode(paddedHeader)
+            #to remove byte-code
+            decodedHeader_format = decodedHeader.decode('utf-8')
+            decoded_str_header = json.loads(decodedHeader_format)
+
+            payload = str(token).split(".")[1]
+            paddedPayload = payload + '=' * (4 - len(payload) % 4)
+            decoded = base64.b64decode(paddedPayload)
+            #to remove byte-code
+            decoded = decoded.decode('utf-8')
+            decoded_str = json.loads(decoded)
+            terms = None
+            if decoded_str.get("TermsConditions"): 
+                terms = decoded_str["TermsConditions"]
+            else:
+                raise Exception
+
+            return terms
+        except Exception as e:
+            print("Authenticated RPT Resource. No Valid JWT id token passed! Terms&Conditions needed " +str(e))
+            return None
+
+    def get_terms_from_OAuth_token(self, token):
+        headers = { 'content-type': "application/json", 'Authorization' : 'Bearer '+token}
+        msg = "Host unreachable"
+        status = 401
+        url = self.wkh.get(TYPE_OIDC, KEY_OIDC_USERINFO_ENDPOINT )
+        try:
+            res = get(url, headers=headers, verify=False)
+            status = res.status_code
+            msg = res.text
+            user = (res.json())
+            return user['TermsConditions']
+        except:
+            print("OIDC Handler: Get User Unique Identifier: Exception occured!")
+            status = 500
+            return status, {}
