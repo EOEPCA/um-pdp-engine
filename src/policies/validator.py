@@ -41,9 +41,6 @@ def validate_terms_and_conditions(resource_id, TC_attributes):
     mongo = Policy_Storage('mongodb')
     data = mongo.get_policy_from_resource_id(str(resource_id))
     decisions = {}
-    f = open("/2.txt", "a")
-    f.write("validating:"+ str(data))
-    f.close()
     if isinstance(data, list):
         for i in range(0, len(data)):
             try:
@@ -68,12 +65,12 @@ def return_terms_decision(oidc_client, token, resource_id):
     #Retrieve userinfo through the SCIM Instance
     status, attributes = ScimHandler.get_instance().getUserAttributes(uid)
     #In case the token has the user information (by adding 'profile' scope to the request)
-    if terms:
-        return validate_terms_and_conditions(resource_id, json.loads(terms))
+    if terms and not isinstance(terms, tuple):
+        return validate_terms_and_conditions(resource_id, json.loads(str(terms)))
     #The scim library will ask for the user attributes to the /identity/restv1/scim/v2/Users endpoint
     for k in attributes:
         if "Condition" in str(attributes[k]):
-            return validate_terms_and_conditions(resource_id, attributes[k])
+            return validate_terms_and_conditions(resource_id, json.loads(attributes[k]["TermsConditions"]))
         pass
     return False
     

@@ -34,7 +34,7 @@ def policy_manager_bp(oidc_client):
                     response.text = str(decision)
                 else: 
                     response.status_code = 403
-                    response.headers["Error"] = "Forbidden" + str(data.get("resource_id")) + "  and  " + str(decision) + " and uid: " + str(uid) 
+                    response.headers["Error"] = "Forbidden Resource " + str(data.get("resource_id"))
                 return response
             #No Authorized
             else:
