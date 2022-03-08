@@ -36,10 +36,18 @@ def remove_policies(user,resource,policy,all):
     else:
         return "No action taken (missing --all flag?)"
 
+def import_database(directory):
+    print("importing database....")
+    return custom_mongo.import_database(directory)
+
+def export_database(directory):
+    print("Exporting database....")
+    return custom_mongo.export_database(directory)
+
 
 parser = argparse.ArgumentParser(description='Operational management of policies.')
 parser.add_argument('action', metavar='action', type=str,
-                    help='Operation to perform: list/remove')
+                    help='Operation to perform: list/remove/import/export')
 parser.add_argument('-u',
                        '--user',
                        help='Filter action by user ID')
@@ -49,6 +57,9 @@ parser.add_argument('-r',
 parser.add_argument('-p',
                        '--policy',
                        help='Filter action by Policy ID')
+parser.add_argument('-d',
+                       '--directory',
+                       help='Select directory from where to save/read')
 
 parser.add_argument('-a',
                        '--all',
@@ -64,6 +75,10 @@ elif args["action"] == "remove":
     if args["policy"] is not None:
         args["all"] = False
     result = remove_policies(args['user'],args['resource'],args['policy'],args['all'])
+elif args["action"] == "import": 
+    result = import_database(args['directory'])
+elif args["action"] == "export": 
+    result = export_database(args['directory'])
 else:
     print("Allowed actions are 'remove' or 'list'")
     sys.exit(-1)

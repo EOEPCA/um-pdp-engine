@@ -2,7 +2,8 @@
 import pymongo
 import json
 from bson.objectid import ObjectId
-
+from bson.json_util import dumps
+import os
 class Mongo_Handler:
 
     def __init__(self, **kwargs):
@@ -186,3 +187,46 @@ class Mongo_Handler:
         else:
             return print('Can not update the policy, it does not exist')
              
+    def export_database(self, directory):
+        '''
+        Exports the main colection to a json file located in the / of the container or the specified path
+        '''
+        col = self.db['policies']
+        cursor = col.find({})
+        count = col.count_documents({})
+        path = ''
+        if directory:
+            path = directory
+        else:
+            path = "/collection.json"
+        with open(str(path), 'w') as file:
+            file.write('[')
+            aux = 0
+            for document in cursor:
+                aux += 1 
+                n = document
+                file.write(dumps(document))
+                if aux != count:
+                    file.write(',')
+            file.write(']')
+        return "Exported to "+ str(path)
+
+                   
+    def import_database(self, directory):
+        '''
+        Imports the exported data of a previous database located in the / of the container or in the specified path
+        '''
+        col = self.db['policies']
+        path = ''
+        if directory:
+            path = directory
+        else:
+            path = "/collection.json"
+        with open(str(path)) as f:
+            n = f.readlines()
+            for i in n:
+                for u in json.loads(i):
+                    oid = u["_id"]["$oid"]
+                    u["_id"] = ObjectId(str(oid))
+                    col.insert_one(u)
+        return "Inserted "+ str(path) + ' file in database'
