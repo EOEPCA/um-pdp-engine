@@ -66,6 +66,8 @@ def validate_complete_policies(resource_id, action, dict_request_values):
                     decisions[i] = [None, data[i]['config']['delegate']]
             except KeyError:
                 decisions[i] = [False, None]
+    if len(decisions) == 0:
+        decisions[0] = [False, None]
     return decisions
 
 def validate_all_acces_policies(data, dict_request_values):
