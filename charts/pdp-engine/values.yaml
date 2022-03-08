@@ -39,7 +39,7 @@ requests:
 
 image: 
   imagePullPolicy: Always
-  image: eoepca/um-pdp-engine:v1.0-RC
+  image: eoepca/um-pdp-engine:v1.0
 persistence: 
   accessModes: ReadWriteMany
   dbStorageSize: 5Gi

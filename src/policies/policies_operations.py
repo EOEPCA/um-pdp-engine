@@ -57,18 +57,17 @@ def validate_complete_policies(resource_id, action, dict_request_values):
     data = mongo.get_policy_from_resource_id(str(resource_id))
     decisions = {}
     if isinstance(data, list):
-        if len(data) == 0:   
-            decisions[0] = [False, None]
-        else:
-            for i in range(0, len(data)):
-                try:
-                    if data[i]['config']['resource_id'] == resource_id and data[i]['config']['action'] == action and "delegate" not in data[i]['config']:
-                        result = validate_all_acces_policies(data[i]['config']['rules'], dict_request_values)
-                        decisions[i] = [result, None]
-                    elif "delegate" in data[i]['config']:
-                        decisions[i] = [None, data[i]['config']['delegate']]
-                except KeyError:
-                    decisions[i] = [False, None]
+        for i in range(0, len(data)):
+            try:
+                if data[i]['config']['resource_id'] == resource_id and data[i]['config']['action'] == action and "delegate" not in data[i]['config']:
+                    result = validate_all_acces_policies(data[i]['config']['rules'], dict_request_values)
+                    decisions[i] = [result, None]
+                elif "delegate" in data[i]['config']:
+                    decisions[i] = [None, data[i]['config']['delegate']]
+            except KeyError:
+                decisions[i] = [False, None]
+    if len(decisions) == 0:
+        decisions[0] = [False, None]
     return decisions
 
 def validate_all_acces_policies(data, dict_request_values):
