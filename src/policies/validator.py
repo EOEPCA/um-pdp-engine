@@ -1,7 +1,7 @@
 from flask import Blueprint, request, Response, jsonify
 import json
 import os
-
+from policy_storage import Policy_Storage
 from handlers.scim_handler import ScimHandler
 from policies import policies_operations
 from models import response
@@ -34,6 +34,46 @@ def validate_json(json_data):
         return False
     return True
 
+def validate_terms_and_conditions(resource_id, TC_attributes):
+    #Retrieves the acceptance of the custom attribute of Terms and Conditions.
+    #Needed to define a T&C structure
+    #TC_attribute is a dictionary with a list of k,v as value
+    mongo = Policy_Storage('mongodb')
+    data = mongo.get_policy_from_resource_id(str(resource_id))
+    decisions = {}
+    if isinstance(data, list):
+        for i in range(0, len(data)):
+            try:
+                if (data[i]['config']['T&C'] == list(TC_attributes.keys())):
+                    return True
+                else:
+                    return False                
+            except KeyError:
+                return False
+    return False
+
+def return_terms_decision(oidc_client, token, resource_id):
+    #Quick validation of a user able to access a resource with current accepted T&C
+    uid=None
+    terms=None
+    if len(str(token))>40:
+        uid=oidc_client.verify_JWT_token(token,"sub")
+        terms= oidc_client.get_terms_from_JWT(token)
+    else:
+        uid=oidc_client.verify_OAuth_token(token)
+        terms=oidc_client.get_terms_from_OAuth_token(token)
+    #Retrieve userinfo through the SCIM Instance
+    status, attributes = ScimHandler.get_instance().getUserAttributes(uid)
+    #In case the token has the user information (by adding 'profile' scope to the request)
+    if terms and not isinstance(terms, tuple):
+        return validate_terms_and_conditions(resource_id, json.loads(str(terms)))
+    #The scim library will ask for the user attributes to the /identity/restv1/scim/v2/Users endpoint
+    for k in attributes:
+        if "Condition" in str(attributes[k]):
+            return validate_terms_and_conditions(resource_id, json.loads(attributes[k]["TermsConditions"]))
+        pass
+    return False
+    
 @policy_validator_bp.route('/validate')
 def validate_resource():
     xacml = request.json
@@ -87,7 +127,12 @@ def validate_resource():
             if result_validation:
                 break
     else:
-        decisions = policies_operations.validate_complete_policies(resource_id, action, handler_user_attributes)
+        for k in handler_user_attributes:
+            if "Condition" in str(handler_user_attributes[k]):
+                if validate_terms_and_conditions(resource_id, handler_user_attributes[k]):
+                    decisions = policies_operations.validate_complete_policies(resource_id, action, handler_user_attributes)
+                break
+            decisions[0] = [False, None]
 
     resp, status = response_handler.generate_response(decisions, subject.attributes, action_rsrc.attributes, resource.attributes, request.base_url)
     
