@@ -134,6 +134,14 @@ class Mongo_Handler:
         col = self.db['policies']
         a= col.delete_many(query)
 
+    def remove_term_by_query(self, query):
+        '''
+            Check the existence of the resource inside the database
+            And deletes the document
+        '''
+        col = self.db['terms']
+        a= col.delete_many(query)
+
     def policy_exists(self, _id=None, name=None):
         '''
             Check the existence of the resource inside the database by looking for the id or the name
@@ -181,7 +189,7 @@ class Mongo_Handler:
                 return True
             else: return False
         except:
-            print('no policy with that UID associated')
+            print('no term & condition with that UID associated')
             return False
 
     def insert_policy(self, name:str, description:str, ownership_id: str, config: dict, scopes: list):
@@ -233,17 +241,17 @@ class Mongo_Handler:
             x=None
             if self.term_exists(term_id=term_id):
                 myId= self.get_id_from_terms_id(term_id)
-                x= self.update_policy(myId, myres)
+                x= self.update_term(myId, myres)
                 return x
             # Add the resource since it doesn't exist on the database
             else:
                 x = col.insert_one(myres)
-                return 'New Policy with ID: ' + str(x.inserted_id)
+                return 'New term & condition with ID: ' + str(x.inserted_id)
         else:
             col = self.db['policies']
-            myres = self.create_policy_json(name,description, ownership_id, config, scopes)
+            myres = self.create_terms_json(terms_id, terms_description)
             x = col.insert_one(myres)
-            return 'New Policy with ID: ' + str(x.inserted_id)
+            return 'New term & condition with ID: ' + str(x.inserted_id)
 
     def delete_policy(self, _id):
         '''
@@ -301,5 +309,5 @@ class Mongo_Handler:
                 return 'No changes made'
             return str(x.modified_count)
         else:
-            return print('Can not update the policy, it does not exist')
+            return print('Can not update the term & condition, it does not exist')
              
