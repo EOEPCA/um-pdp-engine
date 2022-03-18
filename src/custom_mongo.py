@@ -189,7 +189,7 @@ class Mongo_Handler:
                 return True
             else: return False
         except:
-            print('no term & condition with that UID associated')
+            print('no policy with that UID associated')
             return False
 
     def insert_policy(self, name:str, description:str, ownership_id: str, config: dict, scopes: list):
