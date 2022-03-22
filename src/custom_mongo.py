@@ -31,8 +31,8 @@ class Mongo_Handler:
         Creates a template of terms & conditions to insert in the database
         '''
         term = {
-            "term_id": terms_id,
-            "term_description": terms_description
+            "term_id": term_id,
+            "term_description": term_description
         }
         return term
 
@@ -45,7 +45,7 @@ class Mongo_Handler:
         else: return None
 
     def get_id_from_terms_id(self, term_id: str):
-        col = self.db['policies']
+        col = self.db['terms']
         myquery = {'term_id': term_id}
         found=col.find_one(myquery)
         if found:
@@ -123,7 +123,7 @@ class Mongo_Handler:
         col = self.db['terms']
         terms = col.find()
         if terms:
-            return terms
+            return [term for term in terms]
         return None
         
     def remove_policy_by_query(self, query):
@@ -173,7 +173,7 @@ class Mongo_Handler:
         if _id is not None:
             if self.get_term_from_id(_id) is not None: return True
             else: return False
-        elif name is not None:
+        elif term_id is not None:
             myquery = { "term_id": term_id }
             if col.find_one(myquery): return True
             else: return False
@@ -237,7 +237,7 @@ class Mongo_Handler:
         # Check if the database alredy exists
         if "policy_db" in dblist:
             col = self.db['terms']
-            myres = self.create_terms_json(terms_id, terms_description)
+            myres = self.create_terms_json(term_id, term_description)
             x=None
             if self.term_exists(term_id=term_id):
                 myId= self.get_id_from_terms_id(term_id)
@@ -248,8 +248,8 @@ class Mongo_Handler:
                 x = col.insert_one(myres)
                 return 'New term & condition with ID: ' + str(x.inserted_id)
         else:
-            col = self.db['policies']
-            myres = self.create_terms_json(terms_id, terms_description)
+            col = self.db['terms']
+            myres = self.create_terms_json(term_id, term_description)
             x = col.insert_one(myres)
             return 'New term & condition with ID: ' + str(x.inserted_id)
 
@@ -302,12 +302,12 @@ class Mongo_Handler:
         if self.term_exists(_id=_id):
             myquery= {'_id': myid}
             new_val= {"$set": dict_data}
-            x = col.update_many(myquery, new_val)
+            x = col.update_one(myquery, new_val)
             if x.modified_count == 1:
                 return 'Updated'
             elif x.modified_count == 0:
                 return 'No changes made'
             return str(x.modified_count)
         else:
-            return print('Can not update the term & condition, it does not exist')
+            return "Can not update the term & condition, it does not exist"
              

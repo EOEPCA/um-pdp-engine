@@ -173,6 +173,9 @@ def policy_manager_bp(oidc_client):
             if uid:
                 if request.method == "GET":
                     terms = mongo.get_all_terms()
+                    for i, term in enumerate(terms):
+                        if '_id' in term:
+                            terms[i]['_id'] = str(terms[i]['_id'])
                     return json.dumps(terms) 
                 else:
                     data = request.get_json()
@@ -180,17 +183,17 @@ def policy_manager_bp(oidc_client):
                         response.status_code = 500
                         response.headers["Error"] = "Terms & condition json data missing"
                         return response
-                    if data.get("terms_id") and data.get("terms_description"):
-                        return mongo.insert_term(data.get("terms_id"), data.get("terms_description"))
+                    if data.get("term_id") and data.get("term_description"):
+                        return mongo.insert_term(data.get("term_id"), data.get("term_description"))
                     response.status_code = 500
-                    response.headers["Error"] = "Invalid data or incorrect policy name passed on URL called for policy creation!"
+                    response.headers["Error"] = "Invalid data or incorrect term & condition name passed on URL called for terms & conditions creation!"
                     return response
             else: 
                 response.status_code = 401
                 response.headers["Error"] = 'Could not get the UID for the user'
                 return response
         except Exception as e:
-            print("Error while creating policy: "+str(e))
+            print("Error while creating term & condition: "+str(e))
             response.status_code = 500
             response.headers["Error"] = str(e)
             return response
@@ -335,8 +338,8 @@ def policy_manager_bp(oidc_client):
                 if request.method == "POST" or request.method == 'PUT':
                     if request.is_json:
                         data = request.get_json()
-                        if data.get("terms_id") and data.get("terms_description"):
-                            return mongo.update_term(terms_id, data)
+                        if data.get("term_id") and data.get("term_description"):
+                            return mongo.update_term(term_id, data)
                         else:
                             response.status_code = 500
                             response.headers["Error"] = "Invalid data or incorrect term & condition name passed on URL called for terms & conditions creation!"
