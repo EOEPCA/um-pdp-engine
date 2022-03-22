@@ -302,7 +302,7 @@ class Mongo_Handler:
         if self.term_exists(_id=_id):
             myquery= {'_id': myid}
             new_val= {"$set": dict_data}
-            x = col.update_one(myquery, new_val)
+            x = col.update_many(myquery, new_val)
             if x.modified_count == 1:
                 return 'Updated'
             elif x.modified_count == 0:
