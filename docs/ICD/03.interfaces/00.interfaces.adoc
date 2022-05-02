@@ -565,6 +565,488 @@ This operation generates a new policy reference object that can be protected. Ow
 
 ===== Samples
 
+// TERMS & CONDITIONS
+
+[.TermsAndConditionsManagement]
+=== Terms & Conditions Management
+
+
+[.termsGet]
+==== Terms & Conditions GET
+    
+`GET /terms`
+
+List all terms & conditions
+
+===== Description 
+
+This operation lists all terms & conditions
+
+
+// markup not found, no include::{specDir}policy/GET/spec.adoc[opts=optional]
+
+
+
+===== Parameters
+
+
+
+
+====== Header Parameters
+
+[cols="2,3,1"]
+|===         
+|Name| Description| Required
+
+| Authorization 
+| JWT or Bearer Token  
+| - 
+ 
+
+|===         
+
+
+
+===== Return Type
+
+array[<<terms>>]
+
+
+===== Content Type
+
+* application/json
+
+===== Responses
+
+.http response codes
+[cols="2,3,1"]
+|===         
+| Code | Message | Datatype 
+
+
+| 200
+| OK
+| List[<<terms>>] 
+
+|===         
+
+===== Samples
+
+
+// markup not found, no include::{snippetDir}policy/GET/http-request.adoc[opts=optional]
+
+
+// markup not found, no include::{snippetDir}policy/GET/http-response.adoc[opts=optional]
+
+
+
+// file not found, no * wiremock data link :policy/GET/GET.json[]
+
+
+ifdef::internal-generation[]
+===== Implementation
+
+// markup not found, no include::{specDir}policy/GET/implementation.adoc[opts=optional]
+
+
+endif::internal-generation[]
+
+
+[.termsDelete]
+==== Terms & conditions DELETE (ID)
+    
+`DELETE /terms/{terms_id}`
+
+Deletes a term & condition Reference from the Platform
+
+===== Description 
+
+This operation removes an existing term & condition.
+
+// markup not found, no include::{specDir}policy/\{policy_id\}/DELETE/spec.adoc[opts=optional]
+
+
+
+===== Parameters
+
+====== Path Parameters
+
+[cols="2,3,1"]
+|===         
+|Name| Description| Required
+
+| terms_id 
+| Unique term & condition ObjectID  
+| X 
+ 
+
+|===         
+
+
+
+====== Header Parameters
+
+[cols="2,3,1"]
+|===         
+|Name| Description| Required
+
+| Authorization 
+| JWT or Bearer Token  
+| - 
+ 
+
+|===         
+
+
+
+===== Return Type
+
+
+
+-
+
+
+===== Responses
+
+.http response codes
+[cols="2,3,1"]
+|===         
+| Code | Message | Datatype 
+
+
+| 200
+| OK
+|  <<>>
+
+
+| 401
+| UNAUTHORIZED
+|  <<>>
+
+
+| 404
+| NOT FOUND
+|  <<>>
+
+|===         
+
+===== Samples
+
+
+// markup not found, no include::{snippetDir}policy/\{policy_id\}/DELETE/http-request.adoc[opts=optional]
+
+
+// markup not found, no include::{snippetDir}policy/\{policy_id\}/DELETE/http-response.adoc[opts=optional]
+
+
+
+// file not found, no * wiremock data link :policy/{policy_id}/DELETE/DELETE.json[]
+
+
+ifdef::internal-generation[]
+===== Implementation
+
+// markup not found, no include::{specDir}policy/\{policy_id\}/DELETE/implementation.adoc[opts=optional]
+
+
+endif::internal-generation[]
+
+
+[.termsTermsIdGet]
+==== Terms & conditions GET (ID)
+    
+`GET /terms/{terms_id}`
+
+Retrieve a specific term & condition
+
+===== Description 
+
+This operation retrieves information about a term & condition
+
+// markup not found, no include::{specDir}policy/\{policy_id\}/GET/spec.adoc[opts=optional]
+
+
+
+===== Parameters
+
+====== Path Parameters
+
+[cols="2,3,1"]
+|===         
+|Name| Description| Required
+
+| terms_id 
+| Unique term & condition ObjectID
+| X 
+ 
+
+|===         
+
+
+
+====== Header Parameters
+
+[cols="2,3,1"]
+|===         
+|Name| Description| Required
+
+| Authorization 
+| JWT or Bearer Token  
+| - 
+ 
+
+|===         
+
+
+
+===== Return Type
+
+<<terms>>
+
+
+===== Content Type
+
+* application/json
+
+===== Responses
+
+.http response codes
+[cols="2,3,1"]
+|===         
+| Code | Message | Datatype 
+
+
+| 200
+| OK
+|  <<policy>>
+
+
+| 404
+| NOT FOUND
+|  <<>>
+
+|===         
+
+===== Samples
+
+
+// markup not found, no include::{snippetDir}policy/\{policy_id\}/GET/http-request.adoc[opts=optional]
+
+
+// markup not found, no include::{snippetDir}policy/\{policy_id\}/GET/http-response.adoc[opts=optional]
+
+
+
+// file not found, no * wiremock data link :policy/{policy_id}/GET/GET.json[]
+
+
+ifdef::internal-generation[]
+===== Implementation
+
+// markup not found, no include::{specDir}policy/\{policy_id\}/GET/implementation.adoc[opts=optional]
+
+
+endif::internal-generation[]
+
+
+[.termsTermsIdPut]
+==== Terms & conditions PUT (ID)
+    
+`PUT /terms/{terms_id}`
+
+Updates a term & condition reference in the Platform
+
+===== Description 
+
+This operation updates an existing term & condition. 
+
+
+// markup not found, no include::{specDir}policy/\{policy_id\}/PUT/spec.adoc[opts=optional]
+
+
+
+===== Parameters
+
+====== Path Parameters
+
+[cols="2,3,1"]
+|===         
+|Name| Description| Required
+
+| terms_id 
+| Unique term & condition ObjectID
+| X 
+ 
+
+|===         
+
+===== Body Parameter
+
+[cols="2,3,1"]
+|===         
+|Name| Description| Required
+
+| term & condition 
+|  <<terms>> 
+| X 
+|  
+|  
+
+|===         
+
+
+====== Header Parameters
+
+[cols="2,3,1"]
+|===         
+|Name| Description| Required
+
+| Authorization 
+| JWT or Bearer Token  
+| - 
+ 
+
+|===         
+
+
+
+===== Return Type
+
+
+
+-
+
+
+===== Responses
+
+.http response codes
+[cols="2,3,1"]
+|===         
+| Code | Message | Datatype 
+
+
+| 200
+| OK
+|  <<>>
+
+
+| 401
+| UNAUTHORIZED
+|  <<>>
+
+
+| 404
+| NOT FOUND
+|  <<>>
+
+|===         
+
+===== Samples
+
+
+// markup not found, no include::{snippetDir}policy/\{policy_id\}/PUT/http-request.adoc[opts=optional]
+
+
+// markup not found, no include::{snippetDir}policy/\{policy_id\}/PUT/http-response.adoc[opts=optional]
+
+
+
+// file not found, no * wiremock data link :policy/{policy_id}/PUT/PUT.json[]
+
+
+ifdef::internal-generation[]
+===== Implementation
+
+// markup not found, no include::{specDir}policy/\{policy_id\}/PUT/implementation.adoc[opts=optional]
+
+
+endif::internal-generation[]
+
+
+[.termsPost]
+==== Terms & conditions POST
+    
+`POST /terms`
+
+Creates a new term & condition in the Platform
+
+===== Description 
+
+This operation generates a new term & condition
+
+
+// markup not found, no include::{specDir}policy/POST/spec.adoc[opts=optional]
+
+
+
+===== Parameters
+
+
+===== Body Parameter
+
+[cols="2,3,1"]
+|===         
+|Name| Description| Required
+
+| term & condition 
+|  <<terms>> 
+| X 
+|  
+|  
+
+|===         
+
+
+====== Header Parameters
+
+[cols="2,3,1"]
+|===         
+|Name| Description| Required
+
+| Authorization 
+| JWT or Bearer Token  
+| - 
+ 
+
+|===         
+
+
+
+===== Return Type
+
+<<terms>>
+
+
+===== Content Type
+
+* application/json
+
+===== Responses
+
+.http response codes
+[cols="2,3,1"]
+|===         
+| Code | Message | Datatype 
+
+
+| 200
+| OK
+|  <<policy>>
+
+
+| 401
+| UNAUTHORIZED
+|  <<>>
+
+
+| 404
+| NOT FOUND
+|  <<>>
+
+|===         
+
+===== Samples
+
 
 // markup not found, no include::{snippetDir}policy/POST/http-request.adoc[opts=optional]
 
@@ -796,5 +1278,34 @@ Custom rules for the policy configuration
 |  
 
 |===
+
+
+[#terms]
+=== _Terms&Conditions_ 
+
+Custom rules for the policy configuration
+
+
+[.fields-terms]
+[cols="2,1,2,4,1"]
+|===         
+| Field Name| Required| Type| Description| Format
+
+| terms_id 
+|  x
+| String  
+| A string based ID for the term & condition
+|  
+
+| terms_description 
+|  x
+| String  
+| Description of the desired term & condition
+|  
+
+
+|===
+
+
 
 
