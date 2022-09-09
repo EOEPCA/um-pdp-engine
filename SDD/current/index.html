@@ -47,7 +47,6 @@
 <ul class="sectlevel4">
 <li><a href="#_xacml_fromto_login_service">2.2.1.1. XACML (from/to Login Service)</a></li>
 <li><a href="#_policy_api_to_policy_decision_point">2.2.1.2. Policy API (to Policy Decision Point)</a></li>
-<li><a href="#_terms_conditions_api_to_policy_decision_point">2.2.1.3. Terms &amp; Conditions API (to Policy Decision Point)</a></li>
 </ul>
 </li>
 <li><a href="#_consumed_interfaces">2.2.2. Consumed Interfaces</a>
@@ -1002,9 +1001,6 @@ OGC 08-068r2,<br>
 <li>
 <p>Policy Repository Management. An exposed API allowing to register and/or query policies assigned to specific resources.</p>
 </li>
-<li>
-<p>Terms &amp; Conditions Management. An API to allow registering terms and conditions.</p>
-</li>
 </ul>
 </div>
 <div class="sect3">
@@ -1028,9 +1024,6 @@ OGC 08-068r2,<br>
 <li>
 <p>Policy Access Check (/policy/validate): to check the policy access to a resource using a xacml from the request<br>
 The requests should be accompained by an "Authorization: Bearer &lt;valid_RPT&gt;" for all endpoints except for the de /validate</p>
-</li>
-<li>
-<p>Terms &amp; Conditions management (/terms and /terms/&lt;ObjectID(terms_id)&gt;): performs GET/PUT/DELETE operations</p>
 </li>
 </ol>
 </div>
@@ -1120,13 +1113,6 @@ The requests should be accompained by an "Authorization: Bearer &lt;valid_RPT&gt
 <div class="paragraph">
 <p>The PDP queries the corresponding PDP to retrieve information about a policy.<br>
 For this case we can use the <code>/policy/&lt;policy_id or ObjectId(policy_id)&gt;</code> to do all the operations related to insert, get, update and delete policies.</p>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_terms_conditions_api_to_policy_decision_point">2.2.1.3. Terms &amp; Conditions API (to Policy Decision Point)</h5>
-<div class="paragraph">
-<p>PDP will create/update/delete a certain term &amp; condition.<br>
-For this case we can use the <code>/terms/ or /terms/ObjectId(terms_id)&gt;</code> to do all the operations related to insert, get, update and delete terms.</p>
 </div>
 </div>
 </div>
@@ -1893,7 +1879,7 @@ The main methods for the interaction with the database are displayed in this dat
 <div id="footer">
 <div id="footer-text">
 Version 0.2<br>
-Last updated 2022-05-03 08:34:10 UTC
+Last updated 2022-09-09 15:31:11 UTC
 </div>
 </div>
 </body>
