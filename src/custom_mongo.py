@@ -26,9 +26,27 @@ class Mongo_Handler:
         y = json.dumps(plcy)
         return plcy
 
+    def create_terms_json(self, term_id: str, term_description:str):
+        '''
+        Creates a template of terms & conditions to insert in the database
+        '''
+        term = {
+            "term_id": term_id,
+            "term_description": term_description
+        }
+        return term
+
     def get_id_from_name(self, name:str):
         col= self.db['policies']
         myquery={'name': name}
+        found=col.find_one(myquery)
+        if found:
+            return found['_id']
+        else: return None
+
+    def get_id_from_terms_id(self, term_id: str):
+        col = self.db['terms']
+        myquery = {'term_id': term_id}
         found=col.find_one(myquery)
         if found:
             return found['_id']
@@ -74,6 +92,19 @@ class Mongo_Handler:
         if found:
             return found
         else: return None
+
+    def get_term_from_id(self, _id):
+        '''
+            Finds the term & condition by its id
+            Returns the policy in json format
+        '''
+        col= self.db['terms']
+        myId=self.parse_id(_id)
+        myquery= {'_id': myId}
+        found=col.find_one(myquery)
+        if found:
+            return found
+        else: return None
         
     def get_all_policies(self):
         '''
@@ -85,6 +116,15 @@ class Mongo_Handler:
             return found
         else: return None
 
+    def get_all_terms(self):
+        '''
+            Returns all terms & conditions in json format
+        '''
+        col = self.db['terms']
+        terms = col.find()
+        if terms:
+            return [term for term in terms]
+        return None
         
     def remove_policy_by_query(self, query):
         '''
@@ -92,6 +132,14 @@ class Mongo_Handler:
             And deletes the document
         '''
         col = self.db['policies']
+        a= col.delete_many(query)
+
+    def remove_term_by_query(self, query):
+        '''
+            Check the existence of the resource inside the database
+            And deletes the document
+        '''
+        col = self.db['terms']
         a= col.delete_many(query)
 
     def policy_exists(self, _id=None, name=None):
@@ -108,6 +156,25 @@ class Mongo_Handler:
             else: return False
         elif name is not None:
             myquery = { "name": name }
+            if col.find_one(myquery): return True
+            else: return False
+        else:
+            return False
+
+    def term_exists(self, _id=None, term_id=None):
+        '''
+            Check the existence of the resource inside the database by looking for the id or the name
+            Input:  
+                -_id: Search the _id inside the database
+                -term_id: The term ID string
+            Return boolean result
+        '''
+        col = self.db['terms']  
+        if _id is not None:
+            if self.get_term_from_id(_id) is not None: return True
+            else: return False
+        elif term_id is not None:
+            myquery = { "term_id": term_id }
             if col.find_one(myquery): return True
             else: return False
         else:
@@ -157,6 +224,35 @@ class Mongo_Handler:
             x = col.insert_one(myres)
             return 'New Policy with ID: ' + str(x.inserted_id)
 
+    def insert_term(self, term_id: str, term_description:str):
+        '''
+            Generates a document with json format (name: str, description: str, id: str,cfg: dict, scopes:list ): 
+                -terms_id: ID for the term and condition
+                -terms_description: description for the term and condition
+            Check the existence of the term to be registered on the database
+            If already registered will update the description
+            If not registered will add it and return the query result
+        '''
+        dblist = self.myclient.list_database_names()
+        # Check if the database alredy exists
+        if "policy_db" in dblist:
+            col = self.db['terms']
+            myres = self.create_terms_json(term_id, term_description)
+            x=None
+            if self.term_exists(term_id=term_id):
+                myId= self.get_id_from_terms_id(term_id)
+                x= self.update_term(myId, myres)
+                return x
+            # Add the resource since it doesn't exist on the database
+            else:
+                x = col.insert_one(myres)
+                return 'New term & condition with ID: ' + str(x.inserted_id)
+        else:
+            col = self.db['terms']
+            myres = self.create_terms_json(term_id, term_description)
+            x = col.insert_one(myres)
+            return 'New term & condition with ID: ' + str(x.inserted_id)
+
     def delete_policy(self, _id):
         '''
             Check the existence of the resource inside the database
@@ -164,6 +260,17 @@ class Mongo_Handler:
         '''
         if self.policy_exists(_id=_id):
             col = self.db['policies']
+            myId=self.parse_id(_id)
+            myquery = { "_id": myId }
+            a= col.delete_one(myquery)
+
+    def delete_term(self, _id):
+        '''
+            Check the existence of the resource inside the database
+            And deletes the document
+        '''
+        if self.term_exists(_id=_id):
+            col = self.db['terms']
             myId=self.parse_id(_id)
             myquery = { "_id": myId }
             a= col.delete_one(myquery)
@@ -185,4 +292,22 @@ class Mongo_Handler:
             return str(x.modified_count)
         else:
             return print('Can not update the policy, it does not exist')
+
+    def update_term(self, _id, dict_data):
+        '''
+        Find the resource in the database by id, add or modify the changed values for the resource.
+        '''
+        col = self.db['terms']
+        myid = self.parse_id(_id)
+        if self.term_exists(_id=_id):
+            myquery= {'_id': myid}
+            new_val= {"$set": dict_data}
+            x = col.update_many(myquery, new_val)
+            if x.modified_count == 1:
+                return 'Updated'
+            elif x.modified_count == 0:
+                return 'No changes made'
+            return str(x.modified_count)
+        else:
+            return "Can not update the term & condition, it does not exist"
              

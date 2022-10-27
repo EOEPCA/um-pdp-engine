@@ -19,6 +19,7 @@ The main functionality of the PDP is to be able to perform complex Policy Decisi
 ** OIDC Client, allowing to authenticate the component as trusted within the architecture.
 ** Resource API Client, allowing to retrieve details about the resources being accessed.
 * Policy Repository Management. An exposed API allowing to register and/or query policies assigned to specific resources.
+* Terms & Conditions Management. An API to allow registering terms and conditions.
 
 === Initialization flow
 
@@ -32,6 +33,7 @@ When launched, the PDP will answer to all requests to 2 specific paths:
 . Policy Management (/policy/ and /policy/<policy_id or ObjectId(policy_id)>): To perform operations like GET/UPDATE/DELETE policies
 . Policy Access Check (/policy/validate): to check the policy access to a resource using a xacml from the request
 The requests should be accompained by an "Authorization: Bearer <valid_RPT>" for all endpoints except for the de /validate
+. Terms & Conditions management (/terms and /terms/<ObjectID(terms_id)>): performs GET/PUT/DELETE operations
 
 Examples, given the example values of:
 - path configured: "/pdp"
@@ -67,6 +69,11 @@ For the function of parse XACML requests to get a decision about the access to a
 
 The PDP queries the corresponding PDP to retrieve information about a policy.
 For this case we can use the `/policy/<policy_id or ObjectId(policy_id)>` to do all the operations related to insert, get, update and delete policies.
+
+==== Terms & Conditions API (to Policy Decision Point)
+
+PDP will create/update/delete a certain term & condition.
+For this case we can use the `/terms/ or /terms/ObjectId(terms_id)>` to do all the operations related to insert, get, update and delete terms.
 
 === Consumed Interfaces
 
