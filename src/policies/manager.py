@@ -1,12 +1,52 @@
 import json
 
 from flask import Blueprint, request, Response
-
+from policies import validator
 from policies.policies_operations import validate_policy_language
 from policy_storage import Policy_Storage
+import logging
 
 def policy_manager_bp(oidc_client):
-    policy_manager_bp = Blueprint('policy_manager_bp', __name__)
+    policy_manager_bp = Blueprint('policy_manager_bp', __name__)    
+
+    @policy_manager_bp.route('/acceptance_validation/', methods=["GET"])
+    def validate_TC():
+        print("Processing " + request.method + " policy request...")
+        response = Response()
+        uid= None
+        try:
+            a = str(request.headers)
+            headers_alone = a.split()
+            inputToken = None
+            for i in headers_alone:
+                #Retrieve the token from the headers
+                if 'Bearer' in str(i):
+                    aux=headers_alone.index('Bearer')
+                    inputToken = headers_alone[aux+1]           
+            token = inputToken
+            #Authorized
+            if token and request.get_json():
+                data = request.get_json()
+                #Decision values: True, False
+                decision = validator.return_terms_decision(oidc_client, token, data.get("resource_id"))
+                if decision == True:
+                    response.status_code = 200
+                    response.text = str(decision)
+                else: 
+                    response.status_code = 403
+                    response.headers["Error"] = "Forbidden Resource " + str(data.get("resource_id"))
+                return response
+            #No Authorized
+            else:
+                response.status_code = 401
+                response.headers["Error"] = "NO TOKEN FOUND OR NOT RESOURCE IN DATA: "+ str(token) +" and "+ str(request.get_json())
+                return response
+                
+        except Exception as e:
+            print("Error While passing the token: "+str(uid))
+            response.status_code = 500
+            response.headers["Error"] = str(e)
+            return response
 
 
     @policy_manager_bp.route("/policy/", methods=["PUT", "POST", "GET"])
