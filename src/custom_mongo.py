@@ -2,6 +2,11 @@
 import pymongo
 import json
 from bson.objectid import ObjectId
+from handlers.log_handler import LogHandler
+import logging
+log_handler = LogHandler
+log_handler.load_config("PDP", "./config/log_config.yaml")
+logger = logging.getLogger("PDP_ENGINE")
 
 class Mongo_Handler:
 
@@ -269,11 +274,22 @@ class Mongo_Handler:
             Check the existence of the resource inside the database
             And deletes the document
         '''
-        if self.term_exists(_id=_id):
+        logger.info("deleting term")
+        print("delting term")
+        if self.term_exists(term_id=_id):
+            logger.info("exists")
+            col = self.db['terms']
+            myquery = { "term_id": _id }
+            a= col.delete_one(myquery)
+        elif self.term_exists(_id=_id):
+            logger.info("exists")
             col = self.db['terms']
             myId=self.parse_id(_id)
             myquery = { "_id": myId }
             a= col.delete_one(myquery)
+        else:
+            pass
+            
     
     def update_policy(self, _id, dict_data):
         '''
