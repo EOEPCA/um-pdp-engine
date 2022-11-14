@@ -127,12 +127,7 @@ def validate_resource():
             if result_validation:
                 break
     else:
-        for k in handler_user_attributes:
-            if "Condition" in str(handler_user_attributes[k]):
-                if validate_terms_and_conditions(resource_id, handler_user_attributes[k]):
-                    decisions = policies_operations.validate_complete_policies(resource_id, action, handler_user_attributes)
-                break
-            decisions[0] = [False, None]
+        decisions = policies_operations.validate_complete_policies(resource_id, action, handler_user_attributes)
 
     resp, status = response_handler.generate_response(decisions, subject.attributes, action_rsrc.attributes, resource.attributes, request.base_url)
     

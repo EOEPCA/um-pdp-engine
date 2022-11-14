@@ -59,11 +59,24 @@ def validate_complete_policies(resource_id, action, dict_request_values):
     if isinstance(data, list):
         for i in range(0, len(data)):
             try:
-                if data[i]['config']['resource_id'] == resource_id and data[i]['config']['action'] == action and "delegate" not in data[i]['config']:
-                    result = validate_all_acces_policies(data[i]['config']['rules'], dict_request_values)
-                    decisions[i] = [result, None]
-                elif "delegate" in data[i]['config']:
-                    decisions[i] = [None, data[i]['config']['delegate']]
+                if len(data[i]['config']['T&C'])>0:
+                    
+                    for p in data[i]['config']['T&C']:
+                        if p in str(dict_request_values):
+                            if data[i]['config']['resource_id'] == resource_id and data[i]['config']['action'] == action and "delegate" not in data[i]['config']:
+                                result = validate_all_acces_policies(data[i]['config']['rules'], dict_request_values)
+                                decisions[i] = [result, None]
+                            elif "delegate" in data[i]['config']:
+                                decisions[i] = [None, data[i]['config']['delegate']]
+                        else:
+                            decisions[i] = [False, None]
+                            break
+                else:
+                    if data[i]['config']['resource_id'] == resource_id and data[i]['config']['action'] == action and "delegate" not in data[i]['config']:
+                        result = validate_all_acces_policies(data[i]['config']['rules'], dict_request_values)
+                        decisions[i] = [result, None]
+                    elif "delegate" in data[i]['config']:
+                        decisions[i] = [None, data[i]['config']['delegate']]
             except KeyError:
                 decisions[i] = [False, None]
     if len(decisions) == 0:
