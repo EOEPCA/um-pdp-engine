@@ -20,7 +20,8 @@ import logging
 from handlers.log_handler import LogHandler
 
 log_handler = LogHandler
-log_handler.load_config("PDP", "./config/log_config.yaml")
+dir_path = os.path.dirname(os.path.realpath(__file__))
+log_handler.load_config("PDP", dir_path+"/config/log_config.yaml")
 logger = logging.getLogger("PDP_ENGINE")
 
 
@@ -95,7 +96,7 @@ app.secret_key = ''.join(choice(ascii_lowercase) for i in range(30)) # Random ke
 # SWAGGER initiation
 SWAGGER_URL = '/swagger-ui'  # URL for exposing Swagger UI (without trailing '/')
 API_URL = "" # Our local swagger resource for PDP. Not used here as 'spec' parameter is used in config
-SWAGGER_SPEC = json.load(open("./static/swagger_pdp_ui.json"))
+SWAGGER_SPEC = json.load(open(dir_path+"./static/swagger_pdp_ui.json"))
 SWAGGER_APP_NAME = "Policy Decision Point Interfaces"
 
 swaggerui_blueprint = get_swaggerui_blueprint(
