@@ -9,7 +9,7 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   tls: 
-   - secretName: tls-certificate
+   - secretName: tls-certificate-pdp
      hosts:
        - demoexample.gluu.org
   rules:
