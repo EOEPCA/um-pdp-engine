@@ -12,7 +12,7 @@ wcwidth==0.1.8
 zipp==3.1.0
 requests
 pymongo
-Flask==1.1.2
+Flask==2.3.2
 mock
 jsonschema
 WellKnownHandler==0.2.0
