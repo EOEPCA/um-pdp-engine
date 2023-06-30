@@ -3,12 +3,12 @@ kind: ConfigMap
 metadata:
   name: {{ .Values.global.pdp }}-cm
 data:
-  PDP_AUTH_SERVER_URL: http://{{ .Values.global.domain | quote }}
+  PDP_AUTH_SERVER_URL: http://{{ .Values.global.domain }}
   PDP_PREFIX: {{ .Values.global.prefix | quote }}
   PDP_HOST: {{ .Values.global.host | quote }}
   PDP_PORT: {{ .Values.global.port | quote }}
-  PDP_CHECK_SSL_CERTS: {{ .Values.configMap.check_ssl_certs | quote }}
-  PDP_DEBUG_MODE: {{ .Values.configMap.debug_mode | quote }}
+  PDP_CHECK_SSL_CERTS: {{ .Values.configMap.check_ssl_certs }}
+  PDP_DEBUG_MODE: {{ .Values.configMap.debug_mode }}
   tls_generator.py: "from pprint import pprint\nfrom kubernetes import config, client\nimport
     logging\n\n#use the serviceAccount k8s gives to pods\nconfig.load_incluster_config()
     \nv1 = client.CoreV1Api()\n\n#global vars\nname = \"pdp-tls-certificate\"\nnamespace
