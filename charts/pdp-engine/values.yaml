@@ -21,8 +21,8 @@ ports:
     type: TCP
 
 configMap:
-  check_ssl_certs: "'false'"
-  debug_mode: "'true'"
+  check_ssl_certs: false
+  debug_mode: true
 
 readinessProbe:
   initialDelaySeconds: 1
