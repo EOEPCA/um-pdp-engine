@@ -21,8 +21,8 @@ ports:
     type: TCP
 
 configMap:
-  check_ssl_certs: false
-  debug_mode: true
+  check_ssl_certs: "'false'"
+  debug_mode: "'true'"
 
 readinessProbe:
   initialDelaySeconds: 1
@@ -38,9 +38,9 @@ requests:
   dbMemory: 70Mi
 
 image: 
-  imagePullPolicy: Always
-  image: eoepca/um-pdp-engine:v1.0
-persistence: 
+  image: um-pdp-engine
+  imagePullPolicy: IfNotPresent
+persistence:
   accessModes: ReadWriteMany
   dbStorageSize: 5Gi
   type: DirectoryOrCreate
