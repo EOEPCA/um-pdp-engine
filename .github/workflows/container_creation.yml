@@ -14,9 +14,11 @@ env:
   REGISTRY: ghcr.io
   # github.repository as <account>/<repo>
   IMAGE_NAME: ${{ github.repository }}
+  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
 jobs:
   build:
-
     runs-on: ubuntu-20.04
     permissions:
       contents: read
@@ -66,7 +68,7 @@ jobs:
       - name: Setup Python 3.6.9
         uses: actions/setup-python@v2
         with:
-          python-version: 3.6.9
+          python-version: "3.6.9"
       # Runs a set of commands using the runners shell
       - name: Testing
         run: |
@@ -100,8 +102,8 @@ jobs:
         # against the sigstore community Fulcio instance.
         run: echo "${{ steps.meta.outputs.tags }}" | xargs -I {} cosign sign {}@${{ steps.build-and-push.outputs.digest }}
 
-      # Comment below if wanted Dockerhub Publication
-      - name: Container Creation and Publishing
+      # Uncomment below if wanted Dockerhub Publication
+      - name: Build image
         run: ./gh_actions/containerCreation.sh um-pdp-engine
       - name: Smoke and Acceptance Test
         run: ./gh_actions/acceptanceTest.sh um-pdp-engine 8080 7000
