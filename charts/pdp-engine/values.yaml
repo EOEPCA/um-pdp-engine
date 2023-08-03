@@ -38,7 +38,7 @@ requests:
   dbMemory: 70Mi
 
 image: 
-  image: ghcr.io/eoepca/um-pdp-engine
+  image: um-pdp-engine
   imagePullPolicy: IfNotPresent
 persistence:
   accessModes: ReadWriteMany

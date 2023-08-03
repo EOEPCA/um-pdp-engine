@@ -99,3 +99,12 @@ jobs:
         # This step uses the identity token to provision an ephemeral certificate
         # against the sigstore community Fulcio instance.
         run: echo "${{ steps.meta.outputs.tags }}" | xargs -I {} cosign sign {}@${{ steps.build-and-push.outputs.digest }}
+
+      # Comment below if wanted Dockerhub Publication
+      - name: Container Creation and Publishing
+        run: ./gh_actions/containerCreation.sh um-pdp-engine
+      - name: Smoke and Acceptance Test
+        run: ./gh_actions/acceptanceTest.sh um-pdp-engine 8080 7000
+      - name: Release Container
+        if: github.ref == 'refs/heads/master' && github.event != 'pull_request'
+        run: ./gh_actions/release.sh um-pdp-engine
