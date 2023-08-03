@@ -108,5 +108,5 @@ jobs:
       - name: Smoke and Acceptance Test
         run: ./gh_actions/acceptanceTest.sh um-pdp-engine 8080 7000
       - name: Release Container
-        if: github.ref == 'refs/heads/master' && github.event != 'pull_request'
-        run: ./gh_actions/release.sh um-pdp-engine
+        if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
+        run: ./gh_actions/release.sh um-pdp-engine ${{ steps.metadata.outputs.tags }}
