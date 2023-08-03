@@ -104,9 +104,9 @@ jobs:
 
       # Uncomment below if wanted Dockerhub Publication
       - name: Build image
-        run: ./gh_actions/containerCreation.sh um-pdp-engine ${{ steps.metadata.outputs.tags }}
+        run: ./gh_actions/containerCreation.sh um-pdp-engine "${{ steps.metadata.outputs.tags }}"
       - name: Smoke and Acceptance Test
-        run: ./gh_actions/acceptanceTest.sh um-pdp-engine 8080 7000 ${{ steps.metadata.outputs.tags }}
+        run: ./gh_actions/acceptanceTest.sh um-pdp-engine 8080 7000 "${{ steps.metadata.outputs.tags }}"
       - name: Release Container
         if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
-        run: ./gh_actions/release.sh um-pdp-engine ${{ steps.metadata.outputs.tags }}
+        run: ./gh_actions/release.sh um-pdp-engine "${{ steps.metadata.outputs.tags }}"
